@@ -35,4 +35,20 @@ Promise.all([
         format: 'esm',
         outfile: 'dist/squire.mjs',
     }),
+    esbuild.build({
+        entryPoints: ['source/MavenEditor.ts'],
+        bundle: true,
+        target: 'es6',
+        format: 'iife',
+        outfile: 'dist/maven-editor-raw.js',
+    }),
+    esbuild.build({
+        entryPoints: ['source/MavenEditor.ts'],
+        bundle: true,
+        minify: true,
+        sourcemap: 'linked',
+        target: 'es6',
+        format: 'iife',
+        outfile: 'dist/maven-editor.js',
+    }),
 ]).catch(() => process.exit(1));

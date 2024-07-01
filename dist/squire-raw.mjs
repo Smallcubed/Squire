@@ -331,6 +331,7 @@ var isNodeContainedInRange = (range, node, partial) => {
 };
 var moveRangeBoundariesDownTree = (range) => {
   let { startContainer, startOffset, endContainer, endOffset } = range;
+  let wasCollapsed = range.collapsed;
   while (!(startContainer instanceof Text)) {
     let child = startContainer.childNodes[startOffset];
     if (!child || isLeaf(child)) {
@@ -352,30 +353,34 @@ var moveRangeBoundariesDownTree = (range) => {
     startContainer = child;
     startOffset = 0;
   }
-  if (endOffset) {
-    while (!(endContainer instanceof Text)) {
-      const child = endContainer.childNodes[endOffset - 1];
-      if (!child || isLeaf(child)) {
-        if (child && child.nodeName === "BR" && !isLineBreak(child, false)) {
-          endOffset -= 1;
-          continue;
-        }
-        break;
-      }
-      endContainer = child;
-      endOffset = getLength(endContainer);
-    }
-  } else {
-    while (!(endContainer instanceof Text)) {
-      const child = endContainer.firstChild;
-      if (!child || isLeaf(child)) {
-        break;
-      }
-      endContainer = child;
-    }
-  }
   range.setStart(startContainer, startOffset);
-  range.setEnd(endContainer, endOffset);
+  if (wasCollapsed) {
+    range.collapse();
+  } else {
+    if (endOffset) {
+      while (!(endContainer instanceof Text)) {
+        const child = endContainer.childNodes[endOffset - 1];
+        if (!child || isLeaf(child)) {
+          if (child && child.nodeName === "BR" && !isLineBreak(child, false)) {
+            endOffset -= 1;
+            continue;
+          }
+          break;
+        }
+        endContainer = child;
+        endOffset = getLength(endContainer);
+      }
+    } else {
+      while (!(endContainer instanceof Text)) {
+        const child = endContainer.firstChild;
+        if (!child || isLeaf(child)) {
+          break;
+        }
+        endContainer = child;
+      }
+    }
+    range.setEnd(endContainer, endOffset);
+  }
 };
 var moveRangeBoundariesUpTree = (range, startMax, endMax, root) => {
   let startContainer = range.startContainer;
@@ -800,7 +805,7 @@ var stylesRewriters = {
     return el;
   }
 };
-var allowedBlock = /^(?:A(?:DDRESS|RTICLE|SIDE|UDIO)|BLOCKQUOTE|CAPTION|D(?:[DLT]|IV)|F(?:IGURE|IGCAPTION|OOTER)|H[1-6]|HEADER|L(?:ABEL|EGEND|I)|O(?:L|UTPUT)|P(?:RE)?|SECTION|T(?:ABLE|BODY|D|FOOT|H|HEAD|R)|COL(?:GROUP)?|UL)$/;
+var allowedBlock = /^(?:A(?:DDRESS|RTICLE|SIDE|UDIO)|BLOCKQUOTE|CAPTION|D(?:[DLT]|IV)|F(?:IGURE|IGCAPTION|OOTER)|H[1-6]|HEADER|L(?:ABEL|EGEND|I)|O(?:L|UTPUT)|P(?:RE)?|S(?:ECTION|OURCE)|T(?:ABLE|BODY|D|FOOT|H|HEAD|R)|COL(?:GROUP)?|UL|VIDEO)$/;
 var blacklist = /^(?:HEAD|META|STYLE)/;
 var cleanTree = (node, config, preserveWS) => {
   const children = node.childNodes;

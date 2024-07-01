@@ -1,101 +1,5 @@
 "use strict";
 (() => {
-  // source/node/TreeIterator.ts
-  var SHOW_ELEMENT = 1;
-  var SHOW_TEXT = 4;
-  var SHOW_ELEMENT_OR_TEXT = 5;
-  var always = () => true;
-  var TreeIterator = class {
-    constructor(root, nodeType, filter) {
-      this.root = root;
-      this.currentNode = root;
-      this.nodeType = nodeType;
-      this.filter = filter || always;
-    }
-    isAcceptableNode(node) {
-      const nodeType = node.nodeType;
-      const nodeFilterType = nodeType === Node.ELEMENT_NODE ? SHOW_ELEMENT : nodeType === Node.TEXT_NODE ? SHOW_TEXT : 0;
-      return !!(nodeFilterType & this.nodeType) && this.filter(node);
-    }
-    nextNode() {
-      const root = this.root;
-      let current = this.currentNode;
-      let node;
-      while (true) {
-        node = current.firstChild;
-        while (!node && current) {
-          if (current === root) {
-            break;
-          }
-          node = current.nextSibling;
-          if (!node) {
-            current = current.parentNode;
-          }
-        }
-        if (!node) {
-          return null;
-        }
-        if (this.isAcceptableNode(node)) {
-          this.currentNode = node;
-          return node;
-        }
-        current = node;
-      }
-    }
-    previousNode() {
-      const root = this.root;
-      let current = this.currentNode;
-      let node;
-      while (true) {
-        if (current === root) {
-          return null;
-        }
-        node = current.previousSibling;
-        if (node) {
-          while (current = node.lastChild) {
-            node = current;
-          }
-        } else {
-          node = current.parentNode;
-        }
-        if (!node) {
-          return null;
-        }
-        if (this.isAcceptableNode(node)) {
-          this.currentNode = node;
-          return node;
-        }
-        current = node;
-      }
-    }
-    // Previous node in post-order.
-    previousPONode() {
-      const root = this.root;
-      let current = this.currentNode;
-      let node;
-      while (true) {
-        node = current.lastChild;
-        while (!node && current) {
-          if (current === root) {
-            break;
-          }
-          node = current.previousSibling;
-          if (!node) {
-            current = current.parentNode;
-          }
-        }
-        if (!node) {
-          return null;
-        }
-        if (this.isAcceptableNode(node)) {
-          this.currentNode = node;
-          return node;
-        }
-        current = node;
-      }
-    }
-  };
-
   // source/Constants.ts
   var ELEMENT_NODE = 1;
   var TEXT_NODE = 3;
@@ -263,6 +167,102 @@
     const parent = node.parentNode;
     if (parent) {
       parent.replaceChild(node2, node);
+    }
+  };
+
+  // source/node/TreeIterator.ts
+  var SHOW_ELEMENT = 1;
+  var SHOW_TEXT = 4;
+  var SHOW_ELEMENT_OR_TEXT = 5;
+  var always = () => true;
+  var TreeIterator = class {
+    constructor(root, nodeType, filter) {
+      this.root = root;
+      this.currentNode = root;
+      this.nodeType = nodeType;
+      this.filter = filter || always;
+    }
+    isAcceptableNode(node) {
+      const nodeType = node.nodeType;
+      const nodeFilterType = nodeType === Node.ELEMENT_NODE ? SHOW_ELEMENT : nodeType === Node.TEXT_NODE ? SHOW_TEXT : 0;
+      return !!(nodeFilterType & this.nodeType) && this.filter(node);
+    }
+    nextNode() {
+      const root = this.root;
+      let current = this.currentNode;
+      let node;
+      while (true) {
+        node = current.firstChild;
+        while (!node && current) {
+          if (current === root) {
+            break;
+          }
+          node = current.nextSibling;
+          if (!node) {
+            current = current.parentNode;
+          }
+        }
+        if (!node) {
+          return null;
+        }
+        if (this.isAcceptableNode(node)) {
+          this.currentNode = node;
+          return node;
+        }
+        current = node;
+      }
+    }
+    previousNode() {
+      const root = this.root;
+      let current = this.currentNode;
+      let node;
+      while (true) {
+        if (current === root) {
+          return null;
+        }
+        node = current.previousSibling;
+        if (node) {
+          while (current = node.lastChild) {
+            node = current;
+          }
+        } else {
+          node = current.parentNode;
+        }
+        if (!node) {
+          return null;
+        }
+        if (this.isAcceptableNode(node)) {
+          this.currentNode = node;
+          return node;
+        }
+        current = node;
+      }
+    }
+    // Previous node in post-order.
+    previousPONode() {
+      const root = this.root;
+      let current = this.currentNode;
+      let node;
+      while (true) {
+        node = current.lastChild;
+        while (!node && current) {
+          if (current === root) {
+            break;
+          }
+          node = current.previousSibling;
+          if (!node) {
+            current = current.parentNode;
+          }
+        }
+        if (!node) {
+          return null;
+        }
+        if (this.isAcceptableNode(node)) {
+          this.currentNode = node;
+          return node;
+        }
+        current = node;
+      }
     }
   };
 
@@ -1134,12 +1134,11 @@
       frag.appendChild(node);
       node = next;
     }
-    node = endContainer && endContainer.previousSibling;
-    if (node && node instanceof Text && endContainer instanceof Text) {
-      endOffset = node.length;
-      node.appendData(endContainer.data);
+    if (startContainer instanceof Text && endContainer instanceof Text) {
+      startContainer.appendData(endContainer.data);
       detach(endContainer);
-      endContainer = node;
+      endContainer = startContainer;
+      endOffset = startOffset;
     }
     range.setStart(startContainer, startOffset);
     if (endContainer) {
@@ -1421,7 +1420,6 @@
       text = text.replace(/\r?\n/g, "\r\n");
     }
     if (!plainTextOnly && html && text !== html) {
-      html = "<!-- squire -->" + html;
       clipboardData.setData("text/html", html);
     }
     clipboardData.setData("text/plain", text);
@@ -1916,10 +1914,6 @@
     }
     let key = event.key;
     let modifiers = "";
-    const code = event.code;
-    if (/^Digit\d$/.test(code)) {
-      key = code.slice(-1);
-    }
     if (key !== "Backspace" && key !== "Delete") {
       if (event.altKey) {
         modifiers += "Alt-";
@@ -2055,10 +2049,7 @@
     event.preventDefault();
     self.undo();
   };
-  keyHandlers[ctrlKey + "y"] = // Depending on platform, the Shift may cause the key to come through as
-  // upper case, but sometimes not. Just add both as shortcuts — the browser
-  // will only ever fire one or the other.
-  keyHandlers[ctrlKey + "Shift-z"] = keyHandlers[ctrlKey + "Shift-Z"] = (self, event) => {
+  keyHandlers[ctrlKey + "y"] = keyHandlers[ctrlKey + "Shift-z"] = (self, event) => {
     event.preventDefault();
     self.redo();
   };
@@ -2160,7 +2151,6 @@
       this.addEventListener("mousedown", this._disableRestoreSelection);
       this.addEventListener("touchstart", this._disableRestoreSelection);
       this.addEventListener("focus", this._restoreSelection);
-      this.addEventListener("blur", this._removeZWS);
       this._isShiftDown = false;
       this.addEventListener("cut", _onCut);
       this.addEventListener("copy", _onCopy);
@@ -2876,7 +2866,6 @@
           const event = new CustomEvent("willPaste", {
             cancelable: true,
             detail: {
-              html,
               fragment: frag
             }
           });
@@ -3031,7 +3020,6 @@
       if (!range) {
         range = this.getSelection();
       }
-      moveRangeBoundariesDownTree(range);
       let seenAttributes = 0;
       let element = range.commonAncestorContainer;
       if (range.collapsed || element instanceof Text) {
@@ -4108,6 +4096,42 @@
     }
   };
 
-  // source/Legacy.ts
-  window.Squire = Squire;
+  // source/MavenEditor.ts
+  var MavenEditor = class extends Squire {
+    constructor(root, config) {
+      super(root, config);
+    }
+    _makeConfig(userConfig) {
+      var config = super._makeConfig(userConfig);
+      const extendedConfig = {
+        avoidSlashyReplacements: true
+      };
+      Object.assign(extendedConfig, config);
+      return extendedConfig;
+    }
+    _beforeInput(event) {
+      switch (event.inputType) {
+        case "insertParagraph":
+          if (this._config.avoidSlashyReplacements) {
+            let range = this.getSelection();
+            if (range.collapsed && range.endContainer.nodeType == Node.TEXT_NODE) {
+              let text = range.endContainer.textContent;
+              let lastWord = text.split(" ").pop();
+              if (lastWord && lastWord.includes("/")) {
+                return;
+              }
+            }
+            event.preventDefault();
+            this.splitBlock(false);
+            return;
+          }
+          break;
+      }
+      super._beforeInput(event);
+    }
+    moveDown(range) {
+      moveRangeBoundariesDownTree(range);
+    }
+  };
+  window.MavenEditor = MavenEditor;
 })();

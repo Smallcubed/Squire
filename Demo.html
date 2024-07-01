@@ -114,7 +114,8 @@ white-space: pre-wrap;word-wrap: break-word;overflow-wrap: break-word;border-rad
   </p>
 </header>
 <div id="editor"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.3/purify.min.js" integrity="sha512-3dcbndbDLLWfKWevQu8C/1qVRcxx6h+eRDSnn3/pcBZHISRJgsj3u71U/Ad6nQVHrEi05hOSr6Hnb/p0pWc94w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.3/purify.min.js" integrity="sha512-3dcbndbDLLWfKWevQu8C/1qVRcxx6h+eRDSnn3/pcBZHISRJgsj3u71U/Ad6nQVHrEi05hOSr6Hnb/p0pWc94w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script-->
+<script src="../DOMPurify/dist/purify.js"></script>
 <script type="text/javascript" src="dist/squire-raw.js"></script>
 <script type="module" charset="utf-8">
   var div = document.getElementById( 'editor' );
@@ -132,7 +133,19 @@ white-space: pre-wrap;word-wrap: break-word;overflow-wrap: break-word;border-rad
           code: {
               style: 'border-radius:3px;border:1px solid #ccc;padding:1px 3px;background:#f6f6f6;font-family:menlo,consolas,monospace;font-size:90%;'
           },
-      }
+      },
+      sanitizeToDOMFragment: (html) => {
+          const frag = DOMPurify.sanitize(html, {
+            
+            ALLOW_UNKNOWN_PROTOCOLS: true,
+            WHOLE_DOCUMENT: false,
+            RETURN_DOM: true,
+            RETURN_DOM_FRAGMENT: true,
+            FORCE_BODY: false
+          });
+          return frag ? document.importNode(frag, true) : document.createDocumentFragment();
+        },
+
   });
 
   editor.addEventListener('pasteImage', function(event) {
