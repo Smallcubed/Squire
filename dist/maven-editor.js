@@ -1134,11 +1134,12 @@
       frag.appendChild(node);
       node = next;
     }
-    if (startContainer instanceof Text && endContainer instanceof Text) {
-      startContainer.appendData(endContainer.data);
+    node = endContainer && endContainer.previousSibling;
+    if (node && node instanceof Text && endContainer instanceof Text) {
+      endOffset = node.length;
+      node.appendData(endContainer.data);
       detach(endContainer);
-      endContainer = startContainer;
-      endOffset = startOffset;
+      endContainer = node;
     }
     range.setStart(startContainer, startOffset);
     if (endContainer) {
@@ -1420,6 +1421,7 @@
       text = text.replace(/\r?\n/g, "\r\n");
     }
     if (!plainTextOnly && html && text !== html) {
+      html = "<!-- squire -->" + html;
       clipboardData.setData("text/html", html);
     }
     clipboardData.setData("text/plain", text);
@@ -1914,6 +1916,10 @@
     }
     let key = event.key;
     let modifiers = "";
+    const code = event.code;
+    if (/^Digit\d$/.test(code)) {
+      key = code.slice(-1);
+    }
     if (key !== "Backspace" && key !== "Delete") {
       if (event.altKey) {
         modifiers += "Alt-";
@@ -2049,7 +2055,10 @@
     event.preventDefault();
     self.undo();
   };
-  keyHandlers[ctrlKey + "y"] = keyHandlers[ctrlKey + "Shift-z"] = (self, event) => {
+  keyHandlers[ctrlKey + "y"] = // Depending on platform, the Shift may cause the key to come through as
+  // upper case, but sometimes not. Just add both as shortcuts — the browser
+  // will only ever fire one or the other.
+  keyHandlers[ctrlKey + "Shift-z"] = keyHandlers[ctrlKey + "Shift-Z"] = (self, event) => {
     event.preventDefault();
     self.redo();
   };
@@ -2151,6 +2160,7 @@
       this.addEventListener("mousedown", this._disableRestoreSelection);
       this.addEventListener("touchstart", this._disableRestoreSelection);
       this.addEventListener("focus", this._restoreSelection);
+      this.addEventListener("blur", this._removeZWS);
       this._isShiftDown = false;
       this.addEventListener("cut", _onCut);
       this.addEventListener("copy", _onCopy);
@@ -2866,6 +2876,7 @@
           const event = new CustomEvent("willPaste", {
             cancelable: true,
             detail: {
+              html,
               fragment: frag
             }
           });
@@ -3020,6 +3031,7 @@
       if (!range) {
         range = this.getSelection();
       }
+      moveRangeBoundariesDownTree(range);
       let seenAttributes = 0;
       let element = range.commonAncestorContainer;
       if (range.collapsed || element instanceof Text) {
