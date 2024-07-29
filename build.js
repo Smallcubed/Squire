@@ -40,7 +40,7 @@ Promise.all([
         bundle: true,
         target: 'es6',
         format: 'iife',
-        outfile: 'dist/maven-editor-raw.js',
+        outfile: 'dist/maven-editor.js',
     }),
     esbuild.build({
         entryPoints: ['source/MavenEditor.ts'],
@@ -49,6 +49,6 @@ Promise.all([
         sourcemap: 'linked',
         target: 'es6',
         format: 'iife',
-        outfile: 'dist/maven-editor.js',
+        outfile: 'dist/maven-editor-mini.js',
     }),
 ]).catch(() => process.exit(1));

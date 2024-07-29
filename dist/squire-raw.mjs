@@ -3103,7 +3103,7 @@ var Squire = class {
     }
     return seenNode;
   }
-  changeFormat(add, remove, range, partial) {
+  changeFormat(add, remove, range, partial, ignoreSel) {
     if (!range) {
       range = this.getSelection();
     }
@@ -3123,8 +3123,10 @@ var Squire = class {
         range
       );
     }
-    this.setSelection(range);
-    this._updatePath(range, true);
+    if (!ignoreSel) {
+      this.setSelection(range);
+      this._updatePath(range, true);
+    }
     return this.focus();
   }
   _addFormat(tag, attributes, range) {
@@ -3409,7 +3411,7 @@ var Squire = class {
     );
   }
   setFontSize(size) {
-    const className = this._config.classNames.fontSize;
+    const className = this._config.classNames.fontFamily;
     return this.changeFormat(
       size ? {
         tag: "SPAN",

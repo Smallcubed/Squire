@@ -1,11 +1,4219 @@
-"use strict";(()=>{var y="\u200B",J=navigator.userAgent,de=/Mac OS X/.test(J),fe=/Windows NT/.test(J),_e=/iP(?:ad|hone|od)/.test(J)||de&&!!navigator.maxTouchPoints,xt=/Android/.test(J),He=/Gecko\//.test(J),se=/Edge\//.test(J),st=!se&&/WebKit\//.test(J),B=de||_e?"Meta-":"Ctrl-",oe=st,Pe="onbeforeinput"in document&&"inputType"in new InputEvent("input"),I=/[^ \t\r\n]/;var at=/^(?:#text|A(?:BBR|CRONYM)?|B(?:R|D[IO])?|C(?:ITE|ODE)|D(?:ATA|EL|FN)|EM|FONT|HR|I(?:FRAME|MG|NPUT|NS)?|KBD|Q|R(?:P|T|UBY)|S(?:AMP|MALL|PAN|TR(?:IKE|ONG)|U[BP])?|TIME|U|VAR|WBR)$/,ct=new Set(["BR","HR","IFRAME","IMG","INPUT"]),dt=0,xe=1,Ue=2,qe=3,ue=new WeakMap,We=()=>{ue=new WeakMap},M=o=>ct.has(o.nodeName),be=o=>{switch(o.nodeType){case 3:return xe;case 1:case 11:if(ue.has(o))return ue.get(o);break;default:return dt}let t;return Array.from(o.childNodes).every(N)?at.test(o.nodeName)?t=xe:t=Ue:t=qe,ue.set(o,t),t},N=o=>be(o)===xe,P=o=>be(o)===Ue,X=o=>be(o)===qe;var p=(o,t,e)=>{let n=document.createElement(o);if(t instanceof Array&&(e=t,t=null),t)for(let i in t){let s=t[i];s!==void 0&&n.setAttribute(i,s)}return e&&e.forEach(i=>n.appendChild(i)),n},Le=(o,t)=>M(o)||o.nodeType!==t.nodeType||o.nodeName!==t.nodeName?!1:o instanceof HTMLElement&&t instanceof HTMLElement?o.nodeName!=="A"&&o.className===t.className&&o.style.cssText===t.style.cssText:!0,he=(o,t,e)=>{if(o.nodeName!==t)return!1;for(let n in e)if(!("getAttribute"in o)||o.getAttribute(n)!==e[n])return!1;return!0},g=(o,t,e,n)=>{for(;o&&o!==t;){if(he(o,e,n))return o;o=o.parentNode}return null},me=(o,t)=>{let e=o.childNodes;for(;t&&o instanceof Element;)o=e[t-1],e=o.childNodes,t=e.length;return o},Re=(o,t)=>{let e=o;if(e instanceof Element){let n=e.childNodes;if(t<n.length)e=n[t];else{for(;e&&!e.nextSibling;)e=e.parentNode;e&&(e=e.nextSibling)}}return e},k=o=>o instanceof Element||o instanceof DocumentFragment?o.childNodes.length:o instanceof CharacterData?o.length:0,C=o=>{let t=document.createDocumentFragment(),e=o.firstChild;for(;e;)t.appendChild(e),e=o.firstChild;return t},E=o=>{let t=o.parentNode;return t&&t.removeChild(o),o},R=(o,t)=>{let e=o.parentNode;e&&e.replaceChild(t,o)};var ft=()=>!0,_=class{constructor(t,e,n){this.root=t,this.currentNode=t,this.nodeType=e,this.filter=n||ft}isAcceptableNode(t){let e=t.nodeType;return!!((e===Node.ELEMENT_NODE?1:e===Node.TEXT_NODE?4:0)&this.nodeType)&&this.filter(t)}nextNode(){let t=this.root,e=this.currentNode,n;for(;;){for(n=e.firstChild;!n&&e&&e!==t;)n=e.nextSibling,n||(e=e.parentNode);if(!n)return null;if(this.isAcceptableNode(n))return this.currentNode=n,n;e=n}}previousNode(){let t=this.root,e=this.currentNode,n;for(;;){if(e===t)return null;if(n=e.previousSibling,n)for(;e=n.lastChild;)n=e;else n=e.parentNode;if(!n)return null;if(this.isAcceptableNode(n))return this.currentNode=n,n;e=n}}previousPONode(){let t=this.root,e=this.currentNode,n;for(;;){for(n=e.lastChild;!n&&e&&e!==t;)n=e.previousSibling,n||(e=e.parentNode);if(!n)return null;if(this.isAcceptableNode(n))return this.currentNode=n,n;e=n}}};var ut=o=>o instanceof Element?o.nodeName==="BR":I.test(o.data),ee=(o,t)=>{let e=o.parentNode;for(;N(e);)e=e.parentNode;let n=new _(e,5,ut);return n.currentNode=o,!!n.nextNode()||t&&!n.previousNode()},re=(o,t)=>{let e=new _(o,4),n,i;for(;n=e.nextNode();)for(;(i=n.data.indexOf(y))>-1&&(!t||n.parentNode!==t);)if(n.length===1){let s=n,r=s.parentNode;for(;r&&(r.removeChild(s),e.currentNode=r,!(!N(r)||k(r)));)s=r,r=s.parentNode;break}else n.deleteData(i,1)};var ht=0,mt=1,pt=2,Nt=3,K=(o,t,e)=>{let n=document.createRange();if(n.selectNode(t),e){let i=o.compareBoundaryPoints(Nt,n)>-1,s=o.compareBoundaryPoints(mt,n)<1;return!i&&!s}else{let i=o.compareBoundaryPoints(ht,n)<1,s=o.compareBoundaryPoints(pt,n)>-1;return i&&s}},T=o=>{let{startContainer:t,startOffset:e,endContainer:n,endOffset:i}=o,s=o.collapsed;for(;!(t instanceof Text);){let r=t.childNodes[e];if(!r||M(r)){if(e&&(r=t.childNodes[e-1],r instanceof Text)){let l=r,a;for(;!l.length&&(a=l.previousSibling)&&a instanceof Text;)l.remove(),l=a;t=l,e=l.data.length}break}t=r,e=0}if(o.setStart(t,e),s)o.collapse();else{if(i)for(;!(n instanceof Text);){let r=n.childNodes[i-1];if(!r||M(r)){if(r&&r.nodeName==="BR"&&!ee(r,!1)){i-=1;continue}break}n=r,i=k(n)}else for(;!(n instanceof Text);){let r=n.firstChild;if(!r||M(r))break;n=r}o.setEnd(n,i)}},q=(o,t,e,n)=>{let i=o.startContainer,s=o.startOffset,r=o.endContainer,l=o.endOffset,a;for(t||(t=o.commonAncestorContainer),e||(e=t);!s&&i!==t&&i!==n;)a=i.parentNode,s=Array.from(a.childNodes).indexOf(i),i=a;for(;!(r===e||r===n||(r.nodeType!==3&&r.childNodes[l]&&r.childNodes[l].nodeName==="BR"&&!ee(r.childNodes[l],!1)&&(l+=1),l!==k(r)));)a=r.parentNode,l=Array.from(a.childNodes).indexOf(r)+1,r=a;o.setStart(i,s),o.setEnd(r,l)},Oe=(o,t,e)=>{let n=g(o.endContainer,e,t);if(n&&(n=n.parentNode)){let i=o.cloneRange();q(i,n,n,e),i.endContainer===n&&(o.setStart(i.endContainer,i.endOffset),o.setEnd(i.endContainer,i.endOffset))}return o};var x=o=>{let t=null;if(o instanceof Text)return o;if(N(o)){let e=o.firstChild;if(oe)for(;e&&e instanceof Text&&!e.data;)o.removeChild(e),e=o.firstChild;e||(oe?t=document.createTextNode(y):t=document.createTextNode(""))}else if((o instanceof Element||o instanceof DocumentFragment)&&!o.querySelector("BR")){t=p("BR");let e=o,n;for(;(n=e.lastElementChild)&&!N(n);)e=n;o=e}if(t)try{o.appendChild(t)}catch(e){}return o},D=(o,t)=>{let e=null;return Array.from(o.childNodes).forEach(n=>{let i=n.nodeName==="BR";!i&&N(n)?(e||(e=p("DIV")),e.appendChild(n)):(i||e)&&(e||(e=p("DIV")),x(e),i?o.replaceChild(e,n):o.insertBefore(e,n),e=null),X(n)&&D(n,t)}),e&&o.appendChild(x(e)),o},w=(o,t,e,n)=>{if(o instanceof Text&&o!==e){if(typeof t!="number")throw new Error("Offset must be a number to split text node!");if(!o.parentNode)throw new Error("Cannot split text node with no parent!");return w(o.parentNode,o.splitText(t),e,n)}let i=typeof t=="number"?t<o.childNodes.length?o.childNodes[t]:null:t,s=o.parentNode;if(!s||o===e||!(o instanceof Element))return i;let r=o.cloneNode(!1);for(;i;){let l=i.nextSibling;r.appendChild(i),i=l}return o instanceof HTMLOListElement&&g(o,n,"BLOCKQUOTE")&&(r.start=(+o.start||1)+o.childNodes.length-1),x(o),x(r),s.insertBefore(r,o.nextSibling),w(s,r,e,n)},Ke=(o,t)=>{let e=o.childNodes,n=e.length,i=[];for(;n--;){let s=e[n],r=n?e[n-1]:null;if(r&&N(s)&&Le(s,r))t.startContainer===s&&(t.startContainer=r,t.startOffset+=k(r)),t.endContainer===s&&(t.endContainer=r,t.endOffset+=k(r)),t.startContainer===o&&(t.startOffset>n?t.startOffset-=1:t.startOffset===n&&(t.startContainer=r,t.startOffset=k(r))),t.endContainer===o&&(t.endOffset>n?t.endOffset-=1:t.endOffset===n&&(t.endContainer=r,t.endOffset=k(r))),E(s),s instanceof Text?r.appendData(s.data):i.push(C(s));else if(s instanceof Element){let l;for(;l=i.pop();)s.appendChild(l);Ke(s,t)}}},te=(o,t)=>{let e=o instanceof Text?o.parentNode:o;if(e instanceof Element){let n={startContainer:t.startContainer,startOffset:t.startOffset,endContainer:t.endContainer,endOffset:t.endOffset};Ke(e,n),t.setStart(n.startContainer,n.startOffset),t.setEnd(n.endContainer,n.endOffset)}},Y=(o,t,e,n)=>{let i=t,s,r;for(;(s=i.parentNode)&&s!==n&&s instanceof Element&&s.childNodes.length===1;)i=s;E(i),r=o.childNodes.length;let l=o.lastChild;l&&l.nodeName==="BR"&&(o.removeChild(l),r-=1),o.appendChild(C(t)),e.setStart(o,r),e.collapse(!0),te(o,e)},F=(o,t)=>{let e=o.previousSibling,n=o.firstChild,i=o.nodeName==="LI";if(!(i&&(!n||!/^[OU]L$/.test(n.nodeName)))){if(e&&Le(e,o)){if(!X(e))if(i){let r=p("DIV");r.appendChild(C(e)),e.appendChild(r)}else return;E(o);let s=!X(o);e.appendChild(C(o)),s&&D(e,t),n&&F(n,t)}else if(i){let s=p("DIV");o.insertBefore(s,n),x(s)}}};var ze={"font-weight":{regexp:/^bold|^700/i,replace(){return p("B")}},"font-style":{regexp:/^italic/i,replace(){return p("I")}},"font-family":{regexp:I,replace(o,t){return p("SPAN",{class:o.fontFamily,style:"font-family:"+t})}},"font-size":{regexp:I,replace(o,t){return p("SPAN",{class:o.fontSize,style:"font-size:"+t})}},"text-decoration":{regexp:/^underline/i,replace(){return p("U")}}},gt=(o,t,e)=>{let n=o.style,i,s;for(let r in ze){let l=ze[r],a=n.getPropertyValue(r);if(a&&l.regexp.test(a)){let d=l.replace(e.classNames,a);if(d.nodeName===o.nodeName&&d.className===o.className)continue;s||(s=d),i&&i.appendChild(d),i=d,o.style.removeProperty(r)}}return s&&i&&(i.appendChild(C(o)),o.style.cssText?o.appendChild(s):R(o,s)),i||o},pe=o=>(t,e)=>{let n=p(o),i=t.attributes;for(let s=0,r=i.length;s<r;s+=1){let l=i[s];n.setAttribute(l.name,l.value)}return e.replaceChild(n,t),n.appendChild(C(t)),n},St={1:"10",2:"13",3:"16",4:"18",5:"24",6:"32",7:"48"},Et={STRONG:pe("B"),EM:pe("I"),INS:pe("U"),STRIKE:pe("S"),SPAN:gt,FONT:(o,t,e)=>{let n=o,i=n.face,s=n.size,r=n.color,l=e.classNames,a,d,c,f,u;return i&&(a=p("SPAN",{class:l.fontFamily,style:"font-family:"+i}),u=a,f=a),s&&(d=p("SPAN",{class:l.fontSize,style:"font-size:"+St[s]+"px"}),u||(u=d),f&&f.appendChild(d),f=d),r&&/^#?([\dA-F]{3}){1,2}$/i.test(r)&&(r.charAt(0)!=="#"&&(r="#"+r),c=p("SPAN",{class:l.color,style:"color:"+r}),u||(u=c),f&&f.appendChild(c),f=c),(!u||!f)&&(u=f=p("SPAN")),t.replaceChild(u,n),f.appendChild(C(n)),f},TT:(o,t,e)=>{let n=p("SPAN",{class:e.classNames.fontFamily,style:'font-family:menlo,consolas,"courier new",monospace'});return t.replaceChild(n,o),n.appendChild(C(o)),n}},Tt=/^(?:A(?:DDRESS|RTICLE|SIDE|UDIO)|BLOCKQUOTE|CAPTION|D(?:[DLT]|IV)|F(?:IGURE|IGCAPTION|OOTER)|H[1-6]|HEADER|L(?:ABEL|EGEND|I)|O(?:L|UTPUT)|P(?:RE)?|S(?:ECTION|OURCE)|T(?:ABLE|BODY|D|FOOT|H|HEAD|R)|COL(?:GROUP)?|UL|VIDEO)$/,Ct=/^(?:HEAD|META|STYLE)/,Ne=(o,t,e)=>{let n=o.childNodes,i=o;for(;N(i);)i=i.parentNode;let s=new _(i,5);for(let r=0,l=n.length;r<l;r+=1){let a=n[r],d=a.nodeName,c=Et[d];if(a instanceof HTMLElement){let f=a.childNodes.length;if(c)a=c(a,o,t);else if(Ct.test(d)){o.removeChild(a),r-=1,l-=1;continue}else if(!Tt.test(d)&&!N(a)){r-=1,l+=f-1,o.replaceChild(C(a),a);continue}f&&Ne(a,t,e||d==="PRE")}else{if(a instanceof Text){let f=a.data,u=!I.test(f.charAt(0)),m=!I.test(f.charAt(f.length-1));if(e||!u&&!m)continue;if(u){s.currentNode=a;let h;for(;(h=s.previousPONode())&&!(h.nodeName==="IMG"||h instanceof Text&&I.test(h.data));)if(!N(h)){h=null;break}f=f.replace(/^[ \t\r\n]+/g,h?" ":"")}if(m){s.currentNode=a;let h;for(;(h=s.nextNode())&&!(h.nodeName==="IMG"||h instanceof Text&&I.test(h.data));)if(!N(h)){h=null;break}f=f.replace(/[ \t\r\n]+$/g,h?" ":"")}if(f){a.data=f;continue}}o.removeChild(a),r-=1,l-=1}}return o},ge=o=>{let t=o.childNodes,e=t.length;for(;e--;){let n=t[e];n instanceof Element&&!M(n)?(ge(n),N(n)&&!n.firstChild&&o.removeChild(n)):n instanceof Text&&!n.data&&o.removeChild(n)}},le=(o,t,e)=>{let n=o.querySelectorAll("BR"),i=[],s=n.length;for(let r=0;r<s;r+=1)i[r]=ee(n[r],e);for(;s--;){let r=n[s],l=r.parentNode;l&&(i[s]?N(l)||D(l,t):E(r))}},ke=o=>o.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;");var ae=(o,t)=>{let e=new _(t,1,P);return e.currentNode=o,e},z=(o,t)=>{let e=ae(o,t).previousNode();return e!==t?e:null},W=(o,t)=>{let e=ae(o,t).nextNode();return e!==t?e:null},ce=o=>!o.textContent&&!o.querySelector("IMG");var L=(o,t)=>{let e=o.startContainer,n;if(N(e))n=z(e,t);else if(e!==t&&e instanceof HTMLElement&&P(e))n=e;else{let i=me(e,o.startOffset);n=W(i,t)}return n&&K(o,n,!0)?n:null},G=(o,t)=>{let e=o.endContainer,n;if(N(e))n=z(e,t);else if(e!==t&&e instanceof HTMLElement&&P(e))n=e;else{let i=Re(e,o.endOffset);if(!i||!t.contains(i)){i=t;let s;for(;s=i.lastChild;)i=s}n=z(i,t)}return n&&K(o,n,!0)?n:null},Ge=o=>o instanceof Text?I.test(o.data):o.nodeName==="IMG",Q=(o,t)=>{let e=o.startContainer,n=o.startOffset,i;if(e instanceof Text){let l=e.data;for(let a=n;a>0;a-=1)if(l.charAt(a-1)!==y)return!1;i=e}else if(i=Re(e,n),i&&!t.contains(i)&&(i=null),!i&&(i=me(e,n),i instanceof Text&&i.length))return!1;let s=L(o,t);if(!s)return!1;let r=new _(s,5,Ge);return r.currentNode=i,!r.previousNode()},Z=(o,t)=>{let e=o.endContainer,n=o.endOffset,i;if(e instanceof Text){let l=e.data,a=l.length;for(let d=n;d<a;d+=1)if(l.charAt(d)!==y)return!1;i=e}else i=me(e,n);let s=G(o,t);if(!s)return!1;let r=new _(s,5,Ge);return r.currentNode=i,!r.nextNode()},ye=(o,t)=>{let e=L(o,t),n=G(o,t),i;e&&n&&(i=e.parentNode,o.setStart(i,Array.from(i.childNodes).indexOf(e)),i=n.parentNode,o.setEnd(i,Array.from(i.childNodes).indexOf(n)+1))};function V(o,t,e,n){let i=document.createRange();return i.setStart(o,t),e&&typeof n=="number"?i.setEnd(e,n):i.setEnd(o,t),i}var j=(o,t)=>{let{startContainer:e,startOffset:n,endContainer:i,endOffset:s}=o,r;if(e instanceof Text){let a=e.parentNode;if(r=a.childNodes,n===e.length)n=Array.from(r).indexOf(e)+1,o.collapsed&&(i=a,s=n);else{if(n){let d=e.splitText(n);i===e?(s-=n,i=d):i===a&&(s+=1),e=d}n=Array.from(r).indexOf(e)}e=a}else r=e.childNodes;let l=r.length;n===l?e.appendChild(t):e.insertBefore(t,r[n]),e===i&&(s+=r.length-l),o.setStart(e,n),o.setEnd(i,s)},Be=(o,t,e)=>{let n=document.createDocumentFragment();if(o.collapsed)return n;t||(t=o.commonAncestorContainer),t instanceof Text&&(t=t.parentNode);let i=o.startContainer,s=o.startOffset,r=w(o.endContainer,o.endOffset,t,e),l=0,a=w(i,s,t,e);for(;a&&a!==r;){let d=a.nextSibling;n.appendChild(a),a=d}return i instanceof Text&&r instanceof Text&&(i.appendData(r.data),E(r),r=i,l=s),o.setStart(i,s),r?o.setEnd(r,l):o.setEnd(t,t.childNodes.length),x(t),n},Ze=(o,t,e)=>{o.currentNode=e;let n;for(;n=o[t]();){if(n instanceof Text||M(n))return n;if(!N(n))return null}return null},H=(o,t)=>{let e=L(o,t),n=G(o,t),i=e!==n;e&&n&&(T(o),q(o,e,n,t));let s=Be(o,null,t);T(o),i&&(n=G(o,t),e&&n&&e!==n&&Y(e,n,o,t)),e&&x(e);let r=t.firstChild;(!r||r.nodeName==="BR")&&(x(t),t.firstChild&&o.selectNodeContents(t.firstChild)),o.collapse(!0);let l=o.startContainer,a=o.startOffset,d=new _(t,5),c=l,f=a;(!(c instanceof Text)||f===c.data.length)&&(c=Ze(d,"nextNode",c),f=0);let u=l,m=a-1;(!(u instanceof Text)||m===-1)&&(u=Ze(d,"previousPONode",c||(l instanceof Text?l:l.childNodes[a]||l)),u instanceof Text&&(m=u.data.length));let h=null,S=0;return c instanceof Text&&c.data.charAt(f)===" "&&Q(o,t)?(h=c,S=f):u instanceof Text&&u.data.charAt(m)===" "&&(c instanceof Text&&c.data.charAt(f)===" "||Z(o,t))&&(h=u,S=m),h&&h.replaceData(S,1,"\xA0"),o.setStart(l,a),o.collapse(!0),s},je=(o,t,e)=>{let n=t.firstChild&&N(t.firstChild),i;for(D(t,e),i=t;i=W(i,e);)x(i);o.collapsed||H(o,e),T(o),o.collapse(!1);let s=g(o.endContainer,e,"BLOCKQUOTE")||e,r=L(o,e),l=null,a=W(t,t),d=!n&&!!r&&ce(r);if(r&&a&&!d&&!g(a,t,"PRE")&&!g(a,t,"TABLE")){q(o,r,r,e),o.collapse(!0);let c=o.endContainer,f=o.endOffset;if(le(r,e,!1),N(c)){let u=w(c,f,z(c,e)||e,e);c=u.parentNode,f=Array.from(c.childNodes).indexOf(u)}if(f!==k(c))for(l=document.createDocumentFragment();i=c.childNodes[f];)l.appendChild(i);Y(c,a,o,e),f=Array.from(c.parentNode.childNodes).indexOf(c)+1,c=c.parentNode,o.setEnd(c,f)}if(k(t)){d&&r&&(o.setEndBefore(r),o.collapse(!1),E(r)),q(o,s,s,e);let c=w(o.endContainer,o.endOffset,s,e),f=c?c.previousSibling:s.lastChild;s.insertBefore(t,c),c?o.setEndBefore(c):o.setEnd(s,k(s)),r=G(o,e),T(o);let u=o.endContainer,m=o.endOffset;c&&X(c)&&F(c,e),c=f&&f.nextSibling,c&&X(c)&&F(c,e),o.setEnd(u,m)}if(l&&r){let c=o.cloneRange();x(l),Y(r,l,c,e),o.setEnd(c.endContainer,c.endOffset)}T(o)};var Se=o=>{if(o.collapsed)return"";let t=o.startContainer,e=o.endContainer,n=new _(o.commonAncestorContainer,5,a=>K(o,a,!0));n.currentNode=t;let i=t,s="",r=!1,l;for((!(i instanceof Element)&&!(i instanceof Text)||!n.filter(i))&&(i=n.nextNode());i;)i instanceof Text?(l=i.data,l&&/\S/.test(l)&&(i===e&&(l=l.slice(0,o.endOffset)),i===t&&(l=l.slice(o.startOffset)),s+=l,r=!0)):(i.nodeName==="BR"||r&&!N(i))&&(s+=`
-`,r=!1),i=n.nextNode();return s=s.replace(/ /g," "),s};var De=Array.prototype.indexOf,Xe=(o,t,e,n,i,s,r)=>{let l=o.clipboardData;if(se||!l)return!1;let a=s?"":Se(t),d=L(t,e),c=G(t,e),f=e;d===c&&(d!=null&&d.contains(t.commonAncestorContainer))&&(f=d);let u;n?u=H(t,e):(t=t.cloneRange(),T(t),q(t,f,f,e),u=t.cloneContents());let m=t.commonAncestorContainer;for(m instanceof Text&&(m=m.parentNode);m&&m!==f;){let S=m.cloneNode(!1);S.appendChild(u),u=S,m=m.parentNode}let h;if(u.childNodes.length===1&&u.childNodes[0]instanceof Text)a=u.childNodes[0].data.replace(/ /g," "),r=!0;else{let S=p("DIV");S.appendChild(u),h=S.innerHTML,i&&(h=i(h))}return s&&h!==void 0&&(a=s(h)),fe&&(a=a.replace(/\r?\n/g,`\r
-`)),!r&&h&&a!==h&&l.setData("text/html",h),l.setData("text/plain",a),o.preventDefault(),!0},Qe=function(o){let t=this.getSelection(),e=this._root;if(t.collapsed){o.preventDefault();return}this.saveUndoState(t),Xe(o,t,e,!0,this._config.willCutCopy,this._config.toPlainText,!1)||setTimeout(()=>{try{this._ensureBottomLine()}catch(i){this._config.didError(i)}},0),this.setSelection(t)},Ve=function(o){Xe(o,this.getSelection(),this._root,!1,this._config.willCutCopy,this._config.toPlainText,!1)},Ae=function(o){this._isShiftDown=o.shiftKey},$e=function(o){let t=o.clipboardData,e=t==null?void 0:t.items,n=this._isShiftDown,i=!1,s=!1,r=null,l=null;if(e){let v=e.length;for(;v--;){let O=e[v],A=O.type;A==="text/html"?l=O:A==="text/plain"||A==="text/uri-list"?r=O:A==="text/rtf"?i=!0:/^image\/.*/.test(A)&&(s=!0)}if(s&&!(i&&l)){o.preventDefault(),this.fireEvent("pasteImage",{clipboardData:t});return}if(!se){o.preventDefault(),l&&(!n||!r)?l.getAsString(O=>{this.insertHTML(O,!0)}):r&&r.getAsString(O=>{let A=!1,Me=this.getSelection();if(!Me.collapsed&&I.test(Me.toString())){let Fe=this.linkRegExp.exec(O);A=!!Fe&&Fe[0].length===O.length}A?this.makeLink(O):this.insertPlainText(O,!0)});return}}let a=t==null?void 0:t.types;if(!se&&a&&(De.call(a,"text/html")>-1||!He&&De.call(a,"text/plain")>-1&&De.call(a,"text/rtf")<0)){o.preventDefault();let v;!n&&(v=t.getData("text/html"))?this.insertHTML(v,!0):((v=t.getData("text/plain"))||(v=t.getData("text/uri-list")))&&this.insertPlainText(v,!0);return}let d=document.body,c=this.getSelection(),f=c.startContainer,u=c.startOffset,m=c.endContainer,h=c.endOffset,S=p("DIV",{contenteditable:"true",style:"position:fixed; overflow:hidden; top:0; right:100%; width:1px; height:1px;"});d.appendChild(S),c.selectNodeContents(S),this.setSelection(c),setTimeout(()=>{try{let v="",O=S,A;for(;S=O;)O=S.nextSibling,E(S),A=S.firstChild,A&&A===S.lastChild&&A instanceof HTMLDivElement&&(S=A),v+=S.innerHTML;this.setSelection(V(f,u,m,h)),v&&this.insertHTML(v,!0)}catch(v){this._config.didError(v)}},0)},Ye=function(o){if(!o.dataTransfer)return;let t=o.dataTransfer.types,e=t.length,n=!1,i=!1;for(;e--;)switch(t[e]){case"text/plain":n=!0;break;case"text/html":i=!0;break;default:return}(i||n&&this.saveUndoState)&&this.saveUndoState()};var we=(o,t,e)=>{t.preventDefault(),o.splitBlock(t.shiftKey,e)};var ne=(o,t)=>{try{t||(t=o.getSelection());let e=t.startContainer;e instanceof Text&&(e=e.parentNode);let n=e;for(;N(n)&&(!n.textContent||n.textContent===y);)e=n,n=e.parentNode;e!==n&&(t.setStart(n,Array.from(n.childNodes).indexOf(e)),t.collapse(!0),n.removeChild(e),P(n)||(n=z(n,o._root)||o._root),x(n),T(t)),e===o._root&&(e=e.firstChild)&&e.nodeName==="BR"&&E(e),o._ensureBottomLine(),o.setSelection(t),o._updatePath(t,!0)}catch(e){o._config.didError(e)}},Ee=(o,t)=>{let e;for(;(e=o.parentNode)&&!(e===t||e.isContentEditable);)o=e;E(o)},Te=(o,t,e)=>{if(g(t,o._root,"A"))return;let n=t.data||"",i=Math.max(n.lastIndexOf(" ",e-1),n.lastIndexOf("\xA0",e-1))+1,s=n.slice(i,e),r=o.linkRegExp.exec(s);if(r){let l=o.getSelection();o._docWasChanged(),o._recordUndoState(l),o._getRangeAndRemoveBookmark(l);let a=i+r.index,d=a+r[0].length,c=l.startContainer===t,f=l.startOffset-d;a&&(t=t.splitText(a));let u=o._config.tagAttributes.a,m=p("A",Object.assign({href:r[1]?/^(?:ht|f)tps?:/i.test(r[1])?r[1]:"http://"+r[1]:"mailto:"+r[0]},u));m.textContent=n.slice(a,d),t.parentNode.insertBefore(m,t),t.data=n.slice(d),c&&(l.setStart(t,f),l.setEnd(t,f)),o.setSelection(l)}};var Je=(o,t,e)=>{let n=o._root;if(o._removeZWS(),o.saveUndoState(e),!e.collapsed)t.preventDefault(),H(e,n),ne(o,e);else if(Q(e,n)){t.preventDefault();let i=L(e,n);if(!i)return;let s=i;D(s.parentNode,n);let r=z(s,n);if(r){if(!r.isContentEditable){Ee(r,n);return}for(Y(r,s,e,n),s=r.parentNode;s!==n&&!s.nextSibling;)s=s.parentNode;s!==n&&(s=s.nextSibling)&&F(s,n),o.setSelection(e)}else if(s){if(g(s,n,"UL")||g(s,n,"OL")){o.decreaseListLevel(e);return}else if(g(s,n,"BLOCKQUOTE")){o.removeQuote(e);return}o.setSelection(e),o._updatePath(e,!0)}}else{T(e);let i=e.startContainer,s=e.startOffset,r=i.parentNode;i instanceof Text&&r instanceof HTMLAnchorElement&&s&&r.href.includes(i.data)?(i.deleteData(s-1,1),o.setSelection(e),o.removeLink(),t.preventDefault()):(o.setSelection(e),setTimeout(()=>{ne(o)},0))}};var et=(o,t,e)=>{let n=o._root,i,s,r,l,a,d;if(o._removeZWS(),o.saveUndoState(e),!e.collapsed)t.preventDefault(),H(e,n),ne(o,e);else if(Z(e,n)){if(t.preventDefault(),i=L(e,n),!i)return;if(D(i.parentNode,n),s=W(i,n),s){if(!s.isContentEditable){Ee(s,n);return}for(Y(i,s,e,n),s=i.parentNode;s!==n&&!s.nextSibling;)s=s.parentNode;s!==n&&(s=s.nextSibling)&&F(s,n),o.setSelection(e),o._updatePath(e,!0)}}else{if(r=e.cloneRange(),q(e,n,n,n),l=e.endContainer,a=e.endOffset,l instanceof Element&&(d=l.childNodes[a],d&&d.nodeName==="IMG")){t.preventDefault(),E(d),T(e),ne(o,e);return}o.setSelection(r),setTimeout(()=>{ne(o)},0)}};var tt=(o,t,e)=>{let n=o._root;if(o._removeZWS(),e.collapsed&&Q(e,n)){let i=L(e,n),s;for(;s=i.parentNode;){if(s.nodeName==="UL"||s.nodeName==="OL"){t.preventDefault(),o.increaseListLevel(e);break}i=s}}},nt=(o,t,e)=>{let n=o._root;if(o._removeZWS(),e.collapsed&&Q(e,n)){let i=e.startContainer;(g(i,n,"UL")||g(i,n,"OL"))&&(t.preventDefault(),o.decreaseListLevel(e))}};var ot=(o,t,e)=>{var s;let n,i=o._root;if(o._recordUndoState(e),o._getRangeAndRemoveBookmark(e),!e.collapsed)H(e,i),o._ensureBottomLine(),o.setSelection(e),o._updatePath(e,!0);else if(Z(e,i)){let r=L(e,i);if(r&&r.nodeName!=="PRE"){let l=(s=r.textContent)==null?void 0:s.trimEnd().replace(y,"");if(l==="*"||l==="1."){t.preventDefault(),o.insertPlainText(" ",!1),o._docWasChanged(),o.saveUndoState(e);let a=new _(r,4),d;for(;d=a.nextNode();)E(d);l==="*"?o.makeUnorderedList():o.makeOrderedList();return}}}if(n=e.endContainer,e.endOffset===k(n))do if(n.nodeName==="A"){e.setStartAfter(n);break}while(!n.nextSibling&&(n=n.parentNode)&&n!==i);if(o._config.addLinks){let r=e.cloneRange();T(r);let l=r.startContainer,a=r.startOffset;setTimeout(()=>{Te(o,l,a)},0)}o.setSelection(e)};var it=function(o){if(o.defaultPrevented||o.isComposing)return;let t=o.key,e="";t!=="Backspace"&&t!=="Delete"&&(o.altKey&&(e+="Alt-"),o.ctrlKey&&(e+="Ctrl-"),o.metaKey&&(e+="Meta-"),o.shiftKey&&(e+="Shift-")),fe&&o.shiftKey&&t==="Delete"&&(e+="Shift-"),t=e+t;let n=this.getSelection();this._keyHandlers[t]?this._keyHandlers[t](this,o,n):!n.collapsed&&!o.ctrlKey&&!o.metaKey&&t.length===1&&(this.saveUndoState(n),H(n,this._root),this._ensureBottomLine(),this.setSelection(n),this._updatePath(n,!0))},b={Backspace:Je,Delete:et,Tab:tt,"Shift-Tab":nt," ":ot,ArrowLeft(o){o._removeZWS()},ArrowRight(o,t,e){o._removeZWS();let n=o.getRoot();if(Z(e,n)){T(e);let i=e.endContainer;do if(i.nodeName==="CODE"){let s=i.nextSibling;if(!(s instanceof Text)){let r=document.createTextNode("\xA0");i.parentNode.insertBefore(r,s),s=r}e.setStart(s,1),o.setSelection(e),t.preventDefault();break}while(!i.nextSibling&&(i=i.parentNode)&&i!==n)}}};Pe||(b.Enter=we,b["Shift-Enter"]=we);!de&&!_e&&(b.PageUp=o=>{o.moveCursorToStart()},b.PageDown=o=>{o.moveCursorToEnd()});var ie=(o,t)=>(t=t||null,(e,n)=>{n.preventDefault();let i=e.getSelection();e.hasFormat(o,null,i)?e.changeFormat(null,{tag:o},i):e.changeFormat({tag:o},t,i)});b[B+"b"]=ie("B");b[B+"i"]=ie("I");b[B+"u"]=ie("U");b[B+"Shift-7"]=ie("S");b[B+"Shift-5"]=ie("SUB",{tag:"SUP"});b[B+"Shift-6"]=ie("SUP",{tag:"SUB"});b[B+"Shift-8"]=(o,t)=>{t.preventDefault();let e=o.getPath();/(?:^|>)UL/.test(e)?o.removeList():o.makeUnorderedList()};b[B+"Shift-9"]=(o,t)=>{t.preventDefault();let e=o.getPath();/(?:^|>)OL/.test(e)?o.removeList():o.makeOrderedList()};b[B+"["]=(o,t)=>{t.preventDefault();let e=o.getPath();/(?:^|>)BLOCKQUOTE/.test(e)||!/(?:^|>)[OU]L/.test(e)?o.decreaseQuoteLevel():o.decreaseListLevel()};b[B+"]"]=(o,t)=>{t.preventDefault();let e=o.getPath();/(?:^|>)BLOCKQUOTE/.test(e)||!/(?:^|>)[OU]L/.test(e)?o.increaseQuoteLevel():o.increaseListLevel()};b[B+"d"]=(o,t)=>{t.preventDefault(),o.toggleCode()};b[B+"z"]=(o,t)=>{t.preventDefault(),o.undo()};b[B+"y"]=b[B+"Shift-z"]=(o,t)=>{t.preventDefault(),o.redo()};var Ce=class{constructor(t,e){this.customEvents=new Set(["pathChange","select","input","pasteImage","undoStateChange"]);this.startSelectionId="squire-selection-start";this.endSelectionId="squire-selection-end";this.linkRegExp=/\b(?:((?:(?:ht|f)tps?:\/\/|www\d{0,3}[.]|[a-z0-9][a-z0-9.\-]*[.][a-z]{2,}\/)(?:[^\s()<>]+|\([^\s()<>]+\))+(?:[^\s?&`!()\[\]{};:'".,<>«»“”‘’]|\([^\s()<>]+\)))|([\w\-.%+]+@(?:[\w\-]+\.)+[a-z]{2,}\b(?:[?][^&?\s]+=[^\s?&`!()\[\]{};:'".,<>«»“”‘’]+(?:&[^&?\s]+=[^\s?&`!()\[\]{};:'".,<>«»“”‘’]+)*)?))/i;this.tagAfterSplit={DT:"DD",DD:"DT",LI:"LI",PRE:"PRE"};this._root=t,this._config=this._makeConfig(e),this._isFocused=!1,this._lastSelection=V(t,0),this._willRestoreSelection=!1,this._mayHaveZWS=!1,this._lastAnchorNode=null,this._lastFocusNode=null,this._path="",this._events=new Map,this._undoIndex=-1,this._undoStack=[],this._undoStackLength=0,this._isInUndoState=!1,this._ignoreChange=!1,this._ignoreAllChanges=!1,this.addEventListener("selectionchange",this._updatePathOnEvent),this.addEventListener("blur",this._enableRestoreSelection),this.addEventListener("mousedown",this._disableRestoreSelection),this.addEventListener("touchstart",this._disableRestoreSelection),this.addEventListener("focus",this._restoreSelection),this._isShiftDown=!1,this.addEventListener("cut",Qe),this.addEventListener("copy",Ve),this.addEventListener("paste",$e),this.addEventListener("drop",Ye),this.addEventListener("keydown",Ae),this.addEventListener("keyup",Ae),this.addEventListener("keydown",it),this._keyHandlers=Object.create(b);let n=new MutationObserver(()=>this._docWasChanged());n.observe(t,{childList:!0,attributes:!0,characterData:!0,subtree:!0}),this._mutation=n,t.setAttribute("contenteditable","true"),this.addEventListener("beforeinput",this._beforeInput),this.setHTML("")}destroy(){this._events.forEach((t,e)=>{this.removeEventListener(e)}),this._mutation.disconnect(),this._undoIndex=-1,this._undoStack=[],this._undoStackLength=0}_makeConfig(t){let e={blockTag:"DIV",blockAttributes:null,tagAttributes:{},classNames:{color:"color",fontFamily:"font",fontSize:"size",highlight:"highlight"},undo:{documentSizeThreshold:-1,undoLimit:-1},addLinks:!0,willCutCopy:null,toPlainText:null,sanitizeToDOMFragment:n=>{let i=DOMPurify.sanitize(n,{ALLOW_UNKNOWN_PROTOCOLS:!0,WHOLE_DOCUMENT:!1,RETURN_DOM:!0,RETURN_DOM_FRAGMENT:!0,FORCE_BODY:!1});return i?document.importNode(i,!0):document.createDocumentFragment()},didError:n=>console.log(n)};return t&&(Object.assign(e,t),e.blockTag=e.blockTag.toUpperCase()),e}setKeyHandler(t,e){return this._keyHandlers[t]=e,this}_beforeInput(t){switch(t.inputType){case"insertLineBreak":t.preventDefault(),this.splitBlock(!0);break;case"insertParagraph":t.preventDefault(),this.splitBlock(!1);break;case"insertOrderedList":t.preventDefault(),this.makeOrderedList();break;case"insertUnoderedList":t.preventDefault(),this.makeUnorderedList();break;case"historyUndo":t.preventDefault(),this.undo();break;case"historyRedo":t.preventDefault(),this.redo();break;case"formatBold":t.preventDefault(),this.bold();break;case"formaItalic":t.preventDefault(),this.italic();break;case"formatUnderline":t.preventDefault(),this.underline();break;case"formatStrikeThrough":t.preventDefault(),this.strikethrough();break;case"formatSuperscript":t.preventDefault(),this.superscript();break;case"formatSubscript":t.preventDefault(),this.subscript();break;case"formatJustifyFull":case"formatJustifyCenter":case"formatJustifyRight":case"formatJustifyLeft":{t.preventDefault();let e=t.inputType.slice(13).toLowerCase();e==="full"&&(e="justify"),this.setTextAlignment(e);break}case"formatRemove":t.preventDefault(),this.removeAllFormatting();break;case"formatSetBlockTextDirection":{t.preventDefault();let e=t.data;e==="null"&&(e=null),this.setTextDirection(e);break}case"formatBackColor":t.preventDefault(),this.setHighlightColor(t.data);break;case"formatFontColor":t.preventDefault(),this.setTextColor(t.data);break;case"formatFontName":t.preventDefault(),this.setFontFace(t.data);break}}handleEvent(t){this.fireEvent(t.type,t)}fireEvent(t,e){let n=this._events.get(t);if(/^(?:focus|blur)/.test(t)){let i=this._root===document.activeElement;if(t==="focus"){if(!i||this._isFocused)return this;this._isFocused=!0}else{if(i||!this._isFocused)return this;this._isFocused=!1}}if(n){let i=e instanceof Event?e:new CustomEvent(t,{detail:e});n=n.slice();for(let s of n)try{"handleEvent"in s?s.handleEvent(i):s.call(this,i)}catch(r){this._config.didError(r)}}return this}addEventListener(t,e){let n=this._events.get(t),i=this._root;return n||(n=[],this._events.set(t,n),this.customEvents.has(t)||(t==="selectionchange"&&(i=document),i.addEventListener(t,this,!0))),n.push(e),this}removeEventListener(t,e){let n=this._events.get(t),i=this._root;if(n){if(e){let s=n.length;for(;s--;)n[s]===e&&n.splice(s,1)}else n.length=0;n.length||(this._events.delete(t),this.customEvents.has(t)||(t==="selectionchange"&&(i=document),i.removeEventListener(t,this,!0)))}return this}focus(){return this._root.focus({preventScroll:!0}),this}blur(){return this._root.blur(),this}_enableRestoreSelection(){this._willRestoreSelection=!0}_disableRestoreSelection(){this._willRestoreSelection=!1}_restoreSelection(){this._willRestoreSelection&&this.setSelection(this._lastSelection)}_removeZWS(){this._mayHaveZWS&&(re(this._root),this._mayHaveZWS=!1)}_saveRangeToBookmark(t){let e=p("INPUT",{id:this.startSelectionId,type:"hidden"}),n=p("INPUT",{id:this.endSelectionId,type:"hidden"}),i;j(t,e),t.collapse(!1),j(t,n),e.compareDocumentPosition(n)&Node.DOCUMENT_POSITION_PRECEDING&&(e.id=this.endSelectionId,n.id=this.startSelectionId,i=e,e=n,n=i),t.setStartAfter(e),t.setEndBefore(n)}_getRangeAndRemoveBookmark(t){let e=this._root,n=e.querySelector("#"+this.startSelectionId),i=e.querySelector("#"+this.endSelectionId);if(n&&i){let s=n.parentNode,r=i.parentNode,l=Array.from(s.childNodes).indexOf(n),a=Array.from(r.childNodes).indexOf(i);s===r&&(a-=1),n.remove(),i.remove(),t||(t=document.createRange()),t.setStart(s,l),t.setEnd(r,a),te(s,t),s!==r&&te(r,t),t.collapsed&&(s=t.startContainer,s instanceof Text&&(r=s.childNodes[t.startOffset],(!r||!(r instanceof Text))&&(r=s.childNodes[t.startOffset-1]),r&&r instanceof Text&&(t.setStart(r,0),t.collapse(!0))))}return t||null}getSelection(){let t=window.getSelection(),e=this._root,n=null;if(this._isFocused&&t&&t.rangeCount){n=t.getRangeAt(0).cloneRange();let i=n.startContainer,s=n.endContainer;i&&M(i)&&n.setStartBefore(i),s&&M(s)&&n.setEndBefore(s)}return n&&e.contains(n.commonAncestorContainer)?this._lastSelection=n:(n=this._lastSelection,document.contains(n.commonAncestorContainer)||(n=null)),n||(n=V(e.firstElementChild||e,0)),n}setSelection(t){if(this._lastSelection=t,!this._isFocused)this._enableRestoreSelection();else{let e=window.getSelection();e&&("setBaseAndExtent"in Selection.prototype?e.setBaseAndExtent(t.startContainer,t.startOffset,t.endContainer,t.endOffset):(e.removeAllRanges(),e.addRange(t)))}return this}_moveCursorTo(t){let e=this._root,n=V(e,t?0:e.childNodes.length);return T(n),this.setSelection(n),this}moveCursorToStart(){return this._moveCursorTo(!0)}moveCursorToEnd(){return this._moveCursorTo(!1)}getCursorPosition(){let t=this.getSelection(),e=t.getBoundingClientRect();if(e&&!e.top){this._ignoreChange=!0;let n=p("SPAN");n.textContent=y,j(t,n),e=n.getBoundingClientRect();let i=n.parentNode;i.removeChild(n),te(i,t)}return e}getPath(){return this._path}_updatePathOnEvent(){this._isFocused&&this._updatePath(this.getSelection())}_updatePath(t,e){let n=t.startContainer,i=t.endContainer,s;(e||n!==this._lastAnchorNode||i!==this._lastFocusNode)&&(this._lastAnchorNode=n,this._lastFocusNode=i,s=n&&i?n===i?this._getPath(i):"(selection)":"",this._path!==s&&(this._path=s,this.fireEvent("pathChange",{path:s}))),this.fireEvent(t.collapsed?"cursor":"select",{range:t})}_getPath(t){let e=this._root,n=this._config,i="";if(t&&t!==e){let s=t.parentNode;if(i=s?this._getPath(s):"",t instanceof HTMLElement){let r=t.id,l=t.classList,a=Array.from(l).sort(),d=t.dir,c=n.classNames;i+=(i?">":"")+t.nodeName,r&&(i+="#"+r),a.length&&(i+=".",i+=a.join(".")),d&&(i+="[dir="+d+"]"),l.contains(c.highlight)&&(i+="[backgroundColor="+t.style.backgroundColor.replace(/ /g,"")+"]"),l.contains(c.color)&&(i+="[color="+t.style.color.replace(/ /g,"")+"]"),l.contains(c.fontFamily)&&(i+="[fontFamily="+t.style.fontFamily.replace(/ /g,"")+"]"),l.contains(c.fontSize)&&(i+="[fontSize="+t.style.fontSize+"]")}}return i}modifyDocument(t){let e=this._mutation;return e&&(e.takeRecords().length&&this._docWasChanged(),e.disconnect()),this._ignoreAllChanges=!0,t(),this._ignoreAllChanges=!1,e&&(e.observe(this._root,{childList:!0,attributes:!0,characterData:!0,subtree:!0}),this._ignoreChange=!1),this}_docWasChanged(){if(We(),this._mayHaveZWS=!0,!this._ignoreAllChanges){if(this._ignoreChange){this._ignoreChange=!1;return}this._isInUndoState&&(this._isInUndoState=!1,this.fireEvent("undoStateChange",{canUndo:!0,canRedo:!1})),this.fireEvent("input")}}_recordUndoState(t,e){let n=this._isInUndoState;if(!n||e){let i=this._undoIndex+1,s=this._undoStack,r=this._config.undo,l=r.documentSizeThreshold,a=r.undoLimit;if(i<this._undoStackLength&&(s.length=this._undoStackLength=i),t&&this._saveRangeToBookmark(t),n)return this;let d=this._getRawHTML();e&&(i-=1),l>-1&&d.length*2>l&&a>-1&&i>a&&(s.splice(0,i-a),i=a,this._undoStackLength=a),s[i]=d,this._undoIndex=i,this._undoStackLength+=1,this._isInUndoState=!0}return this}saveUndoState(t){return t||(t=this.getSelection()),this._recordUndoState(t,this._isInUndoState),this._getRangeAndRemoveBookmark(t),this}undo(){if(this._undoIndex!==0||!this._isInUndoState){this._recordUndoState(this.getSelection(),!1),this._undoIndex-=1,this._setRawHTML(this._undoStack[this._undoIndex]);let t=this._getRangeAndRemoveBookmark();t&&this.setSelection(t),this._isInUndoState=!0,this.fireEvent("undoStateChange",{canUndo:this._undoIndex!==0,canRedo:!0}),this.fireEvent("input")}return this.focus()}redo(){let t=this._undoIndex,e=this._undoStackLength;if(t+1<e&&this._isInUndoState){this._undoIndex+=1,this._setRawHTML(this._undoStack[this._undoIndex]);let n=this._getRangeAndRemoveBookmark();n&&this.setSelection(n),this.fireEvent("undoStateChange",{canUndo:!0,canRedo:t+2<e}),this.fireEvent("input")}return this.focus()}getRoot(){return this._root}_getRawHTML(){return this._root.innerHTML}_setRawHTML(t){let e=this._root;e.innerHTML=t;let n=e,i=n.firstChild;if(!i||i.nodeName==="BR"){let s=this.createDefaultBlock();i?n.replaceChild(s,i):n.appendChild(s)}else for(;n=W(n,e);)x(n);return this._ignoreChange=!0,this}getHTML(t){let e;t&&(e=this.getSelection(),this._saveRangeToBookmark(e));let n=this._getRawHTML().replace(/\u200B/g,"");return t&&this._getRangeAndRemoveBookmark(e),n}setHTML(t){let e=this._config.sanitizeToDOMFragment(t,this),n=this._root;Ne(e,this._config),le(e,n,!1),D(e,n);let i=e,s=i.firstChild;if(!s||s.nodeName==="BR"){let l=this.createDefaultBlock();s?i.replaceChild(l,s):i.appendChild(l)}else for(;i=W(i,n);)x(i);for(this._ignoreChange=!0;s=n.lastChild;)n.removeChild(s);n.appendChild(e),this._undoIndex=-1,this._undoStack.length=0,this._undoStackLength=0,this._isInUndoState=!1;let r=this._getRangeAndRemoveBookmark()||V(n.firstElementChild||n,0);return this.saveUndoState(r),this.setSelection(r),this._updatePath(r,!0),this}insertHTML(t,e){let n=this._config,i=n.sanitizeToDOMFragment(t,this),s=this.getSelection();this.saveUndoState(s);try{let r=this._root;n.addLinks&&this.addDetectedLinks(i,i),Ne(i,this._config),le(i,r,!1),ge(i),i.normalize();let l=i;for(;l=W(l,i);)x(l);let a=!0;if(e){let d=new CustomEvent("willPaste",{cancelable:!0,detail:{fragment:i}});this.fireEvent("willPaste",d),i=d.detail.fragment,a=!d.defaultPrevented}a&&(je(s,i,r),s.collapse(!1),Oe(s,"A",r),this._ensureBottomLine()),this.setSelection(s),this._updatePath(s,!0),e&&this.focus()}catch(r){this._config.didError(r)}return this}insertElement(t,e){if(e||(e=this.getSelection()),e.collapse(!0),N(t))j(e,t),e.setStartAfter(t);else{let n=this._root,i=L(e,n),s=i||n,r=null;for(;s!==n&&!s.nextSibling;)s=s.parentNode;if(s!==n){let a=s.parentNode;r=w(a,s.nextSibling,n,n)}i&&ce(i)&&E(i),n.insertBefore(t,r);let l=this.createDefaultBlock();n.insertBefore(l,r),e.setStart(l,0),e.setEnd(l,0),T(e)}return this.focus(),this.setSelection(e),this._updatePath(e),this}insertImage(t,e){let n=p("IMG",Object.assign({src:t},e));return this.insertElement(n),n}insertPlainText(t,e){let n=this.getSelection();if(n.collapsed&&g(n.startContainer,this._root,"PRE")){let c=n.startContainer,f=n.startOffset,u;if(!c||!(c instanceof Text)){let h=document.createTextNode("");c.insertBefore(h,c.childNodes[f]),u=h,f=0}else u=c;let m=!0;if(e){let h=new CustomEvent("willPaste",{cancelable:!0,detail:{text:t}});this.fireEvent("willPaste",h),t=h.detail.text,m=!h.defaultPrevented}return m&&(u.insertData(f,t),n.setStart(u,f+t.length),n.collapse(!0)),this.setSelection(n),this}let i=t.split(`
-`),s=this._config,r=s.blockTag,l=s.blockAttributes,a="</"+r+">",d="<"+r;for(let c in l)d+=" "+c+'="'+ke(l[c])+'"';d+=">";for(let c=0,f=i.length;c<f;c+=1){let u=i[c];u=ke(u).replace(/ (?=(?: |$))/g,"&nbsp;"),c&&(u=d+(u||"<BR>")+a),i[c]=u}return this.insertHTML(i.join(""),e)}getSelectedText(t){return Se(t||this.getSelection())}getFontInfo(t){let e={color:void 0,backgroundColor:void 0,fontFamily:void 0,fontSize:void 0};t||(t=this.getSelection());let n=0,i=t.commonAncestorContainer;if(t.collapsed||i instanceof Text)for(i instanceof Text&&(i=i.parentNode);n<4&&i;){let s=i.style;if(s){let r=s.color;!e.color&&r&&(e.color=r,n+=1);let l=s.backgroundColor;!e.backgroundColor&&l&&(e.backgroundColor=l,n+=1);let a=s.fontFamily;!e.fontFamily&&a&&(e.fontFamily=a,n+=1);let d=s.fontSize;!e.fontSize&&d&&(e.fontSize=d,n+=1)}i=i.parentNode}return e}hasFormat(t,e,n){t=t.toUpperCase(),e||(e={}),n||(n=this.getSelection()),!n.collapsed&&n.startContainer instanceof Text&&n.startOffset===n.startContainer.length&&n.startContainer.nextSibling&&n.setStartBefore(n.startContainer.nextSibling),!n.collapsed&&n.endContainer instanceof Text&&n.endOffset===0&&n.endContainer.previousSibling&&n.setEndAfter(n.endContainer.previousSibling);let i=this._root,s=n.commonAncestorContainer;if(g(s,i,t,e))return!0;if(s instanceof Text)return!1;let r=new _(s,4,d=>K(n,d,!0)),l=!1,a;for(;a=r.nextNode();){if(!g(a,i,t,e))return!1;l=!0}return l}changeFormat(t,e,n,i){return n||(n=this.getSelection()),this.saveUndoState(n),e&&(n=this._removeFormat(e.tag.toUpperCase(),e.attributes||{},n,i)),t&&(n=this._addFormat(t.tag.toUpperCase(),t.attributes||{},n)),this.setSelection(n),this._updatePath(n,!0),this.focus()}_addFormat(t,e,n){let i=this._root;if(n.collapsed){let s=x(p(t,e));j(n,s);let r=s.firstChild||s,l=r instanceof Text?r.length:0;n.setStart(r,l),n.collapse(!0);let a=s;for(;N(a);)a=a.parentNode;re(a,s)}else{let s=new _(n.commonAncestorContainer,5,c=>(c instanceof Text||c.nodeName==="BR"||c.nodeName==="IMG")&&K(n,c,!0)),{startContainer:r,startOffset:l,endContainer:a,endOffset:d}=n;if(s.currentNode=r,!(r instanceof Element)&&!(r instanceof Text)||!s.filter(r)){let c=s.nextNode();if(!c)return n;r=c,l=0}do{let c=s.currentNode;if(!g(c,i,t,e)){c===a&&c.length>d&&c.splitText(d),c===r&&l&&(c=c.splitText(l),a===r?(a=c,d-=l):a===r.parentNode&&(d+=1),r=c,l=0);let u=p(t,e);R(c,u),u.appendChild(c)}}while(s.nextNode());n=V(r,l,a,d)}return n}_removeFormat(t,e,n,i){this._saveRangeToBookmark(n);let s;n.collapsed&&(oe?s=document.createTextNode(y):s=document.createTextNode(""),j(n,s));let r=n.commonAncestorContainer;for(;N(r);)r=r.parentNode;let l=n.startContainer,a=n.startOffset,d=n.endContainer,c=n.endOffset,f=[],u=(h,S)=>{if(K(n,h,!1))return;let v,O;if(!K(n,h,!0)){!(h instanceof HTMLInputElement)&&(!(h instanceof Text)||h.data)&&f.push([S,h]);return}if(h instanceof Text)h===d&&c!==h.length&&f.push([S,h.splitText(c)]),h===l&&a&&(h.splitText(a),f.push([S,h]));else for(v=h.firstChild;v;v=O)O=v.nextSibling,u(v,S)},m=Array.from(r.getElementsByTagName(t)).filter(h=>K(n,h,!0)&&he(h,t,e));if(i||m.forEach(h=>{u(h,h)}),f.forEach(([h,S])=>{h=h.cloneNode(!1),R(S,h),h.appendChild(S)}),m.forEach(h=>{R(h,C(h))}),oe&&s){s=s.parentNode;let h=s;for(;h&&N(h);)h=h.parentNode;h&&re(h,s)}return this._getRangeAndRemoveBookmark(n),s&&n.collapse(!1),te(r,n),n}bold(){return this.changeFormat({tag:"B"})}removeBold(){return this.changeFormat(null,{tag:"B"})}italic(){return this.changeFormat({tag:"I"})}removeItalic(){return this.changeFormat(null,{tag:"I"})}underline(){return this.changeFormat({tag:"U"})}removeUnderline(){return this.changeFormat(null,{tag:"U"})}strikethrough(){return this.changeFormat({tag:"S"})}removeStrikethrough(){return this.changeFormat(null,{tag:"S"})}subscript(){return this.changeFormat({tag:"SUB"},{tag:"SUP"})}removeSubscript(){return this.changeFormat(null,{tag:"SUB"})}superscript(){return this.changeFormat({tag:"SUP"},{tag:"SUB"})}removeSuperscript(){return this.changeFormat(null,{tag:"SUP"})}makeLink(t,e){let n=this.getSelection();if(n.collapsed){let i=t.indexOf(":")+1;if(i)for(;t[i]==="/";)i+=1;j(n,document.createTextNode(t.slice(i)))}return e=Object.assign({href:t},this._config.tagAttributes.a,e),this.changeFormat({tag:"A",attributes:e},{tag:"A"},n)}removeLink(){return this.changeFormat(null,{tag:"A"},this.getSelection(),!0)}addDetectedLinks(t,e){let n=new _(t,4,l=>!g(l,e||this._root,"A")),i=this.linkRegExp,s=this._config.tagAttributes.a,r;for(;r=n.nextNode();){let l=r.parentNode,a=r.data,d;for(;d=i.exec(a);){let c=d.index,f=c+d[0].length;c&&l.insertBefore(document.createTextNode(a.slice(0,c)),r);let u=p("A",Object.assign({href:d[1]?/^(?:ht|f)tps?:/i.test(d[1])?d[1]:"http://"+d[1]:"mailto:"+d[0]},s));u.textContent=a.slice(c,f),l.insertBefore(u,r),r.data=a=a.slice(f)}}return this}setFontFace(t){let e=this._config.classNames.fontFamily;return this.changeFormat(t?{tag:"SPAN",attributes:{class:e,style:"font-family: "+t+", sans-serif;"}}:null,{tag:"SPAN",attributes:{class:e}})}setFontSize(t){let e=this._config.classNames.fontSize;return this.changeFormat(t?{tag:"SPAN",attributes:{class:e,style:"font-size: "+(typeof t=="number"?t+"px":t)}}:null,{tag:"SPAN",attributes:{class:e}})}setTextColor(t){let e=this._config.classNames.color;return this.changeFormat(t?{tag:"SPAN",attributes:{class:e,style:"color:"+t}}:null,{tag:"SPAN",attributes:{class:e}})}setHighlightColor(t){let e=this._config.classNames.highlight;return this.changeFormat(t?{tag:"SPAN",attributes:{class:e,style:"background-color:"+t}}:null,{tag:"SPAN",attributes:{class:e}})}_ensureBottomLine(){let t=this._root,e=t.lastElementChild;(!e||e.nodeName!==this._config.blockTag||!P(e))&&t.appendChild(this.createDefaultBlock())}createDefaultBlock(t){let e=this._config;return x(p(e.blockTag,e.blockAttributes,t))}splitBlock(t,e){e||(e=this.getSelection());let n=this._root,i,s,r,l;if(this._recordUndoState(e),this._removeZWS(),this._getRangeAndRemoveBookmark(e),e.collapsed||H(e,n),this._config.addLinks){T(e);let u=e.startContainer,m=e.startOffset;setTimeout(()=>{Te(this,u,m)},0)}if(i=L(e,n),i&&(s=g(i,n,"PRE"))){T(e),r=e.startContainer;let u=e.startOffset;return r instanceof Text||(r=document.createTextNode(""),s.insertBefore(r,s.firstChild)),!t&&r instanceof Text&&(r.data.charAt(u-1)===`
-`||Q(e,n))&&(r.data.charAt(u)===`
-`||Z(e,n))?(r.deleteData(u&&u-1,u?2:1),l=w(r,u&&u-1,n,n),r=l.previousSibling,r.textContent||E(r),r=this.createDefaultBlock(),l.parentNode.insertBefore(r,l),l.textContent||E(l),e.setStart(r,0)):(r.insertData(u,`
-`),x(s),r.length===u+1?e.setStartAfter(r):e.setStart(r,u+1)),e.collapse(!0),this.setSelection(e),this._updatePath(e,!0),this._docWasChanged(),this}if(!i||t||/^T[HD]$/.test(i.nodeName))return Oe(e,"A",n),j(e,p("BR")),e.collapse(!1),this.setSelection(e),this._updatePath(e,!0),this;if((s=g(i,n,"LI"))&&(i=s),ce(i)){if(g(i,n,"UL")||g(i,n,"OL"))return this.decreaseListLevel(e),this;if(g(i,n,"BLOCKQUOTE"))return this.removeQuote(e),this}r=e.startContainer;let a=e.startOffset,d=this.tagAfterSplit[i.nodeName];l=w(r,a,i.parentNode,this._root);let c=this._config,f=null;for(d||(d=c.blockTag,f=c.blockAttributes),he(l,d,f)||(i=p(d,f),l.dir&&(i.dir=l.dir),R(l,i),i.appendChild(C(l)),l=i),re(i),ge(i),x(i);l instanceof Element;){let u=l.firstChild,m;if(l.nodeName==="A"&&(!l.textContent||l.textContent===y)){u=document.createTextNode(""),R(l,u),l=u;break}for(;u&&u instanceof Text&&!u.data&&(m=u.nextSibling,!(!m||m.nodeName==="BR"));)E(u),u=m;if(!u||u.nodeName==="BR"||u instanceof Text)break;l=u}return e=V(l,0),this.setSelection(e),this._updatePath(e,!0),this}forEachBlock(t,e,n){n||(n=this.getSelection()),e&&this.saveUndoState(n);let i=this._root,s=L(n,i),r=G(n,i);if(s&&r)do if(t(s)||s===r)break;while(s=W(s,i));return e&&(this.setSelection(n),this._updatePath(n,!0)),this}modifyBlocks(t,e){e||(e=this.getSelection()),this._recordUndoState(e,this._isInUndoState);let n=this._root;ye(e,n),q(e,n,n,n);let i=Be(e,n,n);if(!e.collapsed){let s=e.endContainer;if(s===n)e.collapse(!1);else{for(;s.parentNode!==n;)s=s.parentNode;e.setStartBefore(s),e.collapse(!0)}}return j(e,t.call(this,i)),e.endOffset<e.endContainer.childNodes.length&&F(e.endContainer.childNodes[e.endOffset],n),F(e.startContainer.childNodes[e.startOffset],n),this._getRangeAndRemoveBookmark(e),this.setSelection(e),this._updatePath(e,!0),this}setTextAlignment(t){return this.forEachBlock(e=>{let n=e.className.split(/\s+/).filter(i=>!!i&&!/^align/.test(i)).join(" ");t?(e.className=n+" align-"+t,e.style.textAlign=t):(e.className=n,e.style.textAlign="")},!0),this.focus()}setTextDirection(t){return this.forEachBlock(e=>{t?e.dir=t:e.removeAttribute("dir")},!0),this.focus()}_getListSelection(t,e){let n=t.commonAncestorContainer,i=t.startContainer,s=t.endContainer;for(;n&&n!==e&&!/^[OU]L$/.test(n.nodeName);)n=n.parentNode;if(!n||n===e)return null;for(i===n&&(i=i.childNodes[t.startOffset]),s===n&&(s=s.childNodes[t.endOffset]);i&&i.parentNode!==n;)i=i.parentNode;for(;s&&s.parentNode!==n;)s=s.parentNode;return[n,i,s]}increaseListLevel(t){t||(t=this.getSelection());let e=this._root,n=this._getListSelection(t,e);if(!n)return this.focus();let[i,s,r]=n;if(!s||s===i.firstChild)return this.focus();this._recordUndoState(t,this._isInUndoState);let l=i.nodeName,a=s.previousSibling,d,c;a.nodeName!==l&&(d=this._config.tagAttributes[l.toLowerCase()],a=p(l,d),i.insertBefore(a,s));do c=s===r?null:s.nextSibling,a.appendChild(s);while(s=c);return c=a.nextSibling,c&&F(c,e),this._getRangeAndRemoveBookmark(t),this.setSelection(t),this._updatePath(t,!0),this.focus()}decreaseListLevel(t){t||(t=this.getSelection());let e=this._root,n=this._getListSelection(t,e);if(!n)return this.focus();let[i,s,r]=n;s||(s=i.firstChild),r||(r=i.lastChild),this._recordUndoState(t,this._isInUndoState);let l,a=null;if(s){let d=i.parentNode;if(a=r.nextSibling?w(i,r.nextSibling,d,e):i.nextSibling,d!==e&&d.nodeName==="LI"){for(d=d.parentNode;a;)l=a.nextSibling,r.appendChild(a),a=l;a=i.parentNode.nextSibling}let c=!/^[OU]L$/.test(d.nodeName);do l=s===r?null:s.nextSibling,i.removeChild(s),c&&s.nodeName==="LI"&&(s=this.createDefaultBlock([C(s)])),d.insertBefore(s,a);while(s=l)}return i.firstChild||E(i),a&&F(a,e),this._getRangeAndRemoveBookmark(t),this.setSelection(t),this._updatePath(t,!0),this.focus()}_makeList(t,e){let n=ae(t,this._root),i=this._config.tagAttributes,s=i[e.toLowerCase()],r=i.li,l;for(;l=n.nextNode();)if(l.parentNode instanceof HTMLLIElement&&(l=l.parentNode,n.currentNode=l.lastChild),l instanceof HTMLLIElement){l=l.parentNode;let a=l.nodeName;a!==e&&/^[OU]L$/.test(a)&&R(l,p(e,s,[C(l)]))}else{let a=p("LI",r);l.dir&&(a.dir=l.dir);let d=l.previousSibling;d&&d.nodeName===e?(d.appendChild(a),E(l)):R(l,p(e,s,[a])),a.appendChild(C(l)),n.currentNode=a}return t}makeUnorderedList(){return this.modifyBlocks(t=>this._makeList(t,"UL")),this.focus()}makeOrderedList(){return this.modifyBlocks(t=>this._makeList(t,"OL")),this.focus()}removeList(){return this.modifyBlocks(t=>{let e=t.querySelectorAll("UL, OL"),n=t.querySelectorAll("LI"),i=this._root;for(let s=0,r=e.length;s<r;s+=1){let l=e[s],a=C(l);D(a,i),R(l,a)}for(let s=0,r=n.length;s<r;s+=1){let l=n[s];P(l)?R(l,this.createDefaultBlock([C(l)])):(D(l,i),R(l,C(l)))}return t}),this.focus()}increaseQuoteLevel(t){return this.modifyBlocks(e=>p("BLOCKQUOTE",this._config.tagAttributes.blockquote,[e]),t),this.focus()}decreaseQuoteLevel(t){return this.modifyBlocks(e=>(Array.from(e.querySelectorAll("blockquote")).filter(n=>!g(n.parentNode,e,"BLOCKQUOTE")).forEach(n=>{R(n,C(n))}),e),t),this.focus()}removeQuote(t){return this.modifyBlocks(()=>this.createDefaultBlock([p("INPUT",{id:this.startSelectionId,type:"hidden"}),p("INPUT",{id:this.endSelectionId,type:"hidden"})]),t),this.focus()}code(){let t=this.getSelection();return t.collapsed||X(t.commonAncestorContainer)?(this.modifyBlocks(e=>{let n=this._root,i=document.createDocumentFragment(),s=ae(e,n),r;for(;r=s.nextNode();){let a=r.querySelectorAll("BR"),d=[],c=a.length;for(let f=0;f<c;f+=1)d[f]=ee(a[f],!1);for(;c--;){let f=a[c];d[c]?R(f,document.createTextNode(`
-`)):E(f)}for(a=r.querySelectorAll("CODE"),c=a.length;c--;)R(a[c],C(a[c]));i.childNodes.length&&i.appendChild(document.createTextNode(`
-`)),i.appendChild(C(r))}let l=new _(i,4);for(;r=l.nextNode();)r.data=r.data.replace(/ /g," ");return i.normalize(),x(p("PRE",this._config.tagAttributes.pre,[i]))},t),this.focus()):this.changeFormat({tag:"CODE",attributes:this._config.tagAttributes.code},null,t),this}removeCode(){let t=this.getSelection(),e=t.commonAncestorContainer;return g(e,this._root,"PRE")?(this.modifyBlocks(i=>{let s=this._root,r=i.querySelectorAll("PRE"),l=r.length;for(;l--;){let a=r[l],d=new _(a,4),c;for(;c=d.nextNode();){let f=c.data;f=f.replace(/ (?= )/g,"\xA0");let u=document.createDocumentFragment(),m;for(;(m=f.indexOf(`
-`))>-1;)u.appendChild(document.createTextNode(f.slice(0,m))),u.appendChild(p("BR")),f=f.slice(m+1);c.parentNode.insertBefore(u,c),c.data=f}D(a,s),R(a,C(a))}return i},t),this.focus()):this.changeFormat(null,{tag:"CODE"},t),this}toggleCode(){return this.hasFormat("PRE")||this.hasFormat("CODE")?this.removeCode():this.code(),this}_removeFormatting(t,e){for(let n=t.firstChild,i;n;n=i){if(i=n.nextSibling,N(n)){if(n instanceof Text||n.nodeName==="BR"||n.nodeName==="IMG"){e.appendChild(n);continue}}else if(P(n)){e.appendChild(this.createDefaultBlock([this._removeFormatting(n,document.createDocumentFragment())]));continue}this._removeFormatting(n,e)}return e}removeAllFormatting(t){if(t||(t=this.getSelection()),t.collapsed)return this.focus();let e=this._root,n=t.commonAncestorContainer;for(;n&&!P(n);)n=n.parentNode;if(n||(ye(t,e),n=e),n instanceof Text)return this.focus();this.saveUndoState(t),q(t,n,n,e);let i=t.startContainer,s=t.startOffset,r=t.endContainer,l=t.endOffset,a=document.createDocumentFragment(),d=document.createDocumentFragment(),c=w(r,l,n,e),f=w(i,s,n,e),u;for(;f!==c;)u=f.nextSibling,a.appendChild(f),f=u;if(this._removeFormatting(a,d),d.normalize(),f=d.firstChild,u=d.lastChild,f){n.insertBefore(d,c);let m=Array.from(n.childNodes);s=m.indexOf(f),l=u?m.indexOf(u)+1:0}else c&&(s=Array.from(n.childNodes).indexOf(c),l=s);return t.setStart(n,s),t.setEnd(n,l),te(n,t),T(t),this.setSelection(t),this._updatePath(t,!0),this.focus()}};var Ie=class extends Ce{constructor(t,e){super(t,e)}_makeConfig(t){var e=super._makeConfig(t);let n={avoidSlashyReplacements:!0};return Object.assign(n,e),n}_beforeInput(t){switch(t.inputType){case"insertParagraph":if(this._config.avoidSlashyReplacements){let e=this.getSelection();if(e.collapsed&&e.endContainer.nodeType==Node.TEXT_NODE){let i=e.endContainer.textContent.split(" ").pop();if(i&&i.includes("/"))return}t.preventDefault(),this.splitBlock(!1);return}break}super._beforeInput(t)}moveDown(t){T(t)}};window.MavenEditor=Ie;})();
-//# sourceMappingURL=maven-editor.js.map
+"use strict";
+(() => {
+  // source/Constants.ts
+  var ELEMENT_NODE = 1;
+  var TEXT_NODE = 3;
+  var DOCUMENT_FRAGMENT_NODE = 11;
+  var ZWS = "\u200B";
+  var ua = navigator.userAgent;
+  var isMac = /Mac OS X/.test(ua);
+  var isWin = /Windows NT/.test(ua);
+  var isIOS = /iP(?:ad|hone|od)/.test(ua) || isMac && !!navigator.maxTouchPoints;
+  var isAndroid = /Android/.test(ua);
+  var isGecko = /Gecko\//.test(ua);
+  var isLegacyEdge = /Edge\//.test(ua);
+  var isWebKit = !isLegacyEdge && /WebKit\//.test(ua);
+  var ctrlKey = isMac || isIOS ? "Meta-" : "Ctrl-";
+  var cantFocusEmptyTextNodes = isWebKit;
+  var supportsInputEvents = "onbeforeinput" in document && "inputType" in new InputEvent("input");
+  var notWS = /[^ \t\r\n]/;
+
+  // source/node/Category.ts
+  var inlineNodeNames = /^(?:#text|A(?:BBR|CRONYM)?|B(?:R|D[IO])?|C(?:ITE|ODE)|D(?:ATA|EL|FN)|EM|FONT|HR|I(?:FRAME|MG|NPUT|NS)?|KBD|Q|R(?:P|T|UBY)|S(?:AMP|MALL|PAN|TR(?:IKE|ONG)|U[BP])?|TIME|U|VAR|WBR)$/;
+  var leafNodeNames = /* @__PURE__ */ new Set(["BR", "HR", "IFRAME", "IMG", "INPUT"]);
+  var UNKNOWN = 0;
+  var INLINE = 1;
+  var BLOCK = 2;
+  var CONTAINER = 3;
+  var cache = /* @__PURE__ */ new WeakMap();
+  var resetNodeCategoryCache = () => {
+    cache = /* @__PURE__ */ new WeakMap();
+  };
+  var isLeaf = (node) => {
+    return leafNodeNames.has(node.nodeName);
+  };
+  var getNodeCategory = (node) => {
+    switch (node.nodeType) {
+      case TEXT_NODE:
+        return INLINE;
+      case ELEMENT_NODE:
+      case DOCUMENT_FRAGMENT_NODE:
+        if (cache.has(node)) {
+          return cache.get(node);
+        }
+        break;
+      default:
+        return UNKNOWN;
+    }
+    let nodeCategory;
+    if (!Array.from(node.childNodes).every(isInline)) {
+      nodeCategory = CONTAINER;
+    } else if (inlineNodeNames.test(node.nodeName)) {
+      nodeCategory = INLINE;
+    } else {
+      nodeCategory = BLOCK;
+    }
+    cache.set(node, nodeCategory);
+    return nodeCategory;
+  };
+  var isInline = (node) => {
+    return getNodeCategory(node) === INLINE;
+  };
+  var isBlock = (node) => {
+    return getNodeCategory(node) === BLOCK;
+  };
+  var isContainer = (node) => {
+    return getNodeCategory(node) === CONTAINER;
+  };
+
+  // source/node/Node.ts
+  var createElement = (tag, props, children) => {
+    const el = document.createElement(tag);
+    if (props instanceof Array) {
+      children = props;
+      props = null;
+    }
+    if (props) {
+      for (const attr in props) {
+        const value = props[attr];
+        if (value !== void 0) {
+          el.setAttribute(attr, value);
+        }
+      }
+    }
+    if (children) {
+      children.forEach((node) => el.appendChild(node));
+    }
+    return el;
+  };
+  var areAlike = (node, node2) => {
+    if (isLeaf(node)) {
+      return false;
+    }
+    if (node.nodeType !== node2.nodeType || node.nodeName !== node2.nodeName) {
+      return false;
+    }
+    if (node instanceof HTMLElement && node2 instanceof HTMLElement) {
+      return node.nodeName !== "A" && node.className === node2.className && node.style.cssText === node2.style.cssText;
+    }
+    return true;
+  };
+  var hasTagAttributes = (node, tag, attributes) => {
+    if (node.nodeName !== tag) {
+      return false;
+    }
+    for (const attr in attributes) {
+      if (!("getAttribute" in node) || node.getAttribute(attr) !== attributes[attr]) {
+        return false;
+      }
+    }
+    return true;
+  };
+  var getNearest = (node, root, tag, attributes) => {
+    while (node && node !== root) {
+      if (hasTagAttributes(node, tag, attributes)) {
+        return node;
+      }
+      node = node.parentNode;
+    }
+    return null;
+  };
+  var getNodeBeforeOffset = (node, offset) => {
+    let children = node.childNodes;
+    while (offset && node instanceof Element) {
+      node = children[offset - 1];
+      children = node.childNodes;
+      offset = children.length;
+    }
+    return node;
+  };
+  var getNodeAfterOffset = (node, offset) => {
+    let returnNode = node;
+    if (returnNode instanceof Element) {
+      const children = returnNode.childNodes;
+      if (offset < children.length) {
+        returnNode = children[offset];
+      } else {
+        while (returnNode && !returnNode.nextSibling) {
+          returnNode = returnNode.parentNode;
+        }
+        if (returnNode) {
+          returnNode = returnNode.nextSibling;
+        }
+      }
+    }
+    return returnNode;
+  };
+  var getLength = (node) => {
+    return node instanceof Element || node instanceof DocumentFragment ? node.childNodes.length : node instanceof CharacterData ? node.length : 0;
+  };
+  var empty = (node) => {
+    const frag = document.createDocumentFragment();
+    let child = node.firstChild;
+    while (child) {
+      frag.appendChild(child);
+      child = node.firstChild;
+    }
+    return frag;
+  };
+  var detach = (node) => {
+    const parent = node.parentNode;
+    if (parent) {
+      parent.removeChild(node);
+    }
+    return node;
+  };
+  var replaceWith = (node, node2) => {
+    const parent = node.parentNode;
+    if (parent) {
+      parent.replaceChild(node2, node);
+    }
+  };
+
+  // source/node/TreeIterator.ts
+  var SHOW_ELEMENT = 1;
+  var SHOW_TEXT = 4;
+  var SHOW_ELEMENT_OR_TEXT = 5;
+  var always = () => true;
+  var TreeIterator = class {
+    constructor(root, nodeType, filter) {
+      this.root = root;
+      this.currentNode = root;
+      this.nodeType = nodeType;
+      this.filter = filter || always;
+    }
+    isAcceptableNode(node) {
+      const nodeType = node.nodeType;
+      const nodeFilterType = nodeType === Node.ELEMENT_NODE ? SHOW_ELEMENT : nodeType === Node.TEXT_NODE ? SHOW_TEXT : 0;
+      return !!(nodeFilterType & this.nodeType) && this.filter(node);
+    }
+    nextNode() {
+      const root = this.root;
+      let current = this.currentNode;
+      let node;
+      while (true) {
+        node = current.firstChild;
+        while (!node && current) {
+          if (current === root) {
+            break;
+          }
+          node = current.nextSibling;
+          if (!node) {
+            current = current.parentNode;
+          }
+        }
+        if (!node) {
+          return null;
+        }
+        if (this.isAcceptableNode(node)) {
+          this.currentNode = node;
+          return node;
+        }
+        current = node;
+      }
+    }
+    previousNode() {
+      const root = this.root;
+      let current = this.currentNode;
+      let node;
+      while (true) {
+        if (current === root) {
+          return null;
+        }
+        node = current.previousSibling;
+        if (node) {
+          while (current = node.lastChild) {
+            node = current;
+          }
+        } else {
+          node = current.parentNode;
+        }
+        if (!node) {
+          return null;
+        }
+        if (this.isAcceptableNode(node)) {
+          this.currentNode = node;
+          return node;
+        }
+        current = node;
+      }
+    }
+    // Previous node in post-order.
+    previousPONode() {
+      const root = this.root;
+      let current = this.currentNode;
+      let node;
+      while (true) {
+        node = current.lastChild;
+        while (!node && current) {
+          if (current === root) {
+            break;
+          }
+          node = current.previousSibling;
+          if (!node) {
+            current = current.parentNode;
+          }
+        }
+        if (!node) {
+          return null;
+        }
+        if (this.isAcceptableNode(node)) {
+          this.currentNode = node;
+          return node;
+        }
+        current = node;
+      }
+    }
+  };
+
+  // source/node/Whitespace.ts
+  var notWSTextNode = (node) => {
+    return node instanceof Element ? node.nodeName === "BR" : (
+      // okay if data is 'undefined' here.
+      notWS.test(node.data)
+    );
+  };
+  var isLineBreak = (br, isLBIfEmptyBlock) => {
+    let block = br.parentNode;
+    while (isInline(block)) {
+      block = block.parentNode;
+    }
+    const walker = new TreeIterator(
+      block,
+      SHOW_ELEMENT_OR_TEXT,
+      notWSTextNode
+    );
+    walker.currentNode = br;
+    return !!walker.nextNode() || isLBIfEmptyBlock && !walker.previousNode();
+  };
+  var removeZWS = (root, keepNode) => {
+    const walker = new TreeIterator(root, SHOW_TEXT);
+    let textNode;
+    let index;
+    while (textNode = walker.nextNode()) {
+      while ((index = textNode.data.indexOf(ZWS)) > -1 && // eslint-disable-next-line no-unmodified-loop-condition
+      (!keepNode || textNode.parentNode !== keepNode)) {
+        if (textNode.length === 1) {
+          let node = textNode;
+          let parent = node.parentNode;
+          while (parent) {
+            parent.removeChild(node);
+            walker.currentNode = parent;
+            if (!isInline(parent) || getLength(parent)) {
+              break;
+            }
+            node = parent;
+            parent = node.parentNode;
+          }
+          break;
+        } else {
+          textNode.deleteData(index, 1);
+        }
+      }
+    }
+  };
+
+  // source/range/Boundaries.ts
+  var START_TO_START = 0;
+  var START_TO_END = 1;
+  var END_TO_END = 2;
+  var END_TO_START = 3;
+  var isNodeContainedInRange = (range, node, partial) => {
+    const nodeRange = document.createRange();
+    nodeRange.selectNode(node);
+    if (partial) {
+      const nodeEndBeforeStart = range.compareBoundaryPoints(END_TO_START, nodeRange) > -1;
+      const nodeStartAfterEnd = range.compareBoundaryPoints(START_TO_END, nodeRange) < 1;
+      return !nodeEndBeforeStart && !nodeStartAfterEnd;
+    } else {
+      const nodeStartAfterStart = range.compareBoundaryPoints(START_TO_START, nodeRange) < 1;
+      const nodeEndBeforeEnd = range.compareBoundaryPoints(END_TO_END, nodeRange) > -1;
+      return nodeStartAfterStart && nodeEndBeforeEnd;
+    }
+  };
+  var moveRangeBoundariesDownTree = (range) => {
+    let { startContainer, startOffset, endContainer, endOffset } = range;
+    let wasCollapsed = range.collapsed;
+    while (!(startContainer instanceof Text)) {
+      let child = startContainer.childNodes[startOffset];
+      if (!child || isLeaf(child)) {
+        if (startOffset) {
+          child = startContainer.childNodes[startOffset - 1];
+          if (child instanceof Text) {
+            let textChild = child;
+            let prev;
+            while (!textChild.length && (prev = textChild.previousSibling) && prev instanceof Text) {
+              textChild.remove();
+              textChild = prev;
+            }
+            startContainer = textChild;
+            startOffset = textChild.data.length;
+          }
+        }
+        break;
+      }
+      startContainer = child;
+      startOffset = 0;
+    }
+    range.setStart(startContainer, startOffset);
+    if (wasCollapsed) {
+      range.collapse();
+    } else {
+      if (endOffset) {
+        while (!(endContainer instanceof Text)) {
+          const child = endContainer.childNodes[endOffset - 1];
+          if (!child || isLeaf(child)) {
+            if (child && child.nodeName === "BR" && !isLineBreak(child, false)) {
+              endOffset -= 1;
+              continue;
+            }
+            break;
+          }
+          endContainer = child;
+          endOffset = getLength(endContainer);
+        }
+      } else {
+        while (!(endContainer instanceof Text)) {
+          const child = endContainer.firstChild;
+          if (!child || isLeaf(child)) {
+            break;
+          }
+          endContainer = child;
+        }
+      }
+      range.setEnd(endContainer, endOffset);
+    }
+  };
+  var moveRangeBoundariesUpTree = (range, startMax, endMax, root) => {
+    let startContainer = range.startContainer;
+    let startOffset = range.startOffset;
+    let endContainer = range.endContainer;
+    let endOffset = range.endOffset;
+    let parent;
+    if (!startMax) {
+      startMax = range.commonAncestorContainer;
+    }
+    if (!endMax) {
+      endMax = startMax;
+    }
+    while (!startOffset && startContainer !== startMax && startContainer !== root) {
+      parent = startContainer.parentNode;
+      startOffset = Array.from(parent.childNodes).indexOf(
+        startContainer
+      );
+      startContainer = parent;
+    }
+    while (true) {
+      if (endContainer === endMax || endContainer === root) {
+        break;
+      }
+      if (endContainer.nodeType !== TEXT_NODE && endContainer.childNodes[endOffset] && endContainer.childNodes[endOffset].nodeName === "BR" && !isLineBreak(endContainer.childNodes[endOffset], false)) {
+        endOffset += 1;
+      }
+      if (endOffset !== getLength(endContainer)) {
+        break;
+      }
+      parent = endContainer.parentNode;
+      endOffset = Array.from(parent.childNodes).indexOf(endContainer) + 1;
+      endContainer = parent;
+    }
+    range.setStart(startContainer, startOffset);
+    range.setEnd(endContainer, endOffset);
+  };
+  var moveRangeBoundaryOutOf = (range, tag, root) => {
+    let parent = getNearest(range.endContainer, root, tag);
+    if (parent && (parent = parent.parentNode)) {
+      const clone = range.cloneRange();
+      moveRangeBoundariesUpTree(clone, parent, parent, root);
+      if (clone.endContainer === parent) {
+        range.setStart(clone.endContainer, clone.endOffset);
+        range.setEnd(clone.endContainer, clone.endOffset);
+      }
+    }
+    return range;
+  };
+
+  // source/node/MergeSplit.ts
+  var fixCursor = (node) => {
+    let fixer = null;
+    if (node instanceof Text) {
+      return node;
+    }
+    if (isInline(node)) {
+      let child = node.firstChild;
+      if (cantFocusEmptyTextNodes) {
+        while (child && child instanceof Text && !child.data) {
+          node.removeChild(child);
+          child = node.firstChild;
+        }
+      }
+      if (!child) {
+        if (cantFocusEmptyTextNodes) {
+          fixer = document.createTextNode(ZWS);
+        } else {
+          fixer = document.createTextNode("");
+        }
+      }
+    } else if ((node instanceof Element || node instanceof DocumentFragment) && !node.querySelector("BR")) {
+      fixer = createElement("BR");
+      let parent = node;
+      let child;
+      while ((child = parent.lastElementChild) && !isInline(child)) {
+        parent = child;
+      }
+      node = parent;
+    }
+    if (fixer) {
+      try {
+        node.appendChild(fixer);
+      } catch (error) {
+      }
+    }
+    return node;
+  };
+  var fixContainer = (container, root) => {
+    let wrapper = null;
+    Array.from(container.childNodes).forEach((child) => {
+      const isBR = child.nodeName === "BR";
+      if (!isBR && isInline(child)) {
+        if (!wrapper) {
+          wrapper = createElement("DIV");
+        }
+        wrapper.appendChild(child);
+      } else if (isBR || wrapper) {
+        if (!wrapper) {
+          wrapper = createElement("DIV");
+        }
+        fixCursor(wrapper);
+        if (isBR) {
+          container.replaceChild(wrapper, child);
+        } else {
+          container.insertBefore(wrapper, child);
+        }
+        wrapper = null;
+      }
+      if (isContainer(child)) {
+        fixContainer(child, root);
+      }
+    });
+    if (wrapper) {
+      container.appendChild(fixCursor(wrapper));
+    }
+    return container;
+  };
+  var split = (node, offset, stopNode, root) => {
+    if (node instanceof Text && node !== stopNode) {
+      if (typeof offset !== "number") {
+        throw new Error("Offset must be a number to split text node!");
+      }
+      if (!node.parentNode) {
+        throw new Error("Cannot split text node with no parent!");
+      }
+      return split(node.parentNode, node.splitText(offset), stopNode, root);
+    }
+    let nodeAfterSplit = typeof offset === "number" ? offset < node.childNodes.length ? node.childNodes[offset] : null : offset;
+    const parent = node.parentNode;
+    if (!parent || node === stopNode || !(node instanceof Element)) {
+      return nodeAfterSplit;
+    }
+    const clone = node.cloneNode(false);
+    while (nodeAfterSplit) {
+      const next = nodeAfterSplit.nextSibling;
+      clone.appendChild(nodeAfterSplit);
+      nodeAfterSplit = next;
+    }
+    if (node instanceof HTMLOListElement && getNearest(node, root, "BLOCKQUOTE")) {
+      clone.start = (+node.start || 1) + node.childNodes.length - 1;
+    }
+    fixCursor(node);
+    fixCursor(clone);
+    parent.insertBefore(clone, node.nextSibling);
+    return split(parent, clone, stopNode, root);
+  };
+  var _mergeInlines = (node, fakeRange) => {
+    const children = node.childNodes;
+    let l = children.length;
+    const frags = [];
+    while (l--) {
+      const child = children[l];
+      const prev = l ? children[l - 1] : null;
+      if (prev && isInline(child) && areAlike(child, prev)) {
+        if (fakeRange.startContainer === child) {
+          fakeRange.startContainer = prev;
+          fakeRange.startOffset += getLength(prev);
+        }
+        if (fakeRange.endContainer === child) {
+          fakeRange.endContainer = prev;
+          fakeRange.endOffset += getLength(prev);
+        }
+        if (fakeRange.startContainer === node) {
+          if (fakeRange.startOffset > l) {
+            fakeRange.startOffset -= 1;
+          } else if (fakeRange.startOffset === l) {
+            fakeRange.startContainer = prev;
+            fakeRange.startOffset = getLength(prev);
+          }
+        }
+        if (fakeRange.endContainer === node) {
+          if (fakeRange.endOffset > l) {
+            fakeRange.endOffset -= 1;
+          } else if (fakeRange.endOffset === l) {
+            fakeRange.endContainer = prev;
+            fakeRange.endOffset = getLength(prev);
+          }
+        }
+        detach(child);
+        if (child instanceof Text) {
+          prev.appendData(child.data);
+        } else {
+          frags.push(empty(child));
+        }
+      } else if (child instanceof Element) {
+        let frag;
+        while (frag = frags.pop()) {
+          child.appendChild(frag);
+        }
+        _mergeInlines(child, fakeRange);
+      }
+    }
+  };
+  var mergeInlines = (node, range) => {
+    const element = node instanceof Text ? node.parentNode : node;
+    if (element instanceof Element) {
+      const fakeRange = {
+        startContainer: range.startContainer,
+        startOffset: range.startOffset,
+        endContainer: range.endContainer,
+        endOffset: range.endOffset
+      };
+      _mergeInlines(element, fakeRange);
+      range.setStart(fakeRange.startContainer, fakeRange.startOffset);
+      range.setEnd(fakeRange.endContainer, fakeRange.endOffset);
+    }
+  };
+  var mergeWithBlock = (block, next, range, root) => {
+    let container = next;
+    let parent;
+    let offset;
+    while ((parent = container.parentNode) && parent !== root && parent instanceof Element && parent.childNodes.length === 1) {
+      container = parent;
+    }
+    detach(container);
+    offset = block.childNodes.length;
+    const last = block.lastChild;
+    if (last && last.nodeName === "BR") {
+      block.removeChild(last);
+      offset -= 1;
+    }
+    block.appendChild(empty(next));
+    range.setStart(block, offset);
+    range.collapse(true);
+    mergeInlines(block, range);
+  };
+  var mergeContainers = (node, root) => {
+    const prev = node.previousSibling;
+    const first = node.firstChild;
+    const isListItem = node.nodeName === "LI";
+    if (isListItem && (!first || !/^[OU]L$/.test(first.nodeName))) {
+      return;
+    }
+    if (prev && areAlike(prev, node)) {
+      if (!isContainer(prev)) {
+        if (isListItem) {
+          const block = createElement("DIV");
+          block.appendChild(empty(prev));
+          prev.appendChild(block);
+        } else {
+          return;
+        }
+      }
+      detach(node);
+      const needsFix = !isContainer(node);
+      prev.appendChild(empty(node));
+      if (needsFix) {
+        fixContainer(prev, root);
+      }
+      if (first) {
+        mergeContainers(first, root);
+      }
+    } else if (isListItem) {
+      const block = createElement("DIV");
+      node.insertBefore(block, first);
+      fixCursor(block);
+    }
+  };
+
+  // source/Clean.ts
+  var styleToSemantic = {
+    "font-weight": {
+      regexp: /^bold|^700/i,
+      replace() {
+        return createElement("B");
+      }
+    },
+    "font-style": {
+      regexp: /^italic/i,
+      replace() {
+        return createElement("I");
+      }
+    },
+    "font-family": {
+      regexp: notWS,
+      replace(classNames, family) {
+        return createElement("SPAN", {
+          class: classNames.fontFamily,
+          style: "font-family:" + family
+        });
+      }
+    },
+    "font-size": {
+      regexp: notWS,
+      replace(classNames, size) {
+        return createElement("SPAN", {
+          class: classNames.fontSize,
+          style: "font-size:" + size
+        });
+      }
+    },
+    "text-decoration": {
+      regexp: /^underline/i,
+      replace() {
+        return createElement("U");
+      }
+    }
+  };
+  var replaceStyles = (node, _, config) => {
+    const style = node.style;
+    let newTreeBottom;
+    let newTreeTop;
+    for (const attr in styleToSemantic) {
+      const converter = styleToSemantic[attr];
+      const css = style.getPropertyValue(attr);
+      if (css && converter.regexp.test(css)) {
+        const el = converter.replace(config.classNames, css);
+        if (el.nodeName === node.nodeName && el.className === node.className) {
+          continue;
+        }
+        if (!newTreeTop) {
+          newTreeTop = el;
+        }
+        if (newTreeBottom) {
+          newTreeBottom.appendChild(el);
+        }
+        newTreeBottom = el;
+        node.style.removeProperty(attr);
+      }
+    }
+    if (newTreeTop && newTreeBottom) {
+      newTreeBottom.appendChild(empty(node));
+      if (node.style.cssText) {
+        node.appendChild(newTreeTop);
+      } else {
+        replaceWith(node, newTreeTop);
+      }
+    }
+    return newTreeBottom || node;
+  };
+  var replaceWithTag = (tag) => {
+    return (node, parent) => {
+      const el = createElement(tag);
+      const attributes = node.attributes;
+      for (let i = 0, l = attributes.length; i < l; i += 1) {
+        const attribute = attributes[i];
+        el.setAttribute(attribute.name, attribute.value);
+      }
+      parent.replaceChild(el, node);
+      el.appendChild(empty(node));
+      return el;
+    };
+  };
+  var fontSizes = {
+    "1": "10",
+    "2": "13",
+    "3": "16",
+    "4": "18",
+    "5": "24",
+    "6": "32",
+    "7": "48"
+  };
+  var stylesRewriters = {
+    STRONG: replaceWithTag("B"),
+    EM: replaceWithTag("I"),
+    INS: replaceWithTag("U"),
+    STRIKE: replaceWithTag("S"),
+    SPAN: replaceStyles,
+    FONT: (node, parent, config) => {
+      const font = node;
+      const face = font.face;
+      const size = font.size;
+      let color = font.color;
+      const classNames = config.classNames;
+      let fontSpan;
+      let sizeSpan;
+      let colorSpan;
+      let newTreeBottom;
+      let newTreeTop;
+      if (face) {
+        fontSpan = createElement("SPAN", {
+          class: classNames.fontFamily,
+          style: "font-family:" + face
+        });
+        newTreeTop = fontSpan;
+        newTreeBottom = fontSpan;
+      }
+      if (size) {
+        sizeSpan = createElement("SPAN", {
+          class: classNames.fontSize,
+          style: "font-size:" + fontSizes[size] + "px"
+        });
+        if (!newTreeTop) {
+          newTreeTop = sizeSpan;
+        }
+        if (newTreeBottom) {
+          newTreeBottom.appendChild(sizeSpan);
+        }
+        newTreeBottom = sizeSpan;
+      }
+      if (color && /^#?([\dA-F]{3}){1,2}$/i.test(color)) {
+        if (color.charAt(0) !== "#") {
+          color = "#" + color;
+        }
+        colorSpan = createElement("SPAN", {
+          class: classNames.color,
+          style: "color:" + color
+        });
+        if (!newTreeTop) {
+          newTreeTop = colorSpan;
+        }
+        if (newTreeBottom) {
+          newTreeBottom.appendChild(colorSpan);
+        }
+        newTreeBottom = colorSpan;
+      }
+      if (!newTreeTop || !newTreeBottom) {
+        newTreeTop = newTreeBottom = createElement("SPAN");
+      }
+      parent.replaceChild(newTreeTop, font);
+      newTreeBottom.appendChild(empty(font));
+      return newTreeBottom;
+    },
+    TT: (node, parent, config) => {
+      const el = createElement("SPAN", {
+        class: config.classNames.fontFamily,
+        style: 'font-family:menlo,consolas,"courier new",monospace'
+      });
+      parent.replaceChild(el, node);
+      el.appendChild(empty(node));
+      return el;
+    }
+  };
+  var allowedBlock = /^(?:A(?:DDRESS|RTICLE|SIDE|UDIO)|BLOCKQUOTE|CAPTION|D(?:[DLT]|IV)|F(?:IGURE|IGCAPTION|OOTER)|H[1-6]|HEADER|L(?:ABEL|EGEND|I)|O(?:L|UTPUT)|P(?:RE)?|S(?:ECTION|OURCE)|T(?:ABLE|BODY|D|FOOT|H|HEAD|R)|COL(?:GROUP)?|UL|VIDEO)$/;
+  var blacklist = /^(?:HEAD|META|STYLE)/;
+  var cleanTree = (node, config, preserveWS) => {
+    const children = node.childNodes;
+    let nonInlineParent = node;
+    while (isInline(nonInlineParent)) {
+      nonInlineParent = nonInlineParent.parentNode;
+    }
+    const walker = new TreeIterator(
+      nonInlineParent,
+      SHOW_ELEMENT_OR_TEXT
+    );
+    for (let i = 0, l = children.length; i < l; i += 1) {
+      let child = children[i];
+      const nodeName = child.nodeName;
+      const rewriter = stylesRewriters[nodeName];
+      if (child instanceof HTMLElement) {
+        const childLength = child.childNodes.length;
+        if (rewriter) {
+          child = rewriter(child, node, config);
+        } else if (blacklist.test(nodeName)) {
+          node.removeChild(child);
+          i -= 1;
+          l -= 1;
+          continue;
+        } else if (!allowedBlock.test(nodeName) && !isInline(child)) {
+          i -= 1;
+          l += childLength - 1;
+          node.replaceChild(empty(child), child);
+          continue;
+        }
+        if (childLength) {
+          cleanTree(child, config, preserveWS || nodeName === "PRE");
+        }
+      } else {
+        if (child instanceof Text) {
+          let data = child.data;
+          const startsWithWS = !notWS.test(data.charAt(0));
+          const endsWithWS = !notWS.test(data.charAt(data.length - 1));
+          if (preserveWS || !startsWithWS && !endsWithWS) {
+            continue;
+          }
+          if (startsWithWS) {
+            walker.currentNode = child;
+            let sibling;
+            while (sibling = walker.previousPONode()) {
+              if (sibling.nodeName === "IMG" || sibling instanceof Text && notWS.test(sibling.data)) {
+                break;
+              }
+              if (!isInline(sibling)) {
+                sibling = null;
+                break;
+              }
+            }
+            data = data.replace(/^[ \t\r\n]+/g, sibling ? " " : "");
+          }
+          if (endsWithWS) {
+            walker.currentNode = child;
+            let sibling;
+            while (sibling = walker.nextNode()) {
+              if (sibling.nodeName === "IMG" || sibling instanceof Text && notWS.test(sibling.data)) {
+                break;
+              }
+              if (!isInline(sibling)) {
+                sibling = null;
+                break;
+              }
+            }
+            data = data.replace(/[ \t\r\n]+$/g, sibling ? " " : "");
+          }
+          if (data) {
+            child.data = data;
+            continue;
+          }
+        }
+        node.removeChild(child);
+        i -= 1;
+        l -= 1;
+      }
+    }
+    return node;
+  };
+  var removeEmptyInlines = (node) => {
+    const children = node.childNodes;
+    let l = children.length;
+    while (l--) {
+      const child = children[l];
+      if (child instanceof Element && !isLeaf(child)) {
+        removeEmptyInlines(child);
+        if (isInline(child) && !child.firstChild) {
+          node.removeChild(child);
+        }
+      } else if (child instanceof Text && !child.data) {
+        node.removeChild(child);
+      }
+    }
+  };
+  var cleanupBRs = (node, root, keepForBlankLine) => {
+    const brs = node.querySelectorAll("BR");
+    const brBreaksLine = [];
+    let l = brs.length;
+    for (let i = 0; i < l; i += 1) {
+      brBreaksLine[i] = isLineBreak(brs[i], keepForBlankLine);
+    }
+    while (l--) {
+      const br = brs[l];
+      const parent = br.parentNode;
+      if (!parent) {
+        continue;
+      }
+      if (!brBreaksLine[l]) {
+        detach(br);
+      } else if (!isInline(parent)) {
+        fixContainer(parent, root);
+      }
+    }
+  };
+  var escapeHTML = (text) => {
+    return text.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;");
+  };
+
+  // source/node/Block.ts
+  var getBlockWalker = (node, root) => {
+    const walker = new TreeIterator(root, SHOW_ELEMENT, isBlock);
+    walker.currentNode = node;
+    return walker;
+  };
+  var getPreviousBlock = (node, root) => {
+    const block = getBlockWalker(node, root).previousNode();
+    return block !== root ? block : null;
+  };
+  var getNextBlock = (node, root) => {
+    const block = getBlockWalker(node, root).nextNode();
+    return block !== root ? block : null;
+  };
+  var isEmptyBlock = (block) => {
+    return !block.textContent && !block.querySelector("IMG");
+  };
+
+  // source/range/Block.ts
+  var getStartBlockOfRange = (range, root) => {
+    const container = range.startContainer;
+    let block;
+    if (isInline(container)) {
+      block = getPreviousBlock(container, root);
+    } else if (container !== root && container instanceof HTMLElement && isBlock(container)) {
+      block = container;
+    } else {
+      const node = getNodeBeforeOffset(container, range.startOffset);
+      block = getNextBlock(node, root);
+    }
+    return block && isNodeContainedInRange(range, block, true) ? block : null;
+  };
+  var getEndBlockOfRange = (range, root) => {
+    const container = range.endContainer;
+    let block;
+    if (isInline(container)) {
+      block = getPreviousBlock(container, root);
+    } else if (container !== root && container instanceof HTMLElement && isBlock(container)) {
+      block = container;
+    } else {
+      let node = getNodeAfterOffset(container, range.endOffset);
+      if (!node || !root.contains(node)) {
+        node = root;
+        let child;
+        while (child = node.lastChild) {
+          node = child;
+        }
+      }
+      block = getPreviousBlock(node, root);
+    }
+    return block && isNodeContainedInRange(range, block, true) ? block : null;
+  };
+  var isContent = (node) => {
+    return node instanceof Text ? notWS.test(node.data) : node.nodeName === "IMG";
+  };
+  var rangeDoesStartAtBlockBoundary = (range, root) => {
+    const startContainer = range.startContainer;
+    const startOffset = range.startOffset;
+    let nodeAfterCursor;
+    if (startContainer instanceof Text) {
+      const text = startContainer.data;
+      for (let i = startOffset; i > 0; i -= 1) {
+        if (text.charAt(i - 1) !== ZWS) {
+          return false;
+        }
+      }
+      nodeAfterCursor = startContainer;
+    } else {
+      nodeAfterCursor = getNodeAfterOffset(startContainer, startOffset);
+      if (nodeAfterCursor && !root.contains(nodeAfterCursor)) {
+        nodeAfterCursor = null;
+      }
+      if (!nodeAfterCursor) {
+        nodeAfterCursor = getNodeBeforeOffset(startContainer, startOffset);
+        if (nodeAfterCursor instanceof Text && nodeAfterCursor.length) {
+          return false;
+        }
+      }
+    }
+    const block = getStartBlockOfRange(range, root);
+    if (!block) {
+      return false;
+    }
+    const contentWalker = new TreeIterator(
+      block,
+      SHOW_ELEMENT_OR_TEXT,
+      isContent
+    );
+    contentWalker.currentNode = nodeAfterCursor;
+    return !contentWalker.previousNode();
+  };
+  var rangeDoesEndAtBlockBoundary = (range, root) => {
+    const endContainer = range.endContainer;
+    const endOffset = range.endOffset;
+    let currentNode;
+    if (endContainer instanceof Text) {
+      const text = endContainer.data;
+      const length = text.length;
+      for (let i = endOffset; i < length; i += 1) {
+        if (text.charAt(i) !== ZWS) {
+          return false;
+        }
+      }
+      currentNode = endContainer;
+    } else {
+      currentNode = getNodeBeforeOffset(endContainer, endOffset);
+    }
+    const block = getEndBlockOfRange(range, root);
+    if (!block) {
+      return false;
+    }
+    const contentWalker = new TreeIterator(
+      block,
+      SHOW_ELEMENT_OR_TEXT,
+      isContent
+    );
+    contentWalker.currentNode = currentNode;
+    return !contentWalker.nextNode();
+  };
+  var expandRangeToBlockBoundaries = (range, root) => {
+    const start = getStartBlockOfRange(range, root);
+    const end = getEndBlockOfRange(range, root);
+    let parent;
+    if (start && end) {
+      parent = start.parentNode;
+      range.setStart(parent, Array.from(parent.childNodes).indexOf(start));
+      parent = end.parentNode;
+      range.setEnd(parent, Array.from(parent.childNodes).indexOf(end) + 1);
+    }
+  };
+
+  // source/range/InsertDelete.ts
+  function createRange(startContainer, startOffset, endContainer, endOffset) {
+    const range = document.createRange();
+    range.setStart(startContainer, startOffset);
+    if (endContainer && typeof endOffset === "number") {
+      range.setEnd(endContainer, endOffset);
+    } else {
+      range.setEnd(startContainer, startOffset);
+    }
+    return range;
+  }
+  var insertNodeInRange = (range, node) => {
+    let { startContainer, startOffset, endContainer, endOffset } = range;
+    let children;
+    if (startContainer instanceof Text) {
+      const parent = startContainer.parentNode;
+      children = parent.childNodes;
+      if (startOffset === startContainer.length) {
+        startOffset = Array.from(children).indexOf(startContainer) + 1;
+        if (range.collapsed) {
+          endContainer = parent;
+          endOffset = startOffset;
+        }
+      } else {
+        if (startOffset) {
+          const afterSplit = startContainer.splitText(startOffset);
+          if (endContainer === startContainer) {
+            endOffset -= startOffset;
+            endContainer = afterSplit;
+          } else if (endContainer === parent) {
+            endOffset += 1;
+          }
+          startContainer = afterSplit;
+        }
+        startOffset = Array.from(children).indexOf(
+          startContainer
+        );
+      }
+      startContainer = parent;
+    } else {
+      children = startContainer.childNodes;
+    }
+    const childCount = children.length;
+    if (startOffset === childCount) {
+      startContainer.appendChild(node);
+    } else {
+      startContainer.insertBefore(node, children[startOffset]);
+    }
+    if (startContainer === endContainer) {
+      endOffset += children.length - childCount;
+    }
+    range.setStart(startContainer, startOffset);
+    range.setEnd(endContainer, endOffset);
+  };
+  var extractContentsOfRange = (range, common, root) => {
+    const frag = document.createDocumentFragment();
+    if (range.collapsed) {
+      return frag;
+    }
+    if (!common) {
+      common = range.commonAncestorContainer;
+    }
+    if (common instanceof Text) {
+      common = common.parentNode;
+    }
+    const startContainer = range.startContainer;
+    const startOffset = range.startOffset;
+    let endContainer = split(range.endContainer, range.endOffset, common, root);
+    let endOffset = 0;
+    let node = split(startContainer, startOffset, common, root);
+    while (node && node !== endContainer) {
+      const next = node.nextSibling;
+      frag.appendChild(node);
+      node = next;
+    }
+    if (startContainer instanceof Text && endContainer instanceof Text) {
+      startContainer.appendData(endContainer.data);
+      detach(endContainer);
+      endContainer = startContainer;
+      endOffset = startOffset;
+    }
+    range.setStart(startContainer, startOffset);
+    if (endContainer) {
+      range.setEnd(endContainer, endOffset);
+    } else {
+      range.setEnd(common, common.childNodes.length);
+    }
+    fixCursor(common);
+    return frag;
+  };
+  var getAdjacentInlineNode = (iterator, method, node) => {
+    iterator.currentNode = node;
+    let nextNode;
+    while (nextNode = iterator[method]()) {
+      if (nextNode instanceof Text || isLeaf(nextNode)) {
+        return nextNode;
+      }
+      if (!isInline(nextNode)) {
+        return null;
+      }
+    }
+    return null;
+  };
+  var deleteContentsOfRange = (range, root) => {
+    const startBlock = getStartBlockOfRange(range, root);
+    let endBlock = getEndBlockOfRange(range, root);
+    const needsMerge = startBlock !== endBlock;
+    if (startBlock && endBlock) {
+      moveRangeBoundariesDownTree(range);
+      moveRangeBoundariesUpTree(range, startBlock, endBlock, root);
+    }
+    const frag = extractContentsOfRange(range, null, root);
+    moveRangeBoundariesDownTree(range);
+    if (needsMerge) {
+      endBlock = getEndBlockOfRange(range, root);
+      if (startBlock && endBlock && startBlock !== endBlock) {
+        mergeWithBlock(startBlock, endBlock, range, root);
+      }
+    }
+    if (startBlock) {
+      fixCursor(startBlock);
+    }
+    const child = root.firstChild;
+    if (!child || child.nodeName === "BR") {
+      fixCursor(root);
+      if (root.firstChild) {
+        range.selectNodeContents(root.firstChild);
+      }
+    }
+    range.collapse(true);
+    const startContainer = range.startContainer;
+    const startOffset = range.startOffset;
+    const iterator = new TreeIterator(root, SHOW_ELEMENT_OR_TEXT);
+    let afterNode = startContainer;
+    let afterOffset = startOffset;
+    if (!(afterNode instanceof Text) || afterOffset === afterNode.data.length) {
+      afterNode = getAdjacentInlineNode(iterator, "nextNode", afterNode);
+      afterOffset = 0;
+    }
+    let beforeNode = startContainer;
+    let beforeOffset = startOffset - 1;
+    if (!(beforeNode instanceof Text) || beforeOffset === -1) {
+      beforeNode = getAdjacentInlineNode(
+        iterator,
+        "previousPONode",
+        afterNode || (startContainer instanceof Text ? startContainer : startContainer.childNodes[startOffset] || startContainer)
+      );
+      if (beforeNode instanceof Text) {
+        beforeOffset = beforeNode.data.length;
+      }
+    }
+    let node = null;
+    let offset = 0;
+    if (afterNode instanceof Text && afterNode.data.charAt(afterOffset) === " " && rangeDoesStartAtBlockBoundary(range, root)) {
+      node = afterNode;
+      offset = afterOffset;
+    } else if (beforeNode instanceof Text && beforeNode.data.charAt(beforeOffset) === " ") {
+      if (afterNode instanceof Text && afterNode.data.charAt(afterOffset) === " " || rangeDoesEndAtBlockBoundary(range, root)) {
+        node = beforeNode;
+        offset = beforeOffset;
+      }
+    }
+    if (node) {
+      node.replaceData(offset, 1, "\xA0");
+    }
+    range.setStart(startContainer, startOffset);
+    range.collapse(true);
+    return frag;
+  };
+  var insertTreeFragmentIntoRange = (range, frag, root) => {
+    const firstInFragIsInline = frag.firstChild && isInline(frag.firstChild);
+    let node;
+    fixContainer(frag, root);
+    node = frag;
+    while (node = getNextBlock(node, root)) {
+      fixCursor(node);
+    }
+    if (!range.collapsed) {
+      deleteContentsOfRange(range, root);
+    }
+    moveRangeBoundariesDownTree(range);
+    range.collapse(false);
+    const stopPoint = getNearest(range.endContainer, root, "BLOCKQUOTE") || root;
+    let block = getStartBlockOfRange(range, root);
+    let blockContentsAfterSplit = null;
+    const firstBlockInFrag = getNextBlock(frag, frag);
+    const replaceBlock = !firstInFragIsInline && !!block && isEmptyBlock(block);
+    if (block && firstBlockInFrag && !replaceBlock && // Don't merge table cells or PRE elements into block
+    !getNearest(firstBlockInFrag, frag, "PRE") && !getNearest(firstBlockInFrag, frag, "TABLE")) {
+      moveRangeBoundariesUpTree(range, block, block, root);
+      range.collapse(true);
+      let container = range.endContainer;
+      let offset = range.endOffset;
+      cleanupBRs(block, root, false);
+      if (isInline(container)) {
+        const nodeAfterSplit = split(
+          container,
+          offset,
+          getPreviousBlock(container, root) || root,
+          root
+        );
+        container = nodeAfterSplit.parentNode;
+        offset = Array.from(container.childNodes).indexOf(
+          nodeAfterSplit
+        );
+      }
+      if (
+        /*isBlock( container ) && */
+        offset !== getLength(container)
+      ) {
+        blockContentsAfterSplit = document.createDocumentFragment();
+        while (node = container.childNodes[offset]) {
+          blockContentsAfterSplit.appendChild(node);
+        }
+      }
+      mergeWithBlock(container, firstBlockInFrag, range, root);
+      offset = Array.from(container.parentNode.childNodes).indexOf(
+        container
+      ) + 1;
+      container = container.parentNode;
+      range.setEnd(container, offset);
+    }
+    if (getLength(frag)) {
+      if (replaceBlock && block) {
+        range.setEndBefore(block);
+        range.collapse(false);
+        detach(block);
+      }
+      moveRangeBoundariesUpTree(range, stopPoint, stopPoint, root);
+      let nodeAfterSplit = split(
+        range.endContainer,
+        range.endOffset,
+        stopPoint,
+        root
+      );
+      const nodeBeforeSplit = nodeAfterSplit ? nodeAfterSplit.previousSibling : stopPoint.lastChild;
+      stopPoint.insertBefore(frag, nodeAfterSplit);
+      if (nodeAfterSplit) {
+        range.setEndBefore(nodeAfterSplit);
+      } else {
+        range.setEnd(stopPoint, getLength(stopPoint));
+      }
+      block = getEndBlockOfRange(range, root);
+      moveRangeBoundariesDownTree(range);
+      const container = range.endContainer;
+      const offset = range.endOffset;
+      if (nodeAfterSplit && isContainer(nodeAfterSplit)) {
+        mergeContainers(nodeAfterSplit, root);
+      }
+      nodeAfterSplit = nodeBeforeSplit && nodeBeforeSplit.nextSibling;
+      if (nodeAfterSplit && isContainer(nodeAfterSplit)) {
+        mergeContainers(nodeAfterSplit, root);
+      }
+      range.setEnd(container, offset);
+    }
+    if (blockContentsAfterSplit && block) {
+      const tempRange = range.cloneRange();
+      fixCursor(blockContentsAfterSplit);
+      mergeWithBlock(block, blockContentsAfterSplit, tempRange, root);
+      range.setEnd(tempRange.endContainer, tempRange.endOffset);
+    }
+    moveRangeBoundariesDownTree(range);
+  };
+
+  // source/range/Contents.ts
+  var getTextContentsOfRange = (range) => {
+    if (range.collapsed) {
+      return "";
+    }
+    const startContainer = range.startContainer;
+    const endContainer = range.endContainer;
+    const walker = new TreeIterator(
+      range.commonAncestorContainer,
+      SHOW_ELEMENT_OR_TEXT,
+      (node2) => {
+        return isNodeContainedInRange(range, node2, true);
+      }
+    );
+    walker.currentNode = startContainer;
+    let node = startContainer;
+    let textContent = "";
+    let addedTextInBlock = false;
+    let value;
+    if (!(node instanceof Element) && !(node instanceof Text) || !walker.filter(node)) {
+      node = walker.nextNode();
+    }
+    while (node) {
+      if (node instanceof Text) {
+        value = node.data;
+        if (value && /\S/.test(value)) {
+          if (node === endContainer) {
+            value = value.slice(0, range.endOffset);
+          }
+          if (node === startContainer) {
+            value = value.slice(range.startOffset);
+          }
+          textContent += value;
+          addedTextInBlock = true;
+        }
+      } else if (node.nodeName === "BR" || addedTextInBlock && !isInline(node)) {
+        textContent += "\n";
+        addedTextInBlock = false;
+      }
+      node = walker.nextNode();
+    }
+    textContent = textContent.replace(/ /g, " ");
+    return textContent;
+  };
+
+  // source/Clipboard.ts
+  var indexOf = Array.prototype.indexOf;
+  var extractRangeToClipboard = (event, range, root, removeRangeFromDocument, toCleanHTML, toPlainText, plainTextOnly) => {
+    const clipboardData = event.clipboardData;
+    if (isLegacyEdge || !clipboardData) {
+      return false;
+    }
+    let text = toPlainText ? "" : getTextContentsOfRange(range);
+    const startBlock = getStartBlockOfRange(range, root);
+    const endBlock = getEndBlockOfRange(range, root);
+    let copyRoot = root;
+    if (startBlock === endBlock && (startBlock == null ? void 0 : startBlock.contains(range.commonAncestorContainer))) {
+      copyRoot = startBlock;
+    }
+    let contents;
+    if (removeRangeFromDocument) {
+      contents = deleteContentsOfRange(range, root);
+    } else {
+      range = range.cloneRange();
+      moveRangeBoundariesDownTree(range);
+      moveRangeBoundariesUpTree(range, copyRoot, copyRoot, root);
+      contents = range.cloneContents();
+    }
+    let parent = range.commonAncestorContainer;
+    if (parent instanceof Text) {
+      parent = parent.parentNode;
+    }
+    while (parent && parent !== copyRoot) {
+      const newContents = parent.cloneNode(false);
+      newContents.appendChild(contents);
+      contents = newContents;
+      parent = parent.parentNode;
+    }
+    let html;
+    if (contents.childNodes.length === 1 && contents.childNodes[0] instanceof Text) {
+      text = contents.childNodes[0].data.replace(/ /g, " ");
+      plainTextOnly = true;
+    } else {
+      const node = createElement("DIV");
+      node.appendChild(contents);
+      html = node.innerHTML;
+      if (toCleanHTML) {
+        html = toCleanHTML(html);
+      }
+    }
+    if (toPlainText && html !== void 0) {
+      text = toPlainText(html);
+    }
+    if (isWin) {
+      text = text.replace(/\r?\n/g, "\r\n");
+    }
+    if (!plainTextOnly && html && text !== html) {
+      clipboardData.setData("text/html", html);
+    }
+    clipboardData.setData("text/plain", text);
+    event.preventDefault();
+    return true;
+  };
+  var _onCut = function(event) {
+    const range = this.getSelection();
+    const root = this._root;
+    if (range.collapsed) {
+      event.preventDefault();
+      return;
+    }
+    this.saveUndoState(range);
+    const handled = extractRangeToClipboard(
+      event,
+      range,
+      root,
+      true,
+      this._config.willCutCopy,
+      this._config.toPlainText,
+      false
+    );
+    if (!handled) {
+      setTimeout(() => {
+        try {
+          this._ensureBottomLine();
+        } catch (error) {
+          this._config.didError(error);
+        }
+      }, 0);
+    }
+    this.setSelection(range);
+  };
+  var _onCopy = function(event) {
+    extractRangeToClipboard(
+      event,
+      this.getSelection(),
+      this._root,
+      false,
+      this._config.willCutCopy,
+      this._config.toPlainText,
+      false
+    );
+  };
+  var _monitorShiftKey = function(event) {
+    this._isShiftDown = event.shiftKey;
+  };
+  var _onPaste = function(event) {
+    const clipboardData = event.clipboardData;
+    const items = clipboardData == null ? void 0 : clipboardData.items;
+    const choosePlain = this._isShiftDown;
+    let hasRTF = false;
+    let hasImage = false;
+    let plainItem = null;
+    let htmlItem = null;
+    if (items) {
+      let l = items.length;
+      while (l--) {
+        const item = items[l];
+        const type = item.type;
+        if (type === "text/html") {
+          htmlItem = item;
+        } else if (type === "text/plain" || type === "text/uri-list") {
+          plainItem = item;
+        } else if (type === "text/rtf") {
+          hasRTF = true;
+        } else if (/^image\/.*/.test(type)) {
+          hasImage = true;
+        }
+      }
+      if (hasImage && !(hasRTF && htmlItem)) {
+        event.preventDefault();
+        this.fireEvent("pasteImage", {
+          clipboardData
+        });
+        return;
+      }
+      if (!isLegacyEdge) {
+        event.preventDefault();
+        if (htmlItem && (!choosePlain || !plainItem)) {
+          htmlItem.getAsString((html) => {
+            this.insertHTML(html, true);
+          });
+        } else if (plainItem) {
+          plainItem.getAsString((text) => {
+            let isLink = false;
+            const range2 = this.getSelection();
+            if (!range2.collapsed && notWS.test(range2.toString())) {
+              const match = this.linkRegExp.exec(text);
+              isLink = !!match && match[0].length === text.length;
+            }
+            if (isLink) {
+              this.makeLink(text);
+            } else {
+              this.insertPlainText(text, true);
+            }
+          });
+        }
+        return;
+      }
+    }
+    const types = clipboardData == null ? void 0 : clipboardData.types;
+    if (!isLegacyEdge && types && (indexOf.call(types, "text/html") > -1 || !isGecko && indexOf.call(types, "text/plain") > -1 && indexOf.call(types, "text/rtf") < 0)) {
+      event.preventDefault();
+      let data;
+      if (!choosePlain && (data = clipboardData.getData("text/html"))) {
+        this.insertHTML(data, true);
+      } else if ((data = clipboardData.getData("text/plain")) || (data = clipboardData.getData("text/uri-list"))) {
+        this.insertPlainText(data, true);
+      }
+      return;
+    }
+    const body = document.body;
+    const range = this.getSelection();
+    const startContainer = range.startContainer;
+    const startOffset = range.startOffset;
+    const endContainer = range.endContainer;
+    const endOffset = range.endOffset;
+    let pasteArea = createElement("DIV", {
+      contenteditable: "true",
+      style: "position:fixed; overflow:hidden; top:0; right:100%; width:1px; height:1px;"
+    });
+    body.appendChild(pasteArea);
+    range.selectNodeContents(pasteArea);
+    this.setSelection(range);
+    setTimeout(() => {
+      try {
+        let html = "";
+        let next = pasteArea;
+        let first;
+        while (pasteArea = next) {
+          next = pasteArea.nextSibling;
+          detach(pasteArea);
+          first = pasteArea.firstChild;
+          if (first && first === pasteArea.lastChild && first instanceof HTMLDivElement) {
+            pasteArea = first;
+          }
+          html += pasteArea.innerHTML;
+        }
+        this.setSelection(
+          createRange(
+            startContainer,
+            startOffset,
+            endContainer,
+            endOffset
+          )
+        );
+        if (html) {
+          this.insertHTML(html, true);
+        }
+      } catch (error) {
+        this._config.didError(error);
+      }
+    }, 0);
+  };
+  var _onDrop = function(event) {
+    if (!event.dataTransfer) {
+      return;
+    }
+    const types = event.dataTransfer.types;
+    let l = types.length;
+    let hasPlain = false;
+    let hasHTML = false;
+    while (l--) {
+      switch (types[l]) {
+        case "text/plain":
+          hasPlain = true;
+          break;
+        case "text/html":
+          hasHTML = true;
+          break;
+        default:
+          return;
+      }
+    }
+    if (hasHTML || hasPlain && this.saveUndoState) {
+      this.saveUndoState();
+    }
+  };
+
+  // source/keyboard/Enter.ts
+  var Enter = (self, event, range) => {
+    event.preventDefault();
+    self.splitBlock(event.shiftKey, range);
+  };
+
+  // source/keyboard/KeyHelpers.ts
+  var afterDelete = (self, range) => {
+    try {
+      if (!range) {
+        range = self.getSelection();
+      }
+      let node = range.startContainer;
+      if (node instanceof Text) {
+        node = node.parentNode;
+      }
+      let parent = node;
+      while (isInline(parent) && (!parent.textContent || parent.textContent === ZWS)) {
+        node = parent;
+        parent = node.parentNode;
+      }
+      if (node !== parent) {
+        range.setStart(
+          parent,
+          Array.from(parent.childNodes).indexOf(node)
+        );
+        range.collapse(true);
+        parent.removeChild(node);
+        if (!isBlock(parent)) {
+          parent = getPreviousBlock(parent, self._root) || self._root;
+        }
+        fixCursor(parent);
+        moveRangeBoundariesDownTree(range);
+      }
+      if (node === self._root && (node = node.firstChild) && node.nodeName === "BR") {
+        detach(node);
+      }
+      self._ensureBottomLine();
+      self.setSelection(range);
+      self._updatePath(range, true);
+    } catch (error) {
+      self._config.didError(error);
+    }
+  };
+  var detachUneditableNode = (node, root) => {
+    let parent;
+    while (parent = node.parentNode) {
+      if (parent === root || parent.isContentEditable) {
+        break;
+      }
+      node = parent;
+    }
+    detach(node);
+  };
+  var linkifyText = (self, textNode, offset) => {
+    if (getNearest(textNode, self._root, "A")) {
+      return;
+    }
+    const data = textNode.data || "";
+    const searchFrom = Math.max(
+      data.lastIndexOf(" ", offset - 1),
+      data.lastIndexOf("\xA0", offset - 1)
+    ) + 1;
+    const searchText = data.slice(searchFrom, offset);
+    const match = self.linkRegExp.exec(searchText);
+    if (match) {
+      const selection = self.getSelection();
+      self._docWasChanged();
+      self._recordUndoState(selection);
+      self._getRangeAndRemoveBookmark(selection);
+      const index = searchFrom + match.index;
+      const endIndex = index + match[0].length;
+      const needsSelectionUpdate = selection.startContainer === textNode;
+      const newSelectionOffset = selection.startOffset - endIndex;
+      if (index) {
+        textNode = textNode.splitText(index);
+      }
+      const defaultAttributes = self._config.tagAttributes.a;
+      const link = createElement(
+        "A",
+        Object.assign(
+          {
+            href: match[1] ? /^(?:ht|f)tps?:/i.test(match[1]) ? match[1] : "http://" + match[1] : "mailto:" + match[0]
+          },
+          defaultAttributes
+        )
+      );
+      link.textContent = data.slice(index, endIndex);
+      textNode.parentNode.insertBefore(link, textNode);
+      textNode.data = data.slice(endIndex);
+      if (needsSelectionUpdate) {
+        selection.setStart(textNode, newSelectionOffset);
+        selection.setEnd(textNode, newSelectionOffset);
+      }
+      self.setSelection(selection);
+    }
+  };
+
+  // source/keyboard/Backspace.ts
+  var Backspace = (self, event, range) => {
+    const root = self._root;
+    self._removeZWS();
+    self.saveUndoState(range);
+    if (!range.collapsed) {
+      event.preventDefault();
+      deleteContentsOfRange(range, root);
+      afterDelete(self, range);
+    } else if (rangeDoesStartAtBlockBoundary(range, root)) {
+      event.preventDefault();
+      const startBlock = getStartBlockOfRange(range, root);
+      if (!startBlock) {
+        return;
+      }
+      let current = startBlock;
+      fixContainer(current.parentNode, root);
+      const previous = getPreviousBlock(current, root);
+      if (previous) {
+        if (!previous.isContentEditable) {
+          detachUneditableNode(previous, root);
+          return;
+        }
+        mergeWithBlock(previous, current, range, root);
+        current = previous.parentNode;
+        while (current !== root && !current.nextSibling) {
+          current = current.parentNode;
+        }
+        if (current !== root && (current = current.nextSibling)) {
+          mergeContainers(current, root);
+        }
+        self.setSelection(range);
+      } else if (current) {
+        if (getNearest(current, root, "UL") || getNearest(current, root, "OL")) {
+          self.decreaseListLevel(range);
+          return;
+        } else if (getNearest(current, root, "BLOCKQUOTE")) {
+          self.removeQuote(range);
+          return;
+        }
+        self.setSelection(range);
+        self._updatePath(range, true);
+      }
+    } else {
+      moveRangeBoundariesDownTree(range);
+      const text = range.startContainer;
+      const offset = range.startOffset;
+      const a = text.parentNode;
+      if (text instanceof Text && a instanceof HTMLAnchorElement && offset && a.href.includes(text.data)) {
+        text.deleteData(offset - 1, 1);
+        self.setSelection(range);
+        self.removeLink();
+        event.preventDefault();
+      } else {
+        self.setSelection(range);
+        setTimeout(() => {
+          afterDelete(self);
+        }, 0);
+      }
+    }
+  };
+
+  // source/keyboard/Delete.ts
+  var Delete = (self, event, range) => {
+    const root = self._root;
+    let current;
+    let next;
+    let originalRange;
+    let cursorContainer;
+    let cursorOffset;
+    let nodeAfterCursor;
+    self._removeZWS();
+    self.saveUndoState(range);
+    if (!range.collapsed) {
+      event.preventDefault();
+      deleteContentsOfRange(range, root);
+      afterDelete(self, range);
+    } else if (rangeDoesEndAtBlockBoundary(range, root)) {
+      event.preventDefault();
+      current = getStartBlockOfRange(range, root);
+      if (!current) {
+        return;
+      }
+      fixContainer(current.parentNode, root);
+      next = getNextBlock(current, root);
+      if (next) {
+        if (!next.isContentEditable) {
+          detachUneditableNode(next, root);
+          return;
+        }
+        mergeWithBlock(current, next, range, root);
+        next = current.parentNode;
+        while (next !== root && !next.nextSibling) {
+          next = next.parentNode;
+        }
+        if (next !== root && (next = next.nextSibling)) {
+          mergeContainers(next, root);
+        }
+        self.setSelection(range);
+        self._updatePath(range, true);
+      }
+    } else {
+      originalRange = range.cloneRange();
+      moveRangeBoundariesUpTree(range, root, root, root);
+      cursorContainer = range.endContainer;
+      cursorOffset = range.endOffset;
+      if (cursorContainer instanceof Element) {
+        nodeAfterCursor = cursorContainer.childNodes[cursorOffset];
+        if (nodeAfterCursor && nodeAfterCursor.nodeName === "IMG") {
+          event.preventDefault();
+          detach(nodeAfterCursor);
+          moveRangeBoundariesDownTree(range);
+          afterDelete(self, range);
+          return;
+        }
+      }
+      self.setSelection(originalRange);
+      setTimeout(() => {
+        afterDelete(self);
+      }, 0);
+    }
+  };
+
+  // source/keyboard/Tab.ts
+  var Tab = (self, event, range) => {
+    const root = self._root;
+    self._removeZWS();
+    if (range.collapsed && rangeDoesStartAtBlockBoundary(range, root)) {
+      let node = getStartBlockOfRange(range, root);
+      let parent;
+      while (parent = node.parentNode) {
+        if (parent.nodeName === "UL" || parent.nodeName === "OL") {
+          event.preventDefault();
+          self.increaseListLevel(range);
+          break;
+        }
+        node = parent;
+      }
+    }
+  };
+  var ShiftTab = (self, event, range) => {
+    const root = self._root;
+    self._removeZWS();
+    if (range.collapsed && rangeDoesStartAtBlockBoundary(range, root)) {
+      const node = range.startContainer;
+      if (getNearest(node, root, "UL") || getNearest(node, root, "OL")) {
+        event.preventDefault();
+        self.decreaseListLevel(range);
+      }
+    }
+  };
+
+  // source/keyboard/Space.ts
+  var Space = (self, event, range) => {
+    var _a;
+    let node;
+    const root = self._root;
+    self._recordUndoState(range);
+    self._getRangeAndRemoveBookmark(range);
+    if (!range.collapsed) {
+      deleteContentsOfRange(range, root);
+      self._ensureBottomLine();
+      self.setSelection(range);
+      self._updatePath(range, true);
+    } else if (rangeDoesEndAtBlockBoundary(range, root)) {
+      const block = getStartBlockOfRange(range, root);
+      if (block && block.nodeName !== "PRE") {
+        const text = (_a = block.textContent) == null ? void 0 : _a.trimEnd().replace(ZWS, "");
+        if (text === "*" || text === "1.") {
+          event.preventDefault();
+          self.insertPlainText(" ", false);
+          self._docWasChanged();
+          self.saveUndoState(range);
+          const walker = new TreeIterator(block, SHOW_TEXT);
+          let textNode;
+          while (textNode = walker.nextNode()) {
+            detach(textNode);
+          }
+          if (text === "*") {
+            self.makeUnorderedList();
+          } else {
+            self.makeOrderedList();
+          }
+          return;
+        }
+      }
+    }
+    node = range.endContainer;
+    if (range.endOffset === getLength(node)) {
+      do {
+        if (node.nodeName === "A") {
+          range.setStartAfter(node);
+          break;
+        }
+      } while (!node.nextSibling && (node = node.parentNode) && node !== root);
+    }
+    if (self._config.addLinks) {
+      const linkRange = range.cloneRange();
+      moveRangeBoundariesDownTree(linkRange);
+      const textNode = linkRange.startContainer;
+      const offset = linkRange.startOffset;
+      setTimeout(() => {
+        linkifyText(self, textNode, offset);
+      }, 0);
+    }
+    self.setSelection(range);
+  };
+
+  // source/keyboard/KeyHandlers.ts
+  var _onKey = function(event) {
+    if (event.defaultPrevented || event.isComposing) {
+      return;
+    }
+    let key = event.key;
+    let modifiers = "";
+    if (key !== "Backspace" && key !== "Delete") {
+      if (event.altKey) {
+        modifiers += "Alt-";
+      }
+      if (event.ctrlKey) {
+        modifiers += "Ctrl-";
+      }
+      if (event.metaKey) {
+        modifiers += "Meta-";
+      }
+      if (event.shiftKey) {
+        modifiers += "Shift-";
+      }
+    }
+    if (isWin && event.shiftKey && key === "Delete") {
+      modifiers += "Shift-";
+    }
+    key = modifiers + key;
+    const range = this.getSelection();
+    if (this._keyHandlers[key]) {
+      this._keyHandlers[key](this, event, range);
+    } else if (!range.collapsed && !event.ctrlKey && !event.metaKey && key.length === 1) {
+      this.saveUndoState(range);
+      deleteContentsOfRange(range, this._root);
+      this._ensureBottomLine();
+      this.setSelection(range);
+      this._updatePath(range, true);
+    }
+  };
+  var keyHandlers = {
+    "Backspace": Backspace,
+    "Delete": Delete,
+    "Tab": Tab,
+    "Shift-Tab": ShiftTab,
+    " ": Space,
+    "ArrowLeft"(self) {
+      self._removeZWS();
+    },
+    "ArrowRight"(self, event, range) {
+      self._removeZWS();
+      const root = self.getRoot();
+      if (rangeDoesEndAtBlockBoundary(range, root)) {
+        moveRangeBoundariesDownTree(range);
+        let node = range.endContainer;
+        do {
+          if (node.nodeName === "CODE") {
+            let next = node.nextSibling;
+            if (!(next instanceof Text)) {
+              const textNode = document.createTextNode("\xA0");
+              node.parentNode.insertBefore(textNode, next);
+              next = textNode;
+            }
+            range.setStart(next, 1);
+            self.setSelection(range);
+            event.preventDefault();
+            break;
+          }
+        } while (!node.nextSibling && (node = node.parentNode) && node !== root);
+      }
+    }
+  };
+  if (!supportsInputEvents) {
+    keyHandlers.Enter = Enter;
+    keyHandlers["Shift-Enter"] = Enter;
+  }
+  if (!isMac && !isIOS) {
+    keyHandlers.PageUp = (self) => {
+      self.moveCursorToStart();
+    };
+    keyHandlers.PageDown = (self) => {
+      self.moveCursorToEnd();
+    };
+  }
+  var mapKeyToFormat = (tag, remove) => {
+    remove = remove || null;
+    return (self, event) => {
+      event.preventDefault();
+      const range = self.getSelection();
+      if (self.hasFormat(tag, null, range)) {
+        self.changeFormat(null, { tag }, range);
+      } else {
+        self.changeFormat({ tag }, remove, range);
+      }
+    };
+  };
+  keyHandlers[ctrlKey + "b"] = mapKeyToFormat("B");
+  keyHandlers[ctrlKey + "i"] = mapKeyToFormat("I");
+  keyHandlers[ctrlKey + "u"] = mapKeyToFormat("U");
+  keyHandlers[ctrlKey + "Shift-7"] = mapKeyToFormat("S");
+  keyHandlers[ctrlKey + "Shift-5"] = mapKeyToFormat("SUB", { tag: "SUP" });
+  keyHandlers[ctrlKey + "Shift-6"] = mapKeyToFormat("SUP", { tag: "SUB" });
+  keyHandlers[ctrlKey + "Shift-8"] = (self, event) => {
+    event.preventDefault();
+    const path = self.getPath();
+    if (!/(?:^|>)UL/.test(path)) {
+      self.makeUnorderedList();
+    } else {
+      self.removeList();
+    }
+  };
+  keyHandlers[ctrlKey + "Shift-9"] = (self, event) => {
+    event.preventDefault();
+    const path = self.getPath();
+    if (!/(?:^|>)OL/.test(path)) {
+      self.makeOrderedList();
+    } else {
+      self.removeList();
+    }
+  };
+  keyHandlers[ctrlKey + "["] = (self, event) => {
+    event.preventDefault();
+    const path = self.getPath();
+    if (/(?:^|>)BLOCKQUOTE/.test(path) || !/(?:^|>)[OU]L/.test(path)) {
+      self.decreaseQuoteLevel();
+    } else {
+      self.decreaseListLevel();
+    }
+  };
+  keyHandlers[ctrlKey + "]"] = (self, event) => {
+    event.preventDefault();
+    const path = self.getPath();
+    if (/(?:^|>)BLOCKQUOTE/.test(path) || !/(?:^|>)[OU]L/.test(path)) {
+      self.increaseQuoteLevel();
+    } else {
+      self.increaseListLevel();
+    }
+  };
+  keyHandlers[ctrlKey + "d"] = (self, event) => {
+    event.preventDefault();
+    self.toggleCode();
+  };
+  keyHandlers[ctrlKey + "z"] = (self, event) => {
+    event.preventDefault();
+    self.undo();
+  };
+  keyHandlers[ctrlKey + "y"] = keyHandlers[ctrlKey + "Shift-z"] = (self, event) => {
+    event.preventDefault();
+    self.redo();
+  };
+
+  // source/Editor.ts
+  var Squire = class {
+    constructor(root, config) {
+      /**
+       * Subscribing to these events won't automatically add a listener to the
+       * document node, since these events are fired in a custom manner by the
+       * editor code.
+       */
+      this.customEvents = /* @__PURE__ */ new Set([
+        "pathChange",
+        "select",
+        "input",
+        "pasteImage",
+        "undoStateChange"
+      ]);
+      // ---
+      this.startSelectionId = "squire-selection-start";
+      this.endSelectionId = "squire-selection-end";
+      /*
+      linkRegExp = new RegExp(
+          // Only look on boundaries
+          '\\b(?:' +
+          // Capture group 1: URLs
+          '(' +
+              // Add links to URLS
+              // Starts with:
+              '(?:' +
+                  // http(s):// or ftp://
+                  '(?:ht|f)tps?:\\/\\/' +
+                  // or
+                  '|' +
+                  // www.
+                  'www\\d{0,3}[.]' +
+                  // or
+                  '|' +
+                  // foo90.com/
+                  '[a-z0-9][a-z0-9.\\-]*[.][a-z]{2,}\\/' +
+              ')' +
+              // Then we get one or more:
+              '(?:' +
+                  // Run of non-spaces, non ()<>
+                  '[^\\s()<>]+' +
+                  // or
+                  '|' +
+                  // balanced parentheses (one level deep only)
+                  '\\([^\\s()<>]+\\)' +
+              ')+' +
+              // And we finish with
+              '(?:' +
+                  // Not a space or punctuation character
+                  '[^\\s?&`!()\\[\\]{};:\'".,<>«»“”‘’]' +
+                  // or
+                  '|' +
+                  // Balanced parentheses.
+                  '\\([^\\s()<>]+\\)' +
+              ')' +
+          // Capture group 2: Emails
+          ')|(' +
+              // Add links to emails
+              '[\\w\\-.%+]+@(?:[\\w\\-]+\\.)+[a-z]{2,}\\b' +
+              // Allow query parameters in the mailto: style
+              '(?:' +
+                  '[?][^&?\\s]+=[^\\s?&`!()\\[\\]{};:\'".,<>«»“”‘’]+' +
+                  '(?:&[^&?\\s]+=[^\\s?&`!()\\[\\]{};:\'".,<>«»“”‘’]+)*' +
+              ')?' +
+          '))',
+          'i'
+      );
+      */
+      this.linkRegExp = /\b(?:((?:(?:ht|f)tps?:\/\/|www\d{0,3}[.]|[a-z0-9][a-z0-9.\-]*[.][a-z]{2,}\/)(?:[^\s()<>]+|\([^\s()<>]+\))+(?:[^\s?&`!()\[\]{};:'".,<>«»“”‘’]|\([^\s()<>]+\)))|([\w\-.%+]+@(?:[\w\-]+\.)+[a-z]{2,}\b(?:[?][^&?\s]+=[^\s?&`!()\[\]{};:'".,<>«»“”‘’]+(?:&[^&?\s]+=[^\s?&`!()\[\]{};:'".,<>«»“”‘’]+)*)?))/i;
+      this.tagAfterSplit = {
+        DT: "DD",
+        DD: "DT",
+        LI: "LI",
+        PRE: "PRE"
+      };
+      this._root = root;
+      this._config = this._makeConfig(config);
+      this._isFocused = false;
+      this._lastSelection = createRange(root, 0);
+      this._willRestoreSelection = false;
+      this._mayHaveZWS = false;
+      this._lastAnchorNode = null;
+      this._lastFocusNode = null;
+      this._path = "";
+      this._events = /* @__PURE__ */ new Map();
+      this._undoIndex = -1;
+      this._undoStack = [];
+      this._undoStackLength = 0;
+      this._isInUndoState = false;
+      this._ignoreChange = false;
+      this._ignoreAllChanges = false;
+      this.addEventListener("selectionchange", this._updatePathOnEvent);
+      this.addEventListener("blur", this._enableRestoreSelection);
+      this.addEventListener("mousedown", this._disableRestoreSelection);
+      this.addEventListener("touchstart", this._disableRestoreSelection);
+      this.addEventListener("focus", this._restoreSelection);
+      this._isShiftDown = false;
+      this.addEventListener("cut", _onCut);
+      this.addEventListener("copy", _onCopy);
+      this.addEventListener("paste", _onPaste);
+      this.addEventListener("drop", _onDrop);
+      this.addEventListener(
+        "keydown",
+        _monitorShiftKey
+      );
+      this.addEventListener("keyup", _monitorShiftKey);
+      this.addEventListener("keydown", _onKey);
+      this._keyHandlers = Object.create(keyHandlers);
+      const mutation = new MutationObserver(() => this._docWasChanged());
+      mutation.observe(root, {
+        childList: true,
+        attributes: true,
+        characterData: true,
+        subtree: true
+      });
+      this._mutation = mutation;
+      root.setAttribute("contenteditable", "true");
+      this.addEventListener(
+        "beforeinput",
+        this._beforeInput
+      );
+      this.setHTML("");
+    }
+    destroy() {
+      this._events.forEach((_, type) => {
+        this.removeEventListener(type);
+      });
+      this._mutation.disconnect();
+      this._undoIndex = -1;
+      this._undoStack = [];
+      this._undoStackLength = 0;
+    }
+    _makeConfig(userConfig) {
+      const config = {
+        blockTag: "DIV",
+        blockAttributes: null,
+        tagAttributes: {},
+        classNames: {
+          color: "color",
+          fontFamily: "font",
+          fontSize: "size",
+          highlight: "highlight"
+        },
+        undo: {
+          documentSizeThreshold: -1,
+          // -1 means no threshold
+          undoLimit: -1
+          // -1 means no limit
+        },
+        addLinks: true,
+        willCutCopy: null,
+        toPlainText: null,
+        sanitizeToDOMFragment: (html) => {
+          const frag = DOMPurify.sanitize(html, {
+            ALLOW_UNKNOWN_PROTOCOLS: true,
+            WHOLE_DOCUMENT: false,
+            RETURN_DOM: true,
+            RETURN_DOM_FRAGMENT: true,
+            FORCE_BODY: false
+          });
+          return frag ? document.importNode(frag, true) : document.createDocumentFragment();
+        },
+        didError: (error) => console.log(error)
+      };
+      if (userConfig) {
+        Object.assign(config, userConfig);
+        config.blockTag = config.blockTag.toUpperCase();
+      }
+      return config;
+    }
+    setKeyHandler(key, fn) {
+      this._keyHandlers[key] = fn;
+      return this;
+    }
+    _beforeInput(event) {
+      switch (event.inputType) {
+        case "insertLineBreak":
+          event.preventDefault();
+          this.splitBlock(true);
+          break;
+        case "insertParagraph":
+          event.preventDefault();
+          this.splitBlock(false);
+          break;
+        case "insertOrderedList":
+          event.preventDefault();
+          this.makeOrderedList();
+          break;
+        case "insertUnoderedList":
+          event.preventDefault();
+          this.makeUnorderedList();
+          break;
+        case "historyUndo":
+          event.preventDefault();
+          this.undo();
+          break;
+        case "historyRedo":
+          event.preventDefault();
+          this.redo();
+          break;
+        case "formatBold":
+          event.preventDefault();
+          this.bold();
+          break;
+        case "formaItalic":
+          event.preventDefault();
+          this.italic();
+          break;
+        case "formatUnderline":
+          event.preventDefault();
+          this.underline();
+          break;
+        case "formatStrikeThrough":
+          event.preventDefault();
+          this.strikethrough();
+          break;
+        case "formatSuperscript":
+          event.preventDefault();
+          this.superscript();
+          break;
+        case "formatSubscript":
+          event.preventDefault();
+          this.subscript();
+          break;
+        case "formatJustifyFull":
+        case "formatJustifyCenter":
+        case "formatJustifyRight":
+        case "formatJustifyLeft": {
+          event.preventDefault();
+          let alignment = event.inputType.slice(13).toLowerCase();
+          if (alignment === "full") {
+            alignment = "justify";
+          }
+          this.setTextAlignment(alignment);
+          break;
+        }
+        case "formatRemove":
+          event.preventDefault();
+          this.removeAllFormatting();
+          break;
+        case "formatSetBlockTextDirection": {
+          event.preventDefault();
+          let dir = event.data;
+          if (dir === "null") {
+            dir = null;
+          }
+          this.setTextDirection(dir);
+          break;
+        }
+        case "formatBackColor":
+          event.preventDefault();
+          this.setHighlightColor(event.data);
+          break;
+        case "formatFontColor":
+          event.preventDefault();
+          this.setTextColor(event.data);
+          break;
+        case "formatFontName":
+          event.preventDefault();
+          this.setFontFace(event.data);
+          break;
+      }
+    }
+    // --- Events
+    handleEvent(event) {
+      this.fireEvent(event.type, event);
+    }
+    fireEvent(type, detail) {
+      let handlers = this._events.get(type);
+      if (/^(?:focus|blur)/.test(type)) {
+        const isFocused = this._root === document.activeElement;
+        if (type === "focus") {
+          if (!isFocused || this._isFocused) {
+            return this;
+          }
+          this._isFocused = true;
+        } else {
+          if (isFocused || !this._isFocused) {
+            return this;
+          }
+          this._isFocused = false;
+        }
+      }
+      if (handlers) {
+        const event = detail instanceof Event ? detail : new CustomEvent(type, {
+          detail
+        });
+        handlers = handlers.slice();
+        for (const handler of handlers) {
+          try {
+            if ("handleEvent" in handler) {
+              handler.handleEvent(event);
+            } else {
+              handler.call(this, event);
+            }
+          } catch (error) {
+            this._config.didError(error);
+          }
+        }
+      }
+      return this;
+    }
+    addEventListener(type, fn) {
+      let handlers = this._events.get(type);
+      let target = this._root;
+      if (!handlers) {
+        handlers = [];
+        this._events.set(type, handlers);
+        if (!this.customEvents.has(type)) {
+          if (type === "selectionchange") {
+            target = document;
+          }
+          target.addEventListener(type, this, true);
+        }
+      }
+      handlers.push(fn);
+      return this;
+    }
+    removeEventListener(type, fn) {
+      const handlers = this._events.get(type);
+      let target = this._root;
+      if (handlers) {
+        if (fn) {
+          let l = handlers.length;
+          while (l--) {
+            if (handlers[l] === fn) {
+              handlers.splice(l, 1);
+            }
+          }
+        } else {
+          handlers.length = 0;
+        }
+        if (!handlers.length) {
+          this._events.delete(type);
+          if (!this.customEvents.has(type)) {
+            if (type === "selectionchange") {
+              target = document;
+            }
+            target.removeEventListener(type, this, true);
+          }
+        }
+      }
+      return this;
+    }
+    // --- Focus
+    focus() {
+      this._root.focus({ preventScroll: true });
+      return this;
+    }
+    blur() {
+      this._root.blur();
+      return this;
+    }
+    // --- Selection and bookmarking
+    _enableRestoreSelection() {
+      this._willRestoreSelection = true;
+    }
+    _disableRestoreSelection() {
+      this._willRestoreSelection = false;
+    }
+    _restoreSelection() {
+      if (this._willRestoreSelection) {
+        this.setSelection(this._lastSelection);
+      }
+    }
+    // ---
+    _removeZWS() {
+      if (!this._mayHaveZWS) {
+        return;
+      }
+      removeZWS(this._root);
+      this._mayHaveZWS = false;
+    }
+    _saveRangeToBookmark(range) {
+      let startNode = createElement("INPUT", {
+        id: this.startSelectionId,
+        type: "hidden"
+      });
+      let endNode = createElement("INPUT", {
+        id: this.endSelectionId,
+        type: "hidden"
+      });
+      let temp;
+      insertNodeInRange(range, startNode);
+      range.collapse(false);
+      insertNodeInRange(range, endNode);
+      if (startNode.compareDocumentPosition(endNode) & Node.DOCUMENT_POSITION_PRECEDING) {
+        startNode.id = this.endSelectionId;
+        endNode.id = this.startSelectionId;
+        temp = startNode;
+        startNode = endNode;
+        endNode = temp;
+      }
+      range.setStartAfter(startNode);
+      range.setEndBefore(endNode);
+    }
+    _getRangeAndRemoveBookmark(range) {
+      const root = this._root;
+      const start = root.querySelector("#" + this.startSelectionId);
+      const end = root.querySelector("#" + this.endSelectionId);
+      if (start && end) {
+        let startContainer = start.parentNode;
+        let endContainer = end.parentNode;
+        const startOffset = Array.from(startContainer.childNodes).indexOf(
+          start
+        );
+        let endOffset = Array.from(endContainer.childNodes).indexOf(end);
+        if (startContainer === endContainer) {
+          endOffset -= 1;
+        }
+        start.remove();
+        end.remove();
+        if (!range) {
+          range = document.createRange();
+        }
+        range.setStart(startContainer, startOffset);
+        range.setEnd(endContainer, endOffset);
+        mergeInlines(startContainer, range);
+        if (startContainer !== endContainer) {
+          mergeInlines(endContainer, range);
+        }
+        if (range.collapsed) {
+          startContainer = range.startContainer;
+          if (startContainer instanceof Text) {
+            endContainer = startContainer.childNodes[range.startOffset];
+            if (!endContainer || !(endContainer instanceof Text)) {
+              endContainer = startContainer.childNodes[range.startOffset - 1];
+            }
+            if (endContainer && endContainer instanceof Text) {
+              range.setStart(endContainer, 0);
+              range.collapse(true);
+            }
+          }
+        }
+      }
+      return range || null;
+    }
+    getSelection() {
+      const selection = window.getSelection();
+      const root = this._root;
+      let range = null;
+      if (this._isFocused && selection && selection.rangeCount) {
+        range = selection.getRangeAt(0).cloneRange();
+        const startContainer = range.startContainer;
+        const endContainer = range.endContainer;
+        if (startContainer && isLeaf(startContainer)) {
+          range.setStartBefore(startContainer);
+        }
+        if (endContainer && isLeaf(endContainer)) {
+          range.setEndBefore(endContainer);
+        }
+      }
+      if (range && root.contains(range.commonAncestorContainer)) {
+        this._lastSelection = range;
+      } else {
+        range = this._lastSelection;
+        if (!document.contains(range.commonAncestorContainer)) {
+          range = null;
+        }
+      }
+      if (!range) {
+        range = createRange(root.firstElementChild || root, 0);
+      }
+      return range;
+    }
+    setSelection(range) {
+      this._lastSelection = range;
+      if (!this._isFocused) {
+        this._enableRestoreSelection();
+      } else {
+        const selection = window.getSelection();
+        if (selection) {
+          if ("setBaseAndExtent" in Selection.prototype) {
+            selection.setBaseAndExtent(
+              range.startContainer,
+              range.startOffset,
+              range.endContainer,
+              range.endOffset
+            );
+          } else {
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+        }
+      }
+      return this;
+    }
+    // ---
+    _moveCursorTo(toStart) {
+      const root = this._root;
+      const range = createRange(root, toStart ? 0 : root.childNodes.length);
+      moveRangeBoundariesDownTree(range);
+      this.setSelection(range);
+      return this;
+    }
+    moveCursorToStart() {
+      return this._moveCursorTo(true);
+    }
+    moveCursorToEnd() {
+      return this._moveCursorTo(false);
+    }
+    // ---
+    getCursorPosition() {
+      const range = this.getSelection();
+      let rect = range.getBoundingClientRect();
+      if (rect && !rect.top) {
+        this._ignoreChange = true;
+        const node = createElement("SPAN");
+        node.textContent = ZWS;
+        insertNodeInRange(range, node);
+        rect = node.getBoundingClientRect();
+        const parent = node.parentNode;
+        parent.removeChild(node);
+        mergeInlines(parent, range);
+      }
+      return rect;
+    }
+    // --- Path
+    getPath() {
+      return this._path;
+    }
+    _updatePathOnEvent() {
+      if (this._isFocused) {
+        this._updatePath(this.getSelection());
+      }
+    }
+    _updatePath(range, force) {
+      const anchor = range.startContainer;
+      const focus = range.endContainer;
+      let newPath;
+      if (force || anchor !== this._lastAnchorNode || focus !== this._lastFocusNode) {
+        this._lastAnchorNode = anchor;
+        this._lastFocusNode = focus;
+        newPath = anchor && focus ? anchor === focus ? this._getPath(focus) : "(selection)" : "";
+        if (this._path !== newPath) {
+          this._path = newPath;
+          this.fireEvent("pathChange", {
+            path: newPath
+          });
+        }
+      }
+      this.fireEvent(range.collapsed ? "cursor" : "select", {
+        range
+      });
+    }
+    _getPath(node) {
+      const root = this._root;
+      const config = this._config;
+      let path = "";
+      if (node && node !== root) {
+        const parent = node.parentNode;
+        path = parent ? this._getPath(parent) : "";
+        if (node instanceof HTMLElement) {
+          const id = node.id;
+          const classList = node.classList;
+          const classNames = Array.from(classList).sort();
+          const dir = node.dir;
+          const styleNames = config.classNames;
+          path += (path ? ">" : "") + node.nodeName;
+          if (id) {
+            path += "#" + id;
+          }
+          if (classNames.length) {
+            path += ".";
+            path += classNames.join(".");
+          }
+          if (dir) {
+            path += "[dir=" + dir + "]";
+          }
+          if (classList.contains(styleNames.highlight)) {
+            path += "[backgroundColor=" + node.style.backgroundColor.replace(/ /g, "") + "]";
+          }
+          if (classList.contains(styleNames.color)) {
+            path += "[color=" + node.style.color.replace(/ /g, "") + "]";
+          }
+          if (classList.contains(styleNames.fontFamily)) {
+            path += "[fontFamily=" + node.style.fontFamily.replace(/ /g, "") + "]";
+          }
+          if (classList.contains(styleNames.fontSize)) {
+            path += "[fontSize=" + node.style.fontSize + "]";
+          }
+        }
+      }
+      return path;
+    }
+    // --- History
+    modifyDocument(modificationFn) {
+      const mutation = this._mutation;
+      if (mutation) {
+        if (mutation.takeRecords().length) {
+          this._docWasChanged();
+        }
+        mutation.disconnect();
+      }
+      this._ignoreAllChanges = true;
+      modificationFn();
+      this._ignoreAllChanges = false;
+      if (mutation) {
+        mutation.observe(this._root, {
+          childList: true,
+          attributes: true,
+          characterData: true,
+          subtree: true
+        });
+        this._ignoreChange = false;
+      }
+      return this;
+    }
+    _docWasChanged() {
+      resetNodeCategoryCache();
+      this._mayHaveZWS = true;
+      if (this._ignoreAllChanges) {
+        return;
+      }
+      if (this._ignoreChange) {
+        this._ignoreChange = false;
+        return;
+      }
+      if (this._isInUndoState) {
+        this._isInUndoState = false;
+        this.fireEvent("undoStateChange", {
+          canUndo: true,
+          canRedo: false
+        });
+      }
+      this.fireEvent("input");
+    }
+    /**
+     * Leaves bookmark.
+     */
+    _recordUndoState(range, replace) {
+      const isInUndoState = this._isInUndoState;
+      if (!isInUndoState || replace) {
+        let undoIndex = this._undoIndex + 1;
+        const undoStack = this._undoStack;
+        const undoConfig = this._config.undo;
+        const undoThreshold = undoConfig.documentSizeThreshold;
+        const undoLimit = undoConfig.undoLimit;
+        if (undoIndex < this._undoStackLength) {
+          undoStack.length = this._undoStackLength = undoIndex;
+        }
+        if (range) {
+          this._saveRangeToBookmark(range);
+        }
+        if (isInUndoState) {
+          return this;
+        }
+        const html = this._getRawHTML();
+        if (replace) {
+          undoIndex -= 1;
+        }
+        if (undoThreshold > -1 && html.length * 2 > undoThreshold) {
+          if (undoLimit > -1 && undoIndex > undoLimit) {
+            undoStack.splice(0, undoIndex - undoLimit);
+            undoIndex = undoLimit;
+            this._undoStackLength = undoLimit;
+          }
+        }
+        undoStack[undoIndex] = html;
+        this._undoIndex = undoIndex;
+        this._undoStackLength += 1;
+        this._isInUndoState = true;
+      }
+      return this;
+    }
+    saveUndoState(range) {
+      if (!range) {
+        range = this.getSelection();
+      }
+      this._recordUndoState(range, this._isInUndoState);
+      this._getRangeAndRemoveBookmark(range);
+      return this;
+    }
+    undo() {
+      if (this._undoIndex !== 0 || !this._isInUndoState) {
+        this._recordUndoState(this.getSelection(), false);
+        this._undoIndex -= 1;
+        this._setRawHTML(this._undoStack[this._undoIndex]);
+        const range = this._getRangeAndRemoveBookmark();
+        if (range) {
+          this.setSelection(range);
+        }
+        this._isInUndoState = true;
+        this.fireEvent("undoStateChange", {
+          canUndo: this._undoIndex !== 0,
+          canRedo: true
+        });
+        this.fireEvent("input");
+      }
+      return this.focus();
+    }
+    redo() {
+      const undoIndex = this._undoIndex;
+      const undoStackLength = this._undoStackLength;
+      if (undoIndex + 1 < undoStackLength && this._isInUndoState) {
+        this._undoIndex += 1;
+        this._setRawHTML(this._undoStack[this._undoIndex]);
+        const range = this._getRangeAndRemoveBookmark();
+        if (range) {
+          this.setSelection(range);
+        }
+        this.fireEvent("undoStateChange", {
+          canUndo: true,
+          canRedo: undoIndex + 2 < undoStackLength
+        });
+        this.fireEvent("input");
+      }
+      return this.focus();
+    }
+    // --- Get and set data
+    getRoot() {
+      return this._root;
+    }
+    _getRawHTML() {
+      return this._root.innerHTML;
+    }
+    _setRawHTML(html) {
+      const root = this._root;
+      root.innerHTML = html;
+      let node = root;
+      const child = node.firstChild;
+      if (!child || child.nodeName === "BR") {
+        const block = this.createDefaultBlock();
+        if (child) {
+          node.replaceChild(block, child);
+        } else {
+          node.appendChild(block);
+        }
+      } else {
+        while (node = getNextBlock(node, root)) {
+          fixCursor(node);
+        }
+      }
+      this._ignoreChange = true;
+      return this;
+    }
+    getHTML(withBookmark) {
+      let range;
+      if (withBookmark) {
+        range = this.getSelection();
+        this._saveRangeToBookmark(range);
+      }
+      const html = this._getRawHTML().replace(/\u200B/g, "");
+      if (withBookmark) {
+        this._getRangeAndRemoveBookmark(range);
+      }
+      return html;
+    }
+    setHTML(html) {
+      const frag = this._config.sanitizeToDOMFragment(html, this);
+      const root = this._root;
+      cleanTree(frag, this._config);
+      cleanupBRs(frag, root, false);
+      fixContainer(frag, root);
+      let node = frag;
+      let child = node.firstChild;
+      if (!child || child.nodeName === "BR") {
+        const block = this.createDefaultBlock();
+        if (child) {
+          node.replaceChild(block, child);
+        } else {
+          node.appendChild(block);
+        }
+      } else {
+        while (node = getNextBlock(node, root)) {
+          fixCursor(node);
+        }
+      }
+      this._ignoreChange = true;
+      while (child = root.lastChild) {
+        root.removeChild(child);
+      }
+      root.appendChild(frag);
+      this._undoIndex = -1;
+      this._undoStack.length = 0;
+      this._undoStackLength = 0;
+      this._isInUndoState = false;
+      const range = this._getRangeAndRemoveBookmark() || createRange(root.firstElementChild || root, 0);
+      this.saveUndoState(range);
+      this.setSelection(range);
+      this._updatePath(range, true);
+      return this;
+    }
+    /**
+     * Insert HTML at the cursor location. If the selection is not collapsed
+     * insertTreeFragmentIntoRange will delete the selection so that it is
+     * replaced by the html being inserted.
+     */
+    insertHTML(html, isPaste) {
+      const config = this._config;
+      let frag = config.sanitizeToDOMFragment(html, this);
+      const range = this.getSelection();
+      this.saveUndoState(range);
+      try {
+        const root = this._root;
+        if (config.addLinks) {
+          this.addDetectedLinks(frag, frag);
+        }
+        cleanTree(frag, this._config);
+        cleanupBRs(frag, root, false);
+        removeEmptyInlines(frag);
+        frag.normalize();
+        let node = frag;
+        while (node = getNextBlock(node, frag)) {
+          fixCursor(node);
+        }
+        let doInsert = true;
+        if (isPaste) {
+          const event = new CustomEvent("willPaste", {
+            cancelable: true,
+            detail: {
+              fragment: frag
+            }
+          });
+          this.fireEvent("willPaste", event);
+          frag = event.detail.fragment;
+          doInsert = !event.defaultPrevented;
+        }
+        if (doInsert) {
+          insertTreeFragmentIntoRange(range, frag, root);
+          range.collapse(false);
+          moveRangeBoundaryOutOf(range, "A", root);
+          this._ensureBottomLine();
+        }
+        this.setSelection(range);
+        this._updatePath(range, true);
+        if (isPaste) {
+          this.focus();
+        }
+      } catch (error) {
+        this._config.didError(error);
+      }
+      return this;
+    }
+    insertElement(el, range) {
+      if (!range) {
+        range = this.getSelection();
+      }
+      range.collapse(true);
+      if (isInline(el)) {
+        insertNodeInRange(range, el);
+        range.setStartAfter(el);
+      } else {
+        const root = this._root;
+        const startNode = getStartBlockOfRange(
+          range,
+          root
+        );
+        let splitNode = startNode || root;
+        let nodeAfterSplit = null;
+        while (splitNode !== root && !splitNode.nextSibling) {
+          splitNode = splitNode.parentNode;
+        }
+        if (splitNode !== root) {
+          const parent = splitNode.parentNode;
+          nodeAfterSplit = split(
+            parent,
+            splitNode.nextSibling,
+            root,
+            root
+          );
+        }
+        if (startNode && isEmptyBlock(startNode)) {
+          detach(startNode);
+        }
+        root.insertBefore(el, nodeAfterSplit);
+        const blankLine = this.createDefaultBlock();
+        root.insertBefore(blankLine, nodeAfterSplit);
+        range.setStart(blankLine, 0);
+        range.setEnd(blankLine, 0);
+        moveRangeBoundariesDownTree(range);
+      }
+      this.focus();
+      this.setSelection(range);
+      this._updatePath(range);
+      return this;
+    }
+    insertImage(src, attributes) {
+      const img = createElement(
+        "IMG",
+        Object.assign(
+          {
+            src
+          },
+          attributes
+        )
+      );
+      this.insertElement(img);
+      return img;
+    }
+    insertPlainText(plainText, isPaste) {
+      const range = this.getSelection();
+      if (range.collapsed && getNearest(range.startContainer, this._root, "PRE")) {
+        const startContainer = range.startContainer;
+        let offset = range.startOffset;
+        let textNode;
+        if (!startContainer || !(startContainer instanceof Text)) {
+          const text = document.createTextNode("");
+          startContainer.insertBefore(
+            text,
+            startContainer.childNodes[offset]
+          );
+          textNode = text;
+          offset = 0;
+        } else {
+          textNode = startContainer;
+        }
+        let doInsert = true;
+        if (isPaste) {
+          const event = new CustomEvent("willPaste", {
+            cancelable: true,
+            detail: {
+              text: plainText
+            }
+          });
+          this.fireEvent("willPaste", event);
+          plainText = event.detail.text;
+          doInsert = !event.defaultPrevented;
+        }
+        if (doInsert) {
+          textNode.insertData(offset, plainText);
+          range.setStart(textNode, offset + plainText.length);
+          range.collapse(true);
+        }
+        this.setSelection(range);
+        return this;
+      }
+      const lines = plainText.split("\n");
+      const config = this._config;
+      const tag = config.blockTag;
+      const attributes = config.blockAttributes;
+      const closeBlock = "</" + tag + ">";
+      let openBlock = "<" + tag;
+      for (const attr in attributes) {
+        openBlock += " " + attr + '="' + escapeHTML(attributes[attr]) + '"';
+      }
+      openBlock += ">";
+      for (let i = 0, l = lines.length; i < l; i += 1) {
+        let line = lines[i];
+        line = escapeHTML(line).replace(/ (?=(?: |$))/g, "&nbsp;");
+        if (i) {
+          line = openBlock + (line || "<BR>") + closeBlock;
+        }
+        lines[i] = line;
+      }
+      return this.insertHTML(lines.join(""), isPaste);
+    }
+    getSelectedText(range) {
+      return getTextContentsOfRange(range || this.getSelection());
+    }
+    // --- Inline formatting
+    /**
+     * Extracts the font-family and font-size (if any) of the element
+     * holding the cursor. If there's a selection, returns an empty object.
+     */
+    getFontInfo(range) {
+      const fontInfo = {
+        color: void 0,
+        backgroundColor: void 0,
+        fontFamily: void 0,
+        fontSize: void 0
+      };
+      if (!range) {
+        range = this.getSelection();
+      }
+      let seenAttributes = 0;
+      let element = range.commonAncestorContainer;
+      if (range.collapsed || element instanceof Text) {
+        if (element instanceof Text) {
+          element = element.parentNode;
+        }
+        while (seenAttributes < 4 && element) {
+          const style = element.style;
+          if (style) {
+            const color = style.color;
+            if (!fontInfo.color && color) {
+              fontInfo.color = color;
+              seenAttributes += 1;
+            }
+            const backgroundColor = style.backgroundColor;
+            if (!fontInfo.backgroundColor && backgroundColor) {
+              fontInfo.backgroundColor = backgroundColor;
+              seenAttributes += 1;
+            }
+            const fontFamily = style.fontFamily;
+            if (!fontInfo.fontFamily && fontFamily) {
+              fontInfo.fontFamily = fontFamily;
+              seenAttributes += 1;
+            }
+            const fontSize = style.fontSize;
+            if (!fontInfo.fontSize && fontSize) {
+              fontInfo.fontSize = fontSize;
+              seenAttributes += 1;
+            }
+          }
+          element = element.parentNode;
+        }
+      }
+      return fontInfo;
+    }
+    /**
+     * Looks for matching tag and attributes, so won't work if <strong>
+     * instead of <b> etc.
+     */
+    hasFormat(tag, attributes, range) {
+      tag = tag.toUpperCase();
+      if (!attributes) {
+        attributes = {};
+      }
+      if (!range) {
+        range = this.getSelection();
+      }
+      if (!range.collapsed && range.startContainer instanceof Text && range.startOffset === range.startContainer.length && range.startContainer.nextSibling) {
+        range.setStartBefore(range.startContainer.nextSibling);
+      }
+      if (!range.collapsed && range.endContainer instanceof Text && range.endOffset === 0 && range.endContainer.previousSibling) {
+        range.setEndAfter(range.endContainer.previousSibling);
+      }
+      const root = this._root;
+      const common = range.commonAncestorContainer;
+      if (getNearest(common, root, tag, attributes)) {
+        return true;
+      }
+      if (common instanceof Text) {
+        return false;
+      }
+      const walker = new TreeIterator(common, SHOW_TEXT, (node2) => {
+        return isNodeContainedInRange(range, node2, true);
+      });
+      let seenNode = false;
+      let node;
+      while (node = walker.nextNode()) {
+        if (!getNearest(node, root, tag, attributes)) {
+          return false;
+        }
+        seenNode = true;
+      }
+      return seenNode;
+    }
+    changeFormat(add, remove, range, partial, ignoreSel) {
+      if (!range) {
+        range = this.getSelection();
+      }
+      this.saveUndoState(range);
+      if (remove) {
+        range = this._removeFormat(
+          remove.tag.toUpperCase(),
+          remove.attributes || {},
+          range,
+          partial
+        );
+      }
+      if (add) {
+        range = this._addFormat(
+          add.tag.toUpperCase(),
+          add.attributes || {},
+          range
+        );
+      }
+      if (!ignoreSel) {
+        this.setSelection(range);
+        this._updatePath(range, true);
+      }
+      return this.focus();
+    }
+    _addFormat(tag, attributes, range) {
+      const root = this._root;
+      if (range.collapsed) {
+        const el = fixCursor(createElement(tag, attributes));
+        insertNodeInRange(range, el);
+        const focusNode = el.firstChild || el;
+        const focusOffset = focusNode instanceof Text ? focusNode.length : 0;
+        range.setStart(focusNode, focusOffset);
+        range.collapse(true);
+        let block = el;
+        while (isInline(block)) {
+          block = block.parentNode;
+        }
+        removeZWS(block, el);
+      } else {
+        const walker = new TreeIterator(
+          range.commonAncestorContainer,
+          SHOW_ELEMENT_OR_TEXT,
+          (node) => {
+            return (node instanceof Text || node.nodeName === "BR" || node.nodeName === "IMG") && isNodeContainedInRange(range, node, true);
+          }
+        );
+        let { startContainer, startOffset, endContainer, endOffset } = range;
+        walker.currentNode = startContainer;
+        if (!(startContainer instanceof Element) && !(startContainer instanceof Text) || !walker.filter(startContainer)) {
+          const next = walker.nextNode();
+          if (!next) {
+            return range;
+          }
+          startContainer = next;
+          startOffset = 0;
+        }
+        do {
+          let node = walker.currentNode;
+          const needsFormat = !getNearest(node, root, tag, attributes);
+          if (needsFormat) {
+            if (node === endContainer && node.length > endOffset) {
+              node.splitText(endOffset);
+            }
+            if (node === startContainer && startOffset) {
+              node = node.splitText(startOffset);
+              if (endContainer === startContainer) {
+                endContainer = node;
+                endOffset -= startOffset;
+              } else if (endContainer === startContainer.parentNode) {
+                endOffset += 1;
+              }
+              startContainer = node;
+              startOffset = 0;
+            }
+            const el = createElement(tag, attributes);
+            replaceWith(node, el);
+            el.appendChild(node);
+          }
+        } while (walker.nextNode());
+        range = createRange(
+          startContainer,
+          startOffset,
+          endContainer,
+          endOffset
+        );
+      }
+      return range;
+    }
+    _removeFormat(tag, attributes, range, partial) {
+      this._saveRangeToBookmark(range);
+      let fixer;
+      if (range.collapsed) {
+        if (cantFocusEmptyTextNodes) {
+          fixer = document.createTextNode(ZWS);
+        } else {
+          fixer = document.createTextNode("");
+        }
+        insertNodeInRange(range, fixer);
+      }
+      let root = range.commonAncestorContainer;
+      while (isInline(root)) {
+        root = root.parentNode;
+      }
+      const startContainer = range.startContainer;
+      const startOffset = range.startOffset;
+      const endContainer = range.endContainer;
+      const endOffset = range.endOffset;
+      const toWrap = [];
+      const examineNode = (node, exemplar) => {
+        if (isNodeContainedInRange(range, node, false)) {
+          return;
+        }
+        let child;
+        let next;
+        if (!isNodeContainedInRange(range, node, true)) {
+          if (!(node instanceof HTMLInputElement) && (!(node instanceof Text) || node.data)) {
+            toWrap.push([exemplar, node]);
+          }
+          return;
+        }
+        if (node instanceof Text) {
+          if (node === endContainer && endOffset !== node.length) {
+            toWrap.push([exemplar, node.splitText(endOffset)]);
+          }
+          if (node === startContainer && startOffset) {
+            node.splitText(startOffset);
+            toWrap.push([exemplar, node]);
+          }
+        } else {
+          for (child = node.firstChild; child; child = next) {
+            next = child.nextSibling;
+            examineNode(child, exemplar);
+          }
+        }
+      };
+      const formatTags = Array.from(
+        root.getElementsByTagName(tag)
+      ).filter((el) => {
+        return isNodeContainedInRange(range, el, true) && hasTagAttributes(el, tag, attributes);
+      });
+      if (!partial) {
+        formatTags.forEach((node) => {
+          examineNode(node, node);
+        });
+      }
+      toWrap.forEach(([el, node]) => {
+        el = el.cloneNode(false);
+        replaceWith(node, el);
+        el.appendChild(node);
+      });
+      formatTags.forEach((el) => {
+        replaceWith(el, empty(el));
+      });
+      if (cantFocusEmptyTextNodes && fixer) {
+        fixer = fixer.parentNode;
+        let block = fixer;
+        while (block && isInline(block)) {
+          block = block.parentNode;
+        }
+        if (block) {
+          removeZWS(block, fixer);
+        }
+      }
+      this._getRangeAndRemoveBookmark(range);
+      if (fixer) {
+        range.collapse(false);
+      }
+      mergeInlines(root, range);
+      return range;
+    }
+    // ---
+    bold() {
+      return this.changeFormat({ tag: "B" });
+    }
+    removeBold() {
+      return this.changeFormat(null, { tag: "B" });
+    }
+    italic() {
+      return this.changeFormat({ tag: "I" });
+    }
+    removeItalic() {
+      return this.changeFormat(null, { tag: "I" });
+    }
+    underline() {
+      return this.changeFormat({ tag: "U" });
+    }
+    removeUnderline() {
+      return this.changeFormat(null, { tag: "U" });
+    }
+    strikethrough() {
+      return this.changeFormat({ tag: "S" });
+    }
+    removeStrikethrough() {
+      return this.changeFormat(null, { tag: "S" });
+    }
+    subscript() {
+      return this.changeFormat({ tag: "SUB" }, { tag: "SUP" });
+    }
+    removeSubscript() {
+      return this.changeFormat(null, { tag: "SUB" });
+    }
+    superscript() {
+      return this.changeFormat({ tag: "SUP" }, { tag: "SUB" });
+    }
+    removeSuperscript() {
+      return this.changeFormat(null, { tag: "SUP" });
+    }
+    // ---
+    makeLink(url, attributes) {
+      const range = this.getSelection();
+      if (range.collapsed) {
+        let protocolEnd = url.indexOf(":") + 1;
+        if (protocolEnd) {
+          while (url[protocolEnd] === "/") {
+            protocolEnd += 1;
+          }
+        }
+        insertNodeInRange(
+          range,
+          document.createTextNode(url.slice(protocolEnd))
+        );
+      }
+      attributes = Object.assign(
+        {
+          href: url
+        },
+        this._config.tagAttributes.a,
+        attributes
+      );
+      return this.changeFormat(
+        {
+          tag: "A",
+          attributes
+        },
+        {
+          tag: "A"
+        },
+        range
+      );
+    }
+    removeLink() {
+      return this.changeFormat(
+        null,
+        {
+          tag: "A"
+        },
+        this.getSelection(),
+        true
+      );
+    }
+    addDetectedLinks(searchInNode, root) {
+      const walker = new TreeIterator(
+        searchInNode,
+        SHOW_TEXT,
+        (node2) => !getNearest(node2, root || this._root, "A")
+      );
+      const linkRegExp = this.linkRegExp;
+      const defaultAttributes = this._config.tagAttributes.a;
+      let node;
+      while (node = walker.nextNode()) {
+        const parent = node.parentNode;
+        let data = node.data;
+        let match;
+        while (match = linkRegExp.exec(data)) {
+          const index = match.index;
+          const endIndex = index + match[0].length;
+          if (index) {
+            parent.insertBefore(
+              document.createTextNode(data.slice(0, index)),
+              node
+            );
+          }
+          const child = createElement(
+            "A",
+            Object.assign(
+              {
+                href: match[1] ? /^(?:ht|f)tps?:/i.test(match[1]) ? match[1] : "http://" + match[1] : "mailto:" + match[0]
+              },
+              defaultAttributes
+            )
+          );
+          child.textContent = data.slice(index, endIndex);
+          parent.insertBefore(child, node);
+          node.data = data = data.slice(endIndex);
+        }
+      }
+      return this;
+    }
+    // ---
+    setFontFace(name) {
+      const className = this._config.classNames.fontFamily;
+      return this.changeFormat(
+        name ? {
+          tag: "SPAN",
+          attributes: {
+            class: className,
+            style: "font-family: " + name + ", sans-serif;"
+          }
+        } : null,
+        {
+          tag: "SPAN",
+          attributes: { class: className }
+        }
+      );
+    }
+    setFontSize(size) {
+      const className = this._config.classNames.fontFamily;
+      return this.changeFormat(
+        size ? {
+          tag: "SPAN",
+          attributes: {
+            class: className,
+            style: "font-size: " + (typeof size === "number" ? size + "px" : size)
+          }
+        } : null,
+        {
+          tag: "SPAN",
+          attributes: { class: className }
+        }
+      );
+    }
+    setTextColor(color) {
+      const className = this._config.classNames.color;
+      return this.changeFormat(
+        color ? {
+          tag: "SPAN",
+          attributes: {
+            class: className,
+            style: "color:" + color
+          }
+        } : null,
+        {
+          tag: "SPAN",
+          attributes: { class: className }
+        }
+      );
+    }
+    setHighlightColor(color) {
+      const className = this._config.classNames.highlight;
+      return this.changeFormat(
+        color ? {
+          tag: "SPAN",
+          attributes: {
+            class: className,
+            style: "background-color:" + color
+          }
+        } : null,
+        {
+          tag: "SPAN",
+          attributes: { class: className }
+        }
+      );
+    }
+    // --- Block formatting
+    _ensureBottomLine() {
+      const root = this._root;
+      const last = root.lastElementChild;
+      if (!last || last.nodeName !== this._config.blockTag || !isBlock(last)) {
+        root.appendChild(this.createDefaultBlock());
+      }
+    }
+    createDefaultBlock(children) {
+      const config = this._config;
+      return fixCursor(
+        createElement(config.blockTag, config.blockAttributes, children)
+      );
+    }
+    splitBlock(lineBreakOnly, range) {
+      if (!range) {
+        range = this.getSelection();
+      }
+      const root = this._root;
+      let block;
+      let parent;
+      let node;
+      let nodeAfterSplit;
+      this._recordUndoState(range);
+      this._removeZWS();
+      this._getRangeAndRemoveBookmark(range);
+      if (!range.collapsed) {
+        deleteContentsOfRange(range, root);
+      }
+      if (this._config.addLinks) {
+        moveRangeBoundariesDownTree(range);
+        const textNode = range.startContainer;
+        const offset2 = range.startOffset;
+        setTimeout(() => {
+          linkifyText(this, textNode, offset2);
+        }, 0);
+      }
+      block = getStartBlockOfRange(range, root);
+      if (block && (parent = getNearest(block, root, "PRE"))) {
+        moveRangeBoundariesDownTree(range);
+        node = range.startContainer;
+        const offset2 = range.startOffset;
+        if (!(node instanceof Text)) {
+          node = document.createTextNode("");
+          parent.insertBefore(node, parent.firstChild);
+        }
+        if (!lineBreakOnly && node instanceof Text && (node.data.charAt(offset2 - 1) === "\n" || rangeDoesStartAtBlockBoundary(range, root)) && (node.data.charAt(offset2) === "\n" || rangeDoesEndAtBlockBoundary(range, root))) {
+          node.deleteData(offset2 && offset2 - 1, offset2 ? 2 : 1);
+          nodeAfterSplit = split(
+            node,
+            offset2 && offset2 - 1,
+            root,
+            root
+          );
+          node = nodeAfterSplit.previousSibling;
+          if (!node.textContent) {
+            detach(node);
+          }
+          node = this.createDefaultBlock();
+          nodeAfterSplit.parentNode.insertBefore(node, nodeAfterSplit);
+          if (!nodeAfterSplit.textContent) {
+            detach(nodeAfterSplit);
+          }
+          range.setStart(node, 0);
+        } else {
+          node.insertData(offset2, "\n");
+          fixCursor(parent);
+          if (node.length === offset2 + 1) {
+            range.setStartAfter(node);
+          } else {
+            range.setStart(node, offset2 + 1);
+          }
+        }
+        range.collapse(true);
+        this.setSelection(range);
+        this._updatePath(range, true);
+        this._docWasChanged();
+        return this;
+      }
+      if (!block || lineBreakOnly || /^T[HD]$/.test(block.nodeName)) {
+        moveRangeBoundaryOutOf(range, "A", root);
+        insertNodeInRange(range, createElement("BR"));
+        range.collapse(false);
+        this.setSelection(range);
+        this._updatePath(range, true);
+        return this;
+      }
+      if (parent = getNearest(block, root, "LI")) {
+        block = parent;
+      }
+      if (isEmptyBlock(block)) {
+        if (getNearest(block, root, "UL") || getNearest(block, root, "OL")) {
+          this.decreaseListLevel(range);
+          return this;
+        } else if (getNearest(block, root, "BLOCKQUOTE")) {
+          this.removeQuote(range);
+          return this;
+        }
+      }
+      node = range.startContainer;
+      const offset = range.startOffset;
+      let splitTag = this.tagAfterSplit[block.nodeName];
+      nodeAfterSplit = split(
+        node,
+        offset,
+        block.parentNode,
+        this._root
+      );
+      const config = this._config;
+      let splitProperties = null;
+      if (!splitTag) {
+        splitTag = config.blockTag;
+        splitProperties = config.blockAttributes;
+      }
+      if (!hasTagAttributes(nodeAfterSplit, splitTag, splitProperties)) {
+        block = createElement(splitTag, splitProperties);
+        if (nodeAfterSplit.dir) {
+          block.dir = nodeAfterSplit.dir;
+        }
+        replaceWith(nodeAfterSplit, block);
+        block.appendChild(empty(nodeAfterSplit));
+        nodeAfterSplit = block;
+      }
+      removeZWS(block);
+      removeEmptyInlines(block);
+      fixCursor(block);
+      while (nodeAfterSplit instanceof Element) {
+        let child = nodeAfterSplit.firstChild;
+        let next;
+        if (nodeAfterSplit.nodeName === "A" && (!nodeAfterSplit.textContent || nodeAfterSplit.textContent === ZWS)) {
+          child = document.createTextNode("");
+          replaceWith(nodeAfterSplit, child);
+          nodeAfterSplit = child;
+          break;
+        }
+        while (child && child instanceof Text && !child.data) {
+          next = child.nextSibling;
+          if (!next || next.nodeName === "BR") {
+            break;
+          }
+          detach(child);
+          child = next;
+        }
+        if (!child || child.nodeName === "BR" || child instanceof Text) {
+          break;
+        }
+        nodeAfterSplit = child;
+      }
+      range = createRange(nodeAfterSplit, 0);
+      this.setSelection(range);
+      this._updatePath(range, true);
+      return this;
+    }
+    forEachBlock(fn, mutates, range) {
+      if (!range) {
+        range = this.getSelection();
+      }
+      if (mutates) {
+        this.saveUndoState(range);
+      }
+      const root = this._root;
+      let start = getStartBlockOfRange(range, root);
+      const end = getEndBlockOfRange(range, root);
+      if (start && end) {
+        do {
+          if (fn(start) || start === end) {
+            break;
+          }
+        } while (start = getNextBlock(start, root));
+      }
+      if (mutates) {
+        this.setSelection(range);
+        this._updatePath(range, true);
+      }
+      return this;
+    }
+    modifyBlocks(modify, range) {
+      if (!range) {
+        range = this.getSelection();
+      }
+      this._recordUndoState(range, this._isInUndoState);
+      const root = this._root;
+      expandRangeToBlockBoundaries(range, root);
+      moveRangeBoundariesUpTree(range, root, root, root);
+      const frag = extractContentsOfRange(range, root, root);
+      if (!range.collapsed) {
+        let node = range.endContainer;
+        if (node === root) {
+          range.collapse(false);
+        } else {
+          while (node.parentNode !== root) {
+            node = node.parentNode;
+          }
+          range.setStartBefore(node);
+          range.collapse(true);
+        }
+      }
+      insertNodeInRange(range, modify.call(this, frag));
+      if (range.endOffset < range.endContainer.childNodes.length) {
+        mergeContainers(
+          range.endContainer.childNodes[range.endOffset],
+          root
+        );
+      }
+      mergeContainers(
+        range.startContainer.childNodes[range.startOffset],
+        root
+      );
+      this._getRangeAndRemoveBookmark(range);
+      this.setSelection(range);
+      this._updatePath(range, true);
+      return this;
+    }
+    // ---
+    setTextAlignment(alignment) {
+      this.forEachBlock((block) => {
+        const className = block.className.split(/\s+/).filter((klass) => {
+          return !!klass && !/^align/.test(klass);
+        }).join(" ");
+        if (alignment) {
+          block.className = className + " align-" + alignment;
+          block.style.textAlign = alignment;
+        } else {
+          block.className = className;
+          block.style.textAlign = "";
+        }
+      }, true);
+      return this.focus();
+    }
+    setTextDirection(direction) {
+      this.forEachBlock((block) => {
+        if (direction) {
+          block.dir = direction;
+        } else {
+          block.removeAttribute("dir");
+        }
+      }, true);
+      return this.focus();
+    }
+    // ---
+    _getListSelection(range, root) {
+      let list = range.commonAncestorContainer;
+      let startLi = range.startContainer;
+      let endLi = range.endContainer;
+      while (list && list !== root && !/^[OU]L$/.test(list.nodeName)) {
+        list = list.parentNode;
+      }
+      if (!list || list === root) {
+        return null;
+      }
+      if (startLi === list) {
+        startLi = startLi.childNodes[range.startOffset];
+      }
+      if (endLi === list) {
+        endLi = endLi.childNodes[range.endOffset];
+      }
+      while (startLi && startLi.parentNode !== list) {
+        startLi = startLi.parentNode;
+      }
+      while (endLi && endLi.parentNode !== list) {
+        endLi = endLi.parentNode;
+      }
+      return [list, startLi, endLi];
+    }
+    increaseListLevel(range) {
+      if (!range) {
+        range = this.getSelection();
+      }
+      const root = this._root;
+      const listSelection = this._getListSelection(range, root);
+      if (!listSelection) {
+        return this.focus();
+      }
+      let [list, startLi, endLi] = listSelection;
+      if (!startLi || startLi === list.firstChild) {
+        return this.focus();
+      }
+      this._recordUndoState(range, this._isInUndoState);
+      const type = list.nodeName;
+      let newParent = startLi.previousSibling;
+      let listAttrs;
+      let next;
+      if (newParent.nodeName !== type) {
+        listAttrs = this._config.tagAttributes[type.toLowerCase()];
+        newParent = createElement(type, listAttrs);
+        list.insertBefore(newParent, startLi);
+      }
+      do {
+        next = startLi === endLi ? null : startLi.nextSibling;
+        newParent.appendChild(startLi);
+      } while (startLi = next);
+      next = newParent.nextSibling;
+      if (next) {
+        mergeContainers(next, root);
+      }
+      this._getRangeAndRemoveBookmark(range);
+      this.setSelection(range);
+      this._updatePath(range, true);
+      return this.focus();
+    }
+    decreaseListLevel(range) {
+      if (!range) {
+        range = this.getSelection();
+      }
+      const root = this._root;
+      const listSelection = this._getListSelection(range, root);
+      if (!listSelection) {
+        return this.focus();
+      }
+      let [list, startLi, endLi] = listSelection;
+      if (!startLi) {
+        startLi = list.firstChild;
+      }
+      if (!endLi) {
+        endLi = list.lastChild;
+      }
+      this._recordUndoState(range, this._isInUndoState);
+      let next;
+      let insertBefore = null;
+      if (startLi) {
+        let newParent = list.parentNode;
+        insertBefore = !endLi.nextSibling ? list.nextSibling : split(list, endLi.nextSibling, newParent, root);
+        if (newParent !== root && newParent.nodeName === "LI") {
+          newParent = newParent.parentNode;
+          while (insertBefore) {
+            next = insertBefore.nextSibling;
+            endLi.appendChild(insertBefore);
+            insertBefore = next;
+          }
+          insertBefore = list.parentNode.nextSibling;
+        }
+        const makeNotList = !/^[OU]L$/.test(newParent.nodeName);
+        do {
+          next = startLi === endLi ? null : startLi.nextSibling;
+          list.removeChild(startLi);
+          if (makeNotList && startLi.nodeName === "LI") {
+            startLi = this.createDefaultBlock([empty(startLi)]);
+          }
+          newParent.insertBefore(startLi, insertBefore);
+        } while (startLi = next);
+      }
+      if (!list.firstChild) {
+        detach(list);
+      }
+      if (insertBefore) {
+        mergeContainers(insertBefore, root);
+      }
+      this._getRangeAndRemoveBookmark(range);
+      this.setSelection(range);
+      this._updatePath(range, true);
+      return this.focus();
+    }
+    _makeList(frag, type) {
+      const walker = getBlockWalker(frag, this._root);
+      const tagAttributes = this._config.tagAttributes;
+      const listAttrs = tagAttributes[type.toLowerCase()];
+      const listItemAttrs = tagAttributes.li;
+      let node;
+      while (node = walker.nextNode()) {
+        if (node.parentNode instanceof HTMLLIElement) {
+          node = node.parentNode;
+          walker.currentNode = node.lastChild;
+        }
+        if (!(node instanceof HTMLLIElement)) {
+          const newLi = createElement("LI", listItemAttrs);
+          if (node.dir) {
+            newLi.dir = node.dir;
+          }
+          const prev = node.previousSibling;
+          if (prev && prev.nodeName === type) {
+            prev.appendChild(newLi);
+            detach(node);
+          } else {
+            replaceWith(node, createElement(type, listAttrs, [newLi]));
+          }
+          newLi.appendChild(empty(node));
+          walker.currentNode = newLi;
+        } else {
+          node = node.parentNode;
+          const tag = node.nodeName;
+          if (tag !== type && /^[OU]L$/.test(tag)) {
+            replaceWith(
+              node,
+              createElement(type, listAttrs, [empty(node)])
+            );
+          }
+        }
+      }
+      return frag;
+    }
+    makeUnorderedList() {
+      this.modifyBlocks((frag) => this._makeList(frag, "UL"));
+      return this.focus();
+    }
+    makeOrderedList() {
+      this.modifyBlocks((frag) => this._makeList(frag, "OL"));
+      return this.focus();
+    }
+    removeList() {
+      this.modifyBlocks((frag) => {
+        const lists = frag.querySelectorAll("UL, OL");
+        const items = frag.querySelectorAll("LI");
+        const root = this._root;
+        for (let i = 0, l = lists.length; i < l; i += 1) {
+          const list = lists[i];
+          const listFrag = empty(list);
+          fixContainer(listFrag, root);
+          replaceWith(list, listFrag);
+        }
+        for (let i = 0, l = items.length; i < l; i += 1) {
+          const item = items[i];
+          if (isBlock(item)) {
+            replaceWith(item, this.createDefaultBlock([empty(item)]));
+          } else {
+            fixContainer(item, root);
+            replaceWith(item, empty(item));
+          }
+        }
+        return frag;
+      });
+      return this.focus();
+    }
+    // ---
+    increaseQuoteLevel(range) {
+      this.modifyBlocks(
+        (frag) => createElement(
+          "BLOCKQUOTE",
+          this._config.tagAttributes.blockquote,
+          [frag]
+        ),
+        range
+      );
+      return this.focus();
+    }
+    decreaseQuoteLevel(range) {
+      this.modifyBlocks((frag) => {
+        Array.from(frag.querySelectorAll("blockquote")).filter((el) => {
+          return !getNearest(el.parentNode, frag, "BLOCKQUOTE");
+        }).forEach((el) => {
+          replaceWith(el, empty(el));
+        });
+        return frag;
+      }, range);
+      return this.focus();
+    }
+    removeQuote(range) {
+      this.modifyBlocks(
+        () => this.createDefaultBlock([
+          createElement("INPUT", {
+            id: this.startSelectionId,
+            type: "hidden"
+          }),
+          createElement("INPUT", {
+            id: this.endSelectionId,
+            type: "hidden"
+          })
+        ]),
+        range
+      );
+      return this.focus();
+    }
+    // ---
+    code() {
+      const range = this.getSelection();
+      if (range.collapsed || isContainer(range.commonAncestorContainer)) {
+        this.modifyBlocks((frag) => {
+          const root = this._root;
+          const output = document.createDocumentFragment();
+          const blockWalker = getBlockWalker(frag, root);
+          let node;
+          while (node = blockWalker.nextNode()) {
+            let nodes = node.querySelectorAll("BR");
+            const brBreaksLine = [];
+            let l = nodes.length;
+            for (let i = 0; i < l; i += 1) {
+              brBreaksLine[i] = isLineBreak(nodes[i], false);
+            }
+            while (l--) {
+              const br = nodes[l];
+              if (!brBreaksLine[l]) {
+                detach(br);
+              } else {
+                replaceWith(br, document.createTextNode("\n"));
+              }
+            }
+            nodes = node.querySelectorAll("CODE");
+            l = nodes.length;
+            while (l--) {
+              replaceWith(nodes[l], empty(nodes[l]));
+            }
+            if (output.childNodes.length) {
+              output.appendChild(document.createTextNode("\n"));
+            }
+            output.appendChild(empty(node));
+          }
+          const textWalker = new TreeIterator(output, SHOW_TEXT);
+          while (node = textWalker.nextNode()) {
+            node.data = node.data.replace(/ /g, " ");
+          }
+          output.normalize();
+          return fixCursor(
+            createElement("PRE", this._config.tagAttributes.pre, [
+              output
+            ])
+          );
+        }, range);
+        this.focus();
+      } else {
+        this.changeFormat(
+          {
+            tag: "CODE",
+            attributes: this._config.tagAttributes.code
+          },
+          null,
+          range
+        );
+      }
+      return this;
+    }
+    removeCode() {
+      const range = this.getSelection();
+      const ancestor = range.commonAncestorContainer;
+      const inPre = getNearest(ancestor, this._root, "PRE");
+      if (inPre) {
+        this.modifyBlocks((frag) => {
+          const root = this._root;
+          const pres = frag.querySelectorAll("PRE");
+          let l = pres.length;
+          while (l--) {
+            const pre = pres[l];
+            const walker = new TreeIterator(pre, SHOW_TEXT);
+            let node;
+            while (node = walker.nextNode()) {
+              let value = node.data;
+              value = value.replace(/ (?= )/g, "\xA0");
+              const contents = document.createDocumentFragment();
+              let index;
+              while ((index = value.indexOf("\n")) > -1) {
+                contents.appendChild(
+                  document.createTextNode(value.slice(0, index))
+                );
+                contents.appendChild(createElement("BR"));
+                value = value.slice(index + 1);
+              }
+              node.parentNode.insertBefore(contents, node);
+              node.data = value;
+            }
+            fixContainer(pre, root);
+            replaceWith(pre, empty(pre));
+          }
+          return frag;
+        }, range);
+        this.focus();
+      } else {
+        this.changeFormat(null, { tag: "CODE" }, range);
+      }
+      return this;
+    }
+    toggleCode() {
+      if (this.hasFormat("PRE") || this.hasFormat("CODE")) {
+        this.removeCode();
+      } else {
+        this.code();
+      }
+      return this;
+    }
+    // ---
+    _removeFormatting(root, clean) {
+      for (let node = root.firstChild, next; node; node = next) {
+        next = node.nextSibling;
+        if (isInline(node)) {
+          if (node instanceof Text || node.nodeName === "BR" || node.nodeName === "IMG") {
+            clean.appendChild(node);
+            continue;
+          }
+        } else if (isBlock(node)) {
+          clean.appendChild(
+            this.createDefaultBlock([
+              this._removeFormatting(
+                node,
+                document.createDocumentFragment()
+              )
+            ])
+          );
+          continue;
+        }
+        this._removeFormatting(node, clean);
+      }
+      return clean;
+    }
+    removeAllFormatting(range) {
+      if (!range) {
+        range = this.getSelection();
+      }
+      if (range.collapsed) {
+        return this.focus();
+      }
+      const root = this._root;
+      let stopNode = range.commonAncestorContainer;
+      while (stopNode && !isBlock(stopNode)) {
+        stopNode = stopNode.parentNode;
+      }
+      if (!stopNode) {
+        expandRangeToBlockBoundaries(range, root);
+        stopNode = root;
+      }
+      if (stopNode instanceof Text) {
+        return this.focus();
+      }
+      this.saveUndoState(range);
+      moveRangeBoundariesUpTree(range, stopNode, stopNode, root);
+      const startContainer = range.startContainer;
+      let startOffset = range.startOffset;
+      const endContainer = range.endContainer;
+      let endOffset = range.endOffset;
+      const formattedNodes = document.createDocumentFragment();
+      const cleanNodes = document.createDocumentFragment();
+      const nodeAfterSplit = split(endContainer, endOffset, stopNode, root);
+      let nodeInSplit = split(startContainer, startOffset, stopNode, root);
+      let nextNode;
+      while (nodeInSplit !== nodeAfterSplit) {
+        nextNode = nodeInSplit.nextSibling;
+        formattedNodes.appendChild(nodeInSplit);
+        nodeInSplit = nextNode;
+      }
+      this._removeFormatting(formattedNodes, cleanNodes);
+      cleanNodes.normalize();
+      nodeInSplit = cleanNodes.firstChild;
+      nextNode = cleanNodes.lastChild;
+      if (nodeInSplit) {
+        stopNode.insertBefore(cleanNodes, nodeAfterSplit);
+        const childNodes = Array.from(stopNode.childNodes);
+        startOffset = childNodes.indexOf(nodeInSplit);
+        endOffset = nextNode ? childNodes.indexOf(nextNode) + 1 : 0;
+      } else if (nodeAfterSplit) {
+        const childNodes = Array.from(stopNode.childNodes);
+        startOffset = childNodes.indexOf(nodeAfterSplit);
+        endOffset = startOffset;
+      }
+      range.setStart(stopNode, startOffset);
+      range.setEnd(stopNode, endOffset);
+      mergeInlines(stopNode, range);
+      moveRangeBoundariesDownTree(range);
+      this.setSelection(range);
+      this._updatePath(range, true);
+      return this.focus();
+    }
+  };
+
+  // source/MavenEditor.ts
+  var MavenEditor = class extends Squire {
+    constructor(root, config) {
+      super(root, config);
+    }
+    _makeConfig(userConfig) {
+      var config = super._makeConfig(userConfig);
+      const extendedConfig = {
+        avoidSlashyReplacements: true
+      };
+      Object.assign(extendedConfig, config);
+      return extendedConfig;
+    }
+    _beforeInput(event) {
+      switch (event.inputType) {
+        case "insertParagraph":
+          if (this._config.avoidSlashyReplacements) {
+            let range = this.getSelection();
+            if (range.collapsed && range.endContainer.nodeType == Node.TEXT_NODE) {
+              let text = range.endContainer.textContent;
+              let lastWord = text.split(" ").pop();
+              if (lastWord && lastWord.includes("/")) {
+                return;
+              }
+            }
+            event.preventDefault();
+            this.splitBlock(false);
+            return;
+          }
+          break;
+      }
+      super._beforeInput(event);
+    }
+    moveDown(range) {
+      moveRangeBoundariesDownTree(range);
+    }
+    hasAncestorWithID(node, id) {
+      while (node) {
+        if (node.nodeType == Node.ELEMENT_NODE && node.id === id) {
+          return true;
+        }
+        node = node.parentNode;
+      }
+      return false;
+    }
+    scSetFontFaceSize(name, size, replaceAll) {
+      const shouldReplaceAll = replaceAll.toLowerCase() === "true";
+      const className = this._config.classNames.fontFamily;
+      var selRange = this.getSelection();
+      let editingNode = document.getElementById("SCEditingContainer");
+      let iter = document.createNodeIterator(
+        editingNode,
+        NodeFilter.SHOW_TEXT,
+        (node) => this.hasAncestorWithID(node, "SCSignatureContainer") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+      );
+      var allInside = true;
+      let currentNode;
+      while (currentNode = iter.nextNode()) {
+        if (!selRange.intersectsNode(currentNode)) {
+          allInside = false;
+          break;
+        }
+      }
+      var changingRanges = [selRange];
+      if (shouldReplaceAll) {
+        var firstGroup = [];
+        var lastGroup = [];
+        var sigEl = null;
+        for (let element of editingNode.children) {
+          if (element.id === "SCSignatureContainer") {
+            sigEl = element;
+          } else if (sigEl) {
+            lastGroup.push(element);
+          } else {
+            firstGroup.push(element);
+          }
+        }
+        var x = firstGroup.length - 1;
+        if (x >= 0) {
+          let firstRange = document.createRange();
+          firstRange.setStart(firstGroup[0], 0);
+          firstRange.setEnd(firstGroup[x], 1);
+          changingRanges = [firstRange];
+          if (lastGroup.length > 0) {
+            x = lastGroup.length - 1;
+            let lastRange = document.createRange();
+            lastRange.setStart(lastGroup[0], 0);
+            lastRange.setEnd(lastGroup[x], 1);
+            changingRanges.push(lastRange);
+          }
+        }
+      }
+      var familyName = name;
+      if (shouldReplaceAll || allInside) {
+        familyName = null;
+      }
+      for (let aRange of changingRanges) {
+        this.changeFormat(
+          familyName ? {
+            tag: "SPAN",
+            attributes: {
+              class: className,
+              style: "font-family: " + familyName + "; font-size: " + size
+            }
+          } : null,
+          {
+            tag: "SPAN",
+            attributes: { class: className }
+          },
+          aRange,
+          null,
+          shouldReplaceAll
+        );
+      }
+      return familyName ? "false" : "true";
+    }
+  };
+  window.MavenEditor = MavenEditor;
+})();
