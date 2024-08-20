@@ -433,6 +433,137 @@
     return range;
   };
 
+  // source/node/Block.ts
+  var getBlockWalker = (node, root) => {
+    const walker = new TreeIterator(root, SHOW_ELEMENT, isBlock);
+    walker.currentNode = node;
+    return walker;
+  };
+  var getPreviousBlock = (node, root) => {
+    const block = getBlockWalker(node, root).previousNode();
+    return block !== root ? block : null;
+  };
+  var getNextBlock = (node, root) => {
+    const block = getBlockWalker(node, root).nextNode();
+    return block !== root ? block : null;
+  };
+  var isEmptyBlock = (block) => {
+    return !block.textContent && !block.querySelector("IMG");
+  };
+
+  // source/range/Block.ts
+  var getStartBlockOfRange = (range, root) => {
+    const container = range.startContainer;
+    let block;
+    if (isInline(container)) {
+      block = getPreviousBlock(container, root);
+    } else if (container !== root && container instanceof HTMLElement && isBlock(container)) {
+      block = container;
+    } else {
+      const node = getNodeBeforeOffset(container, range.startOffset);
+      block = getNextBlock(node, root);
+    }
+    return block && isNodeContainedInRange(range, block, true) ? block : null;
+  };
+  var getEndBlockOfRange = (range, root) => {
+    const container = range.endContainer;
+    let block;
+    if (isInline(container)) {
+      block = getPreviousBlock(container, root);
+    } else if (container !== root && container instanceof HTMLElement && isBlock(container)) {
+      block = container;
+    } else {
+      let node = getNodeAfterOffset(container, range.endOffset);
+      if (!node || !root.contains(node)) {
+        node = root;
+        let child;
+        while (child = node.lastChild) {
+          node = child;
+        }
+      }
+      block = getPreviousBlock(node, root);
+    }
+    return block && isNodeContainedInRange(range, block, true) ? block : null;
+  };
+  var isContent = (node) => {
+    return node instanceof Text ? notWS.test(node.data) : node.nodeName === "IMG";
+  };
+  var rangeDoesStartAtBlockBoundary = (range, root) => {
+    const startContainer = range.startContainer;
+    const startOffset = range.startOffset;
+    let nodeAfterCursor;
+    if (startContainer instanceof Text) {
+      const text = startContainer.data;
+      for (let i = startOffset; i > 0; i -= 1) {
+        if (text.charAt(i - 1) !== ZWS) {
+          return false;
+        }
+      }
+      nodeAfterCursor = startContainer;
+    } else {
+      nodeAfterCursor = getNodeAfterOffset(startContainer, startOffset);
+      if (nodeAfterCursor && !root.contains(nodeAfterCursor)) {
+        nodeAfterCursor = null;
+      }
+      if (!nodeAfterCursor) {
+        nodeAfterCursor = getNodeBeforeOffset(startContainer, startOffset);
+        if (nodeAfterCursor instanceof Text && nodeAfterCursor.length) {
+          return false;
+        }
+      }
+    }
+    const block = getStartBlockOfRange(range, root);
+    if (!block) {
+      return false;
+    }
+    const contentWalker = new TreeIterator(
+      block,
+      SHOW_ELEMENT_OR_TEXT,
+      isContent
+    );
+    contentWalker.currentNode = nodeAfterCursor;
+    return !contentWalker.previousNode();
+  };
+  var rangeDoesEndAtBlockBoundary = (range, root) => {
+    const endContainer = range.endContainer;
+    const endOffset = range.endOffset;
+    let currentNode;
+    if (endContainer instanceof Text) {
+      const text = endContainer.data;
+      const length = text.length;
+      for (let i = endOffset; i < length; i += 1) {
+        if (text.charAt(i) !== ZWS) {
+          return false;
+        }
+      }
+      currentNode = endContainer;
+    } else {
+      currentNode = getNodeBeforeOffset(endContainer, endOffset);
+    }
+    const block = getEndBlockOfRange(range, root);
+    if (!block) {
+      return false;
+    }
+    const contentWalker = new TreeIterator(
+      block,
+      SHOW_ELEMENT_OR_TEXT,
+      isContent
+    );
+    contentWalker.currentNode = currentNode;
+    return !contentWalker.nextNode();
+  };
+  var expandRangeToBlockBoundaries = (range, root) => {
+    const start = getStartBlockOfRange(range, root);
+    const end = getEndBlockOfRange(range, root);
+    let parent;
+    if (start && end) {
+      parent = start.parentNode;
+      range.setStart(parent, Array.from(parent.childNodes).indexOf(start));
+      parent = end.parentNode;
+      range.setEnd(parent, Array.from(parent.childNodes).indexOf(end) + 1);
+    }
+  };
+
   // source/node/MergeSplit.ts
   var fixCursor = (node) => {
     let fixer = null;
@@ -926,137 +1057,6 @@
   };
   var escapeHTML = (text) => {
     return text.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;");
-  };
-
-  // source/node/Block.ts
-  var getBlockWalker = (node, root) => {
-    const walker = new TreeIterator(root, SHOW_ELEMENT, isBlock);
-    walker.currentNode = node;
-    return walker;
-  };
-  var getPreviousBlock = (node, root) => {
-    const block = getBlockWalker(node, root).previousNode();
-    return block !== root ? block : null;
-  };
-  var getNextBlock = (node, root) => {
-    const block = getBlockWalker(node, root).nextNode();
-    return block !== root ? block : null;
-  };
-  var isEmptyBlock = (block) => {
-    return !block.textContent && !block.querySelector("IMG");
-  };
-
-  // source/range/Block.ts
-  var getStartBlockOfRange = (range, root) => {
-    const container = range.startContainer;
-    let block;
-    if (isInline(container)) {
-      block = getPreviousBlock(container, root);
-    } else if (container !== root && container instanceof HTMLElement && isBlock(container)) {
-      block = container;
-    } else {
-      const node = getNodeBeforeOffset(container, range.startOffset);
-      block = getNextBlock(node, root);
-    }
-    return block && isNodeContainedInRange(range, block, true) ? block : null;
-  };
-  var getEndBlockOfRange = (range, root) => {
-    const container = range.endContainer;
-    let block;
-    if (isInline(container)) {
-      block = getPreviousBlock(container, root);
-    } else if (container !== root && container instanceof HTMLElement && isBlock(container)) {
-      block = container;
-    } else {
-      let node = getNodeAfterOffset(container, range.endOffset);
-      if (!node || !root.contains(node)) {
-        node = root;
-        let child;
-        while (child = node.lastChild) {
-          node = child;
-        }
-      }
-      block = getPreviousBlock(node, root);
-    }
-    return block && isNodeContainedInRange(range, block, true) ? block : null;
-  };
-  var isContent = (node) => {
-    return node instanceof Text ? notWS.test(node.data) : node.nodeName === "IMG";
-  };
-  var rangeDoesStartAtBlockBoundary = (range, root) => {
-    const startContainer = range.startContainer;
-    const startOffset = range.startOffset;
-    let nodeAfterCursor;
-    if (startContainer instanceof Text) {
-      const text = startContainer.data;
-      for (let i = startOffset; i > 0; i -= 1) {
-        if (text.charAt(i - 1) !== ZWS) {
-          return false;
-        }
-      }
-      nodeAfterCursor = startContainer;
-    } else {
-      nodeAfterCursor = getNodeAfterOffset(startContainer, startOffset);
-      if (nodeAfterCursor && !root.contains(nodeAfterCursor)) {
-        nodeAfterCursor = null;
-      }
-      if (!nodeAfterCursor) {
-        nodeAfterCursor = getNodeBeforeOffset(startContainer, startOffset);
-        if (nodeAfterCursor instanceof Text && nodeAfterCursor.length) {
-          return false;
-        }
-      }
-    }
-    const block = getStartBlockOfRange(range, root);
-    if (!block) {
-      return false;
-    }
-    const contentWalker = new TreeIterator(
-      block,
-      SHOW_ELEMENT_OR_TEXT,
-      isContent
-    );
-    contentWalker.currentNode = nodeAfterCursor;
-    return !contentWalker.previousNode();
-  };
-  var rangeDoesEndAtBlockBoundary = (range, root) => {
-    const endContainer = range.endContainer;
-    const endOffset = range.endOffset;
-    let currentNode;
-    if (endContainer instanceof Text) {
-      const text = endContainer.data;
-      const length = text.length;
-      for (let i = endOffset; i < length; i += 1) {
-        if (text.charAt(i) !== ZWS) {
-          return false;
-        }
-      }
-      currentNode = endContainer;
-    } else {
-      currentNode = getNodeBeforeOffset(endContainer, endOffset);
-    }
-    const block = getEndBlockOfRange(range, root);
-    if (!block) {
-      return false;
-    }
-    const contentWalker = new TreeIterator(
-      block,
-      SHOW_ELEMENT_OR_TEXT,
-      isContent
-    );
-    contentWalker.currentNode = currentNode;
-    return !contentWalker.nextNode();
-  };
-  var expandRangeToBlockBoundaries = (range, root) => {
-    const start = getStartBlockOfRange(range, root);
-    const end = getEndBlockOfRange(range, root);
-    let parent;
-    if (start && end) {
-      parent = start.parentNode;
-      range.setStart(parent, Array.from(parent.childNodes).indexOf(start));
-      parent = end.parentNode;
-      range.setEnd(parent, Array.from(parent.childNodes).indexOf(end) + 1);
-    }
   };
 
   // source/range/InsertDelete.ts
@@ -1978,6 +1978,16 @@
             break;
           }
         } while (!node.nextSibling && (node = node.parentNode) && node !== root);
+      }
+    },
+    "ArrowDown"(self, event, range) {
+      if (self.moveDirectionForToken) {
+        self.moveDirectionForToken(self, event, range, false);
+      }
+    },
+    "ArrowUp"(self, event, range) {
+      if (self.moveDirectionForToken) {
+        self.moveDirectionForToken(self, event, range, true);
       }
     }
   };
@@ -4115,6 +4125,19 @@
     constructor(root, config) {
       super(root, config);
     }
+    //  Simple pass through functions
+    isLeaf(node) {
+      return isLeaf(node);
+    }
+    isInline(node) {
+      return isInline(node);
+    }
+    isContainer(node) {
+      return isContainer(node);
+    }
+    isBlock(node) {
+      return isBlock(node);
+    }
     _makeConfig(userConfig) {
       var config = super._makeConfig(userConfig);
       const extendedConfig = {
@@ -4157,8 +4180,11 @@
     }
     scSetFontFaceSize(name, size, replaceAll) {
       const shouldReplaceAll = replaceAll.toLowerCase() === "true";
-      const className = this._config.classNames.fontFamily;
       var selRange = this.getSelection();
+      const root = this.getRoot();
+      if (!selRange.collapsed && rangeDoesStartAtBlockBoundary(selRange, root)) {
+        moveRangeBoundariesUpTree(selRange, root, root, root);
+      }
       let editingNode = document.getElementById("SCEditingContainer");
       let iter = document.createNodeIterator(
         editingNode,
@@ -4168,7 +4194,7 @@
       var allInside = true;
       let currentNode;
       while (currentNode = iter.nextNode()) {
-        if (!selRange.intersectsNode(currentNode)) {
+        if (!isNodeContainedInRange(selRange, currentNode, false)) {
           allInside = false;
           break;
         }
@@ -4191,7 +4217,7 @@
         if (x >= 0) {
           let firstRange = document.createRange();
           firstRange.setStart(firstGroup[0], 0);
-          firstRange.setEnd(firstGroup[x], 1);
+          firstRange.setEnd(firstGroup[x], firstGroup[x].childNodes.length);
           changingRanges = [firstRange];
           if (lastGroup.length > 0) {
             x = lastGroup.length - 1;
@@ -4207,6 +4233,17 @@
         familyName = null;
       }
       for (let aRange of changingRanges) {
+        this.changeFormat(
+          null,
+          {
+            tag: "SPAN",
+            attributes: { class: this._config.classNames.fontSize }
+          },
+          aRange,
+          null,
+          shouldReplaceAll
+        );
+        const className = this._config.classNames.fontFamily;
         this.changeFormat(
           familyName ? {
             tag: "SPAN",
@@ -4225,6 +4262,26 @@
         );
       }
       return familyName ? "false" : "true";
+    }
+    moveDirectionForToken(self, event, range, moveUp) {
+      const root = self.getRoot();
+      if (rangeDoesStartAtBlockBoundary(range, root)) {
+        let startBlock = getStartBlockOfRange(range, root);
+        let node = startBlock;
+        do {
+          if (node.nodeName === "SPAN" && node.hasAttribute("sc-type")) {
+            let destBlock = moveUp ? getPreviousBlock(startBlock, root) : getNextBlock(startBlock, root);
+            if (destBlock) {
+              range.setStart(destBlock, 0);
+              range.collapse(true);
+              self.setSelection(range);
+              event.preventDefault();
+            }
+            break;
+          }
+          node = node.firstChild;
+        } while (node.nodeName === "SPAN" && node.hasAttribute("sc-type"));
+      }
     }
   };
   window.MavenEditor = MavenEditor;

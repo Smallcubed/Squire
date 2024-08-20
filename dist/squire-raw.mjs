@@ -1976,6 +1976,16 @@ var keyHandlers = {
         }
       } while (!node.nextSibling && (node = node.parentNode) && node !== root);
     }
+  },
+  "ArrowDown"(self, event, range) {
+    if (self.moveDirectionForToken) {
+      self.moveDirectionForToken(self, event, range, false);
+    }
+  },
+  "ArrowUp"(self, event, range) {
+    if (self.moveDirectionForToken) {
+      self.moveDirectionForToken(self, event, range, true);
+    }
   }
 };
 if (!supportsInputEvents) {

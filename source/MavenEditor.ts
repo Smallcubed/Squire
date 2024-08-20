@@ -4,6 +4,23 @@ import {
     moveRangeBoundaryOutOf,
     moveRangeBoundariesUpTree,
 } from './range/Boundaries';
+import {
+    getStartBlockOfRange,
+    getEndBlockOfRange,
+    rangeDoesStartAtBlockBoundary,
+    rangeDoesEndAtBlockBoundary,
+} from './range/Block';
+import {
+    getNextBlock,
+    getPreviousBlock,
+    isEmptyBlock,
+} from './node/Block';
+import {
+    isLeaf,
+    isInline,
+    isContainer,
+    isBlock,
+} from './node/Category';
 import { Squire } from './Editor';
 
 //  Squire comes from the packages imported using the package.json
@@ -11,6 +28,23 @@ import { Squire } from './Editor';
 class MavenEditor extends Squire {
     constructor(root: HTMLElement, config?: Partial<SquireConfig>) {
         super(root, config);
+    }
+    
+    //  Simple pass through functions
+    isLeaf(node: Node): Boolean {
+        return isLeaf(node);
+    }
+
+    isInline(node: Node): Boolean {
+        return isInline(node);
+    }
+
+    isContainer(node: Node): Boolean {
+        return isContainer(node);
+    }
+
+    isBlock(node: Node): Boolean {
+        return isBlock(node);
     }
 
     _makeConfig(userConfig?: object): SquireConfig {
@@ -63,10 +97,16 @@ class MavenEditor extends Squire {
     
     scSetFontFaceSize(name: String, size: String, replaceAll: String): String {
         const shouldReplaceAll = (replaceAll.toLowerCase() === 'true');
-        const className = this._config.classNames.fontFamily;
         //  Look at all of the text nodes inside the editing container (excluding the signature)
         //  If all of them are inside the selection, then we are replacing all
         var selRange = this.getSelection();
+        
+        //  If the range is not collapsed and is at a boundary, ensure that we move up the tree
+        const root = this.getRoot();
+        if (!selRange.collapsed && rangeDoesStartAtBlockBoundary(selRange, root)) {
+            moveRangeBoundariesUpTree(selRange, root, root, root);
+        }
+        
         let editingNode = document.getElementById('SCEditingContainer');
         let iter = document.createNodeIterator(editingNode, NodeFilter.SHOW_TEXT,
              (node) =>
@@ -79,7 +119,7 @@ class MavenEditor extends Squire {
         var allInside = true;
         let currentNode;
         while ((currentNode = iter.nextNode())) {
-            if (!selRange.intersectsNode(currentNode)) {
+            if (!isNodeContainedInRange(selRange, currentNode, false)) {
                 allInside = false;
                 break;
             }
@@ -107,7 +147,7 @@ class MavenEditor extends Squire {
             if (x >= 0) {
                 let firstRange = document.createRange();
                 firstRange.setStart(firstGroup[0], 0);
-                firstRange.setEnd(firstGroup[x], 1);
+                firstRange.setEnd(firstGroup[x], firstGroup[x].childNodes.length);
                 changingRanges = [firstRange];
                 if (lastGroup.length > 0) {
                     x = lastGroup.length - 1;
@@ -126,6 +166,17 @@ class MavenEditor extends Squire {
         }
 
         for (let aRange of changingRanges) {
+            //  Removes any existing bad size formatting.
+            this.changeFormat(null, 
+                {
+                    tag: 'SPAN', 
+                    attributes: { class: this._config.classNames.fontSize }, 
+                },
+                aRange,
+                null,
+                shouldReplaceAll,
+            );
+            const className = this._config.classNames.fontFamily;
             this.changeFormat(
                 familyName
                     ? {
@@ -148,6 +199,48 @@ class MavenEditor extends Squire {
         return familyName ? 'false' : 'true';
     }
 
+    moveDirectionForToken(self: Squire, event: KeyboardEvent, range: Range, moveUp: Boolean): void {
+        
+        // Allow right arrow to always break out of <code> block.
+        const root = self.getRoot();
+        if (rangeDoesStartAtBlockBoundary(range, root)) {
+            let startBlock: Node | null = getStartBlockOfRange(range, root);
+            let node: Node | null = startBlock;
+            do {
+                if ((node.nodeName === 'SPAN') && node.hasAttribute('sc-type')) {
+                    let destBlock = moveUp ? getPreviousBlock(startBlock, root) : getNextBlock(startBlock, root);
+                    if (destBlock) {
+                        range.setStart(destBlock, 0);
+                        range.collapse(true);
+                        self.setSelection(range);
+                        event.preventDefault();
+                    }
+                    break;
+                }
+                node = node.firstChild;
+            } while (
+                node.nodeName === 'SPAN' &&
+                node.hasAttribute('sc-type')
+            );
+        }
+        // else {
+        //     let node: Node | null = range.endContainer;
+        //     let offset = range.endOffset;
+        //     let currBlock: Node | null = getStartBlockOfRange(range);
+        //     if ((node.nodeName === 'SPAN') && (node.className === 'sc-line-end-blank')) {
+        //         let destBlock = moveUp ? getPreviousBlock(currBlock, root) : getNextBlock(currBlock, root);
+        //         if (destBlock) {
+        //             let destLength = destBlock.childNodes.length;
+        //             let destOffset = (offset < destLength) ? offset : destLength;
+        //             range.setStart(destBlock, destOffset);
+        //             range.collapse(true);
+        //             self.setSelection(range);
+        //             event.preventDefault();
+        //         }
+        //     }
+        // }
+        
+    }
 }
 
 
