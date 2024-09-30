@@ -95,6 +95,64 @@ class MavenEditor extends Squire {
     };
     
     
+    //  Override of change format to adjust around tokens
+    changeFormat(
+        add: { tag: string; attributes?: Record<string, string> } | null,
+        remove?: { tag: string; attributes?: Record<string, string> } | null,
+        range?: Range,
+        partial?: boolean,
+        ignoreSel?: boolean,
+    ): Squire {
+        //  Let it perform the normal behavior
+        super.changeFormat(add, remove, range, partial, ignoreSel);
+        //  Then make fix ups of formatting in tokens
+        let tokens = document.querySelectorAll('span[sc-type]');
+        for (let token of tokens) {
+            this.scExtractFormatOutsideToken(token);
+        }
+        return this;
+    }
+    
+    scExtractFormatOutsideToken(
+        element: Element
+    ): null {
+        //  Ensure that it is a token and that it doesn't contain only text
+        if ((element.tagName.toLowerCase() != 'span') && 
+            !(element.hasAttribute('sc-type')) &&
+            (element.firstChild.nodeType != Node.ELEMENT_NODE)) {
+            return;
+        }
+        //  If the child is a font element (formatting), and it has only one text node, then we want to move it.
+        let child = element.firstChild;
+        let grandChild = child.firstChild;
+        if ((child.className == 'font') &&
+            (child.childNodes.length == 1) &&
+            (grandChild.nodeType == Node.TEXT_NODE)) {
+            let parent = element.parentElement;
+            var shouldMove = true;
+            //  Unless the parent is a format element and has the same values
+            let parentStyle = parent.getAttribute('style');
+            let childStyle = child.getAttribute('style');
+            if ((parent.className == 'font') &&
+                (parentStyle.toLowerCase() === childStyle.toLowerCase())) {
+                    shouldMove = false;
+            }
+            
+            //  First move the grand child text node to the element
+            element.appendChild(grandChild);
+            
+            //  If we should move the formatting, put child before the element and append the element into it
+            if (shouldMove)  {
+                parent.insertBefore(child, element);
+                child.appendChild(element);
+            }
+            //  Otherwise, just delete it
+            else {
+                element.removeChild(child);
+            }
+        }
+    }
+    
     scSetFontFaceSize(name: String, size: String, replaceAll: String): String {
         const shouldReplaceAll = (replaceAll.toLowerCase() === 'true');
         //  Look at all of the text nodes inside the editing container (excluding the signature)

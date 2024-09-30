@@ -4178,6 +4178,38 @@
       }
       return false;
     }
+    //  Override of change format to adjust around tokens
+    changeFormat(add, remove, range, partial, ignoreSel) {
+      super.changeFormat(add, remove, range, partial, ignoreSel);
+      let tokens = document.querySelectorAll("span[sc-type]");
+      for (let token of tokens) {
+        this.scExtractFormatOutsideToken(token);
+      }
+      return this;
+    }
+    scExtractFormatOutsideToken(element) {
+      if (element.tagName.toLowerCase() != "span" && !element.hasAttribute("sc-type") && element.firstChild.nodeType != Node.ELEMENT_NODE) {
+        return;
+      }
+      let child = element.firstChild;
+      let grandChild = child.firstChild;
+      if (child.className == "font" && child.childNodes.length == 1 && grandChild.nodeType == Node.TEXT_NODE) {
+        let parent = element.parentElement;
+        var shouldMove = true;
+        let parentStyle = parent.getAttribute("style");
+        let childStyle = child.getAttribute("style");
+        if (parent.className == "font" && parentStyle.toLowerCase() === childStyle.toLowerCase()) {
+          shouldMove = false;
+        }
+        element.appendChild(grandChild);
+        if (shouldMove) {
+          parent.insertBefore(child, element);
+          child.appendChild(element);
+        } else {
+          element.removeChild(child);
+        }
+      }
+    }
     scSetFontFaceSize(name, size, replaceAll) {
       const shouldReplaceAll = replaceAll.toLowerCase() === "true";
       var selRange = this.getSelection();
