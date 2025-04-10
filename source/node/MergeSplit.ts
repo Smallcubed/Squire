@@ -6,6 +6,7 @@ import {
     getLength,
     detach,
     empty,
+    hasAncestorWithID,
 } from './Node';
 import { isInline, isContainer } from './Category';
 
@@ -19,6 +20,10 @@ const fixCursor = (node: Node): Node => {
     let fixer: Element | Text | null = null;
 
     if (node instanceof Text) {
+        return node;
+    }
+    
+    if (hasAncestorWithID(node, SC_SIG_CONTAINER_ID)) {
         return node;
     }
 
@@ -42,6 +47,7 @@ const fixCursor = (node: Node): Node => {
         !node.querySelector('BR')
     ) {
         fixer = createElement('BR');
+        fixer.className = SC_BR_CLASS;
         let parent: Element | DocumentFragment = node;
         let child: Element | null;
         while ((child = parent.lastElementChild) && !isInline(child)) {

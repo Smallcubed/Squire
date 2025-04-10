@@ -147,6 +147,18 @@ const replaceWith = (node: Node, node2: Node): void => {
     }
 };
 
+const hasAncestorWithID = (node: Node, id: string): Boolean => {
+    while (node) {
+        if ((node.nodeType == Node.ELEMENT_NODE) && (node.id === id)) {
+            return true;
+        }
+        node = node.parentNode;
+    }
+    return false;
+};
+
+
+
 // --- Export
 
 export {
@@ -160,4 +172,5 @@ export {
     getNodeBeforeOffset,
     hasTagAttributes,
     replaceWith,
+    hasAncestorWithID,
 };

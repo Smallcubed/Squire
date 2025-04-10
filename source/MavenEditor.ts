@@ -21,9 +21,22 @@ import {
     isContainer,
     isBlock,
 } from './node/Category';
+import {
+    hasAncestorWithID,
+} from './node/Node';
 import { Squire } from './Editor';
 
 //  Squire comes from the packages imported using the package.json
+
+//  These are defined in the Application EditingScripts.js file
+// const SC_SIG_CONTAINER_ID = 'SCSignatureContainer';
+// const SC_BLOCK_TAG = '?';
+// const SC_EDITING_CONTAINER_ID = 'SCEditingContainer';
+// const SC_TOKEN_TAG_KEY = 'span';
+// const SC_TYPE_KEY = 'sc-type';
+// const SC_LINE_END_CLASS = 'sc-line-end-blank';
+// const SC_BR_CLASS = 'sc-editing-enabler';
+
 
 class MavenEditor extends Squire {
     constructor(root: HTMLElement, config?: Partial<SquireConfig>) {
@@ -81,20 +94,6 @@ class MavenEditor extends Squire {
         moveRangeBoundariesDownTree(range);
     }
     
-    hasAncestorWithID(
-        node: Node,
-        id: string
-    ): Boolean {
-        while (node) {
-            if ((node.nodeType == Node.ELEMENT_NODE) && (node.id === id)) {
-                return true;
-            }
-            node = node.parentNode;
-        }
-        return false;
-    };
-    
-    
     //  Override of change format to adjust around tokens
     changeFormat(
         add: { tag: string; attributes?: Record<string, string> } | null,
@@ -106,7 +105,7 @@ class MavenEditor extends Squire {
         //  Let it perform the normal behavior
         super.changeFormat(add, remove, range, partial, ignoreSel);
         //  Then make fix ups of formatting in tokens
-        let tokens = document.querySelectorAll('span[sc-type]');
+        let tokens = document.querySelectorAll(`${SC_TOKEN_TAG_KEY}[${SC_TYPE_KEY}]`);
         for (let token of tokens) {
             this.scExtractFormatOutsideToken(token);
         }
@@ -117,8 +116,8 @@ class MavenEditor extends Squire {
         element: Element
     ): null {
         //  Ensure that it is a token and that it doesn't contain only text
-        if ((element.tagName.toLowerCase() != 'span') && 
-            !(element.hasAttribute('sc-type')) &&
+        if ((element.tagName.toLowerCase() != SC_TOKEN_TAG_KEY) && 
+            !(element.hasAttribute(SC_TYPE_KEY)) &&
             (element.firstChild.nodeType != Node.ELEMENT_NODE)) {
             return;
         }
@@ -165,12 +164,12 @@ class MavenEditor extends Squire {
             moveRangeBoundariesUpTree(selRange, root, root, root);
         }
         
-        let editingNode = document.getElementById('SCEditingContainer');
+        let editingNode = document.getElementById(SC_EDITING_CONTAINER_ID);
         let iter = document.createNodeIterator(editingNode, NodeFilter.SHOW_TEXT,
              (node) =>
-             this.hasAncestorWithID(node, 'SCSignatureContainer')
-              ? NodeFilter.FILTER_REJECT
-              : NodeFilter.FILTER_ACCEPT
+             hasAncestorWithID(node, SC_EDITING_CONTAINER_ID)
+              ? NodeFilter.FILTER_ACCEPT
+              : NodeFilter.FILTER_REJECT
         );
         
         //  Look through all those nodes
@@ -191,7 +190,7 @@ class MavenEditor extends Squire {
             var lastGroup = [];
             var sigEl = null;
             for (let element of editingNode.children) {
-                if (element.id === 'SCSignatureContainer') {
+                if (element.id === SC_SIG_CONTAINER_ID) {
                     sigEl = element;
                 }
                 else if (sigEl) {
@@ -227,7 +226,7 @@ class MavenEditor extends Squire {
             //  Removes any existing bad size formatting.
             this.changeFormat(null, 
                 {
-                    tag: 'SPAN', 
+                    tag: SC_TOKEN_TAG_KEY, 
                     attributes: { class: this._config.classNames.fontSize }, 
                 },
                 aRange,
@@ -238,7 +237,7 @@ class MavenEditor extends Squire {
             this.changeFormat(
                 familyName
                     ? {
-                          tag: 'SPAN',
+                          tag: SC_TOKEN_TAG_KEY,
                           attributes: {
                               class: className,
                               style: 'font-family: ' + familyName + '; font-size: ' + size,
@@ -246,7 +245,7 @@ class MavenEditor extends Squire {
                       }
                     : null,
                 {
-                    tag: 'SPAN',
+                    tag: SC_TOKEN_TAG_KEY,
                     attributes: { class: className },
                 },
                 aRange,
@@ -257,6 +256,64 @@ class MavenEditor extends Squire {
         return familyName ? 'false' : 'true';
     }
 
+    //	Splits a document at the top level based on the range passed in
+    //	and returns a node after the break.
+    splitDocument(range: Range): Element | null {
+        let mainContainer = document.getElementById(SC_EDITING_CONTAINER_ID);
+        if (!mainContainer) {
+            return null;
+        }
+        let beforeRange = document.createRange();
+        beforeRange.setStart(mainContainer.firstChild, 0);
+        beforeRange.setEnd(range.startContainer, range.startOffset);
+        
+        let afterRange = document.createRange();
+        afterRange.setStart(range.endContainer, range.endOffset);
+        let endNode = mainContainer.lastChild;
+        afterRange.setEnd(endNode, endNode.childNodes.length);
+        
+        //	Make two fragments from those ranges
+        let beforeFrag = beforeRange.extractContents();
+        let afterFrag = afterRange.extractContents();
+        
+        //	clear the content
+        mainContainer.innerHTML = "";
+    
+        //	Add back the first part
+        for (let i = 0; i < beforeFrag.childNodes.length; ) {
+            let item = beforeFrag.childNodes[i];
+            if (item.nodeType == Node.TEXT_NODE) {
+                let paragraph = document.createElement(SC_BLOCK_TAG);
+                paragraph.append(item);
+                mainContainer.append(paragraph);
+            }
+            else {
+                mainContainer.append(item);
+            }
+        }
+        //	Add the second part noting the first node as the one after the break to return
+        var doneFirst = false;
+        let afterNode = null;
+    
+        for (let i = 0; i < afterFrag.childNodes.length; ) {
+            let item = afterFrag.childNodes[i];
+            if (item.nodeType == Node.TEXT_NODE) {
+                let paragraph = document.createElement(SC_BLOCK_TAG);
+                paragraph.append(item);
+                mainContainer.append(paragraph);
+            }
+            else {
+                mainContainer.append(item);
+            }
+            if (!doneFirst) {
+                afterNode = mainContainer.lastChild;
+                doneFirst = true;
+            }
+        }
+    
+        return afterNode;
+    }
+
     moveDirectionForToken(self: Squire, event: KeyboardEvent, range: Range, moveUp: Boolean): void {
         
         // Allow right arrow to always break out of <code> block.
@@ -265,7 +322,7 @@ class MavenEditor extends Squire {
             let startBlock: Node | null = getStartBlockOfRange(range, root);
             let node: Node | null = startBlock;
             do {
-                if ((node.nodeName === 'SPAN') && node.hasAttribute('sc-type')) {
+                if ((node.nodeName.toLowerCase() === SC_TOKEN_TAG_KEY) && node.hasAttribute(SC_TYPE_KEY)) {
                     let destBlock = moveUp ? getPreviousBlock(startBlock, root) : getNextBlock(startBlock, root);
                     if (destBlock) {
                         range.setStart(destBlock, 0);
@@ -277,15 +334,15 @@ class MavenEditor extends Squire {
                 }
                 node = node.firstChild;
             } while (
-                node.nodeName === 'SPAN' &&
-                node.hasAttribute('sc-type')
+                node.nodeName.toLowerCase() === SC_TOKEN_TAG_KEY &&
+                node.hasAttribute(SC_TYPE_KEY)
             );
         }
         // else {
         //     let node: Node | null = range.endContainer;
         //     let offset = range.endOffset;
         //     let currBlock: Node | null = getStartBlockOfRange(range);
-        //     if ((node.nodeName === 'SPAN') && (node.className === 'sc-line-end-blank')) {
+        //     if ((node.nodeName.toLowerCase() === SC_TOKEN_TAG_KEY) && (node.className === SC_LINE_END_CLASS)) {
         //         let destBlock = moveUp ? getPreviousBlock(currBlock, root) : getNextBlock(currBlock, root);
         //         if (destBlock) {
         //             let destLength = destBlock.childNodes.length;
