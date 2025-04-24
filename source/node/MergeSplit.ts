@@ -70,24 +70,34 @@ const fixContainer = (
     root: Element | DocumentFragment,
 ): Node => {
     let wrapper: HTMLElement | null = null;
+    //  SJL work around to avoid our blockquotes getting additional DIVs added
+    if ((container.nodeName === 'BLOCKQUOTE') && (container.attributes['type'])) {
+        let attr = container.attributes['type'];
+        if (attr.value === 'cite') {
+            return container;
+        }
+    }
+    const isContainerDIV = container.nodeName === 'DIV';
     Array.from(container.childNodes).forEach((child) => {
-        const isBR = child.nodeName === 'BR';
-        if (!isBR && isInline(child)) {
-            if (!wrapper) {
-                wrapper = createElement('DIV');
+        if (!isContainerDIV) {
+            const isBR = child.nodeName === 'BR';
+            if (!isBR && isInline(child)) {
+                if (!wrapper) {
+                    wrapper = createElement('DIV');
+                }
+                wrapper.appendChild(child);
+            } else if (isBR || wrapper) {
+                if (!wrapper) {
+                    wrapper = createElement('DIV');
+                }
+                fixCursor(wrapper);
+                if (isBR) {
+                    container.replaceChild(wrapper, child);
+                } else {
+                    container.insertBefore(wrapper, child);
+                }
+                wrapper = null;
             }
-            wrapper.appendChild(child);
-        } else if (isBR || wrapper) {
-            if (!wrapper) {
-                wrapper = createElement('DIV');
-            }
-            fixCursor(wrapper);
-            if (isBR) {
-                container.replaceChild(wrapper, child);
-            } else {
-                container.insertBefore(wrapper, child);
-            }
-            wrapper = null;
         }
         if (isContainer(child)) {
             fixContainer(child, root);
