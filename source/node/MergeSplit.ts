@@ -1,4 +1,4 @@
-import { ZWS, cantFocusEmptyTextNodes } from '../Constants';
+import { ZWS, cantFocusEmptyTextNodes, notWS } from '../Constants';
 import {
     createElement,
     getNearest,
@@ -44,7 +44,8 @@ const fixCursor = (node: Node): Node => {
         }
     } else if (
         (node instanceof Element || node instanceof DocumentFragment) &&
-        !node.querySelector('BR')
+        !node.querySelector('BR') &&
+        !notWS.test(node.textContent)
     ) {
         fixer = createElement('BR');
         fixer.className = SC_BR_CLASS;
