@@ -63,7 +63,7 @@ class MavenEditor extends Squire {
     _makeConfig(userConfig?: object): SquireConfig {
         var config = super._makeConfig(userConfig);
         const extendedConfig = {
-            avoidSlashyReplacements: true
+            avoidSlashyReplacements: true,
         }
         Object.assign(extendedConfig, config);
         return extendedConfig;
@@ -92,6 +92,22 @@ class MavenEditor extends Squire {
     
     moveDown(range: Range): null {
         moveRangeBoundariesDownTree(range);
+    }
+    
+    getUndoStack(): string {
+        return {
+            'index': this._undoIndex,
+            'stack': this._undoStack
+        };
+    }
+    
+    restoreUndoStack(jsonStack: Record<string, any>): null {
+        console.log(jsonStack);
+        if (jsonStack['stack']) {
+            this._undoIndex = jsonStack['index'];
+            this._undoStack = jsonStack['stack'];
+            this._undoStackLength = this._undoStack.length;
+        }
     }
     
     //  Override of change format to adjust around tokens

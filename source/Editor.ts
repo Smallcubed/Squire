@@ -900,6 +900,7 @@ class Squire {
                 canRedo: true,
             });
             this.fireEvent('input');
+            this.fireEvent('undoPerformed');
         }
         return this.focus();
     }
