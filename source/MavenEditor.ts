@@ -95,6 +95,7 @@ class MavenEditor extends Squire {
     }
     
     getUndoStack(): string {
+        this.saveUndoState();
         return {
             'index': this._undoIndex,
             'stack': this._undoStack
@@ -102,11 +103,15 @@ class MavenEditor extends Squire {
     }
     
     restoreUndoStack(jsonStack: Record<string, any>): null {
-        console.log(jsonStack);
         if (jsonStack['stack']) {
             this._undoIndex = jsonStack['index'];
             this._undoStack = jsonStack['stack'];
             this._undoStackLength = this._undoStack.length;
+            let range = this._getRangeAndRemoveBookmark();
+            if (range) {
+                this.setSelection(range);
+            }
+		    this._isInUndoState = false;
         }
     }
     
@@ -372,6 +377,7 @@ class MavenEditor extends Squire {
         // }
         
     }
+
 }
 
 
