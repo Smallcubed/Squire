@@ -1653,12 +1653,30 @@ class Squire {
         return this.changeFormat(null, { tag: 'B' });
     }
 
+    toggleBold(): Squire {
+        if (this.hasFormat('B')) {
+            this.removeBold();
+        } else {
+            this.bold();
+        }
+        return this;
+    }
+
     italic(): Squire {
         return this.changeFormat({ tag: 'I' });
     }
 
     removeItalic(): Squire {
         return this.changeFormat(null, { tag: 'I' });
+    }
+
+    toggleItalic(): Squire {
+        if (this.hasFormat('I')) {
+            this.removeItalic();
+        } else {
+            this.italic();
+        }
+        return this;
     }
 
     underline(): Squire {
