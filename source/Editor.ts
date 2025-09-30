@@ -900,6 +900,7 @@ class Squire {
                 canRedo: true,
             });
             this.fireEvent('input');
+            this.fireEvent('undoPerformed');
         }
         return this.focus();
     }
@@ -1368,6 +1369,7 @@ class Squire {
         remove?: { tag: string; attributes?: Record<string, string> } | null,
         range?: Range,
         partial?: boolean,
+        ignoreSel?: boolean,
     ): Squire {
         // Normalise the arguments and get selection
         if (!range) {
@@ -1392,9 +1394,11 @@ class Squire {
                 range,
             );
         }
-
-        this.setSelection(range);
-        this._updatePath(range, true);
+        
+        if (!ignoreSel) {
+            this.setSelection(range);
+            this._updatePath(range, true);
+        }
 
         return this.focus();
     }
@@ -1649,12 +1653,30 @@ class Squire {
         return this.changeFormat(null, { tag: 'B' });
     }
 
+    toggleBold(): Squire {
+        if (this.hasFormat('B')) {
+            this.removeBold();
+        } else {
+            this.bold();
+        }
+        return this;
+    }
+
     italic(): Squire {
         return this.changeFormat({ tag: 'I' });
     }
 
     removeItalic(): Squire {
         return this.changeFormat(null, { tag: 'I' });
+    }
+
+    toggleItalic(): Squire {
+        if (this.hasFormat('I')) {
+            this.removeItalic();
+        } else {
+            this.italic();
+        }
+        return this;
     }
 
     underline(): Squire {
@@ -1858,7 +1880,8 @@ class Squire {
     }
 
     setFontSize(size: string | null): Squire {
-        const className = this._config.classNames.fontSize;
+        // const className = this._config.classNames.fontSize;
+        const className = this._config.classNames.fontFamily;
         return this.changeFormat(
             size
                 ? {

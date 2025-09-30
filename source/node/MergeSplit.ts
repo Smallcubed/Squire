@@ -6,6 +6,7 @@ import {
     getLength,
     detach,
     empty,
+    hasAncestorWithID,
 } from './Node';
 import { isInline, isContainer } from './Category';
 
@@ -19,6 +20,10 @@ const fixCursor = (node: Node): Node => {
     let fixer: Element | Text | null = null;
 
     if (node instanceof Text) {
+        return node;
+    }
+    
+    if (hasAncestorWithID(node, SC_SIG_CONTAINER_ID)) {
         return node;
     }
 
@@ -43,6 +48,7 @@ const fixCursor = (node: Node): Node => {
         !notWS.test(node.textContent || '')
     ) {
         fixer = createElement('BR');
+        fixer.className = SC_BR_CLASS;
         let parent: Element | DocumentFragment = node;
         let child: Element | null;
         while ((child = parent.lastElementChild) && !isInline(child)) {
@@ -72,24 +78,34 @@ const fixContainer = (
     if (/^(?:TABLE|TBODY|TR|TH|TD|P)/.test(container.nodeName)) {
         return container;
     }
+    //  SJL work around to avoid our blockquotes getting additional DIVs added
+    if ((container.nodeName === 'BLOCKQUOTE') && (container.attributes['type'])) {
+        let attr = container.attributes['type'];
+        if (attr.value === 'cite') {
+            return container;
+        }
+    }
+    const isContainerDIV = container.nodeName === 'DIV';
     Array.from(container.childNodes).forEach((child) => {
-        const isBR = child.nodeName === 'BR';
-        if (!isBR && isInline(child)) {
-            if (!wrapper) {
-                wrapper = createElement('DIV');
+        if (!isContainerDIV) {
+            const isBR = child.nodeName === 'BR';
+            if (!isBR && isInline(child)) {
+                if (!wrapper) {
+                    wrapper = createElement('DIV');
+                }
+                wrapper.appendChild(child);
+            } else if (isBR || wrapper) {
+                if (!wrapper) {
+                    wrapper = createElement('DIV');
+                }
+                fixCursor(wrapper);
+                if (isBR) {
+                    container.replaceChild(wrapper, child);
+                } else {
+                    container.insertBefore(wrapper, child);
+                }
+                wrapper = null;
             }
-            wrapper.appendChild(child);
-        } else if (isBR || wrapper) {
-            if (!wrapper) {
-                wrapper = createElement('DIV');
-            }
-            fixCursor(wrapper);
-            if (isBR) {
-                container.replaceChild(wrapper, child);
-            } else {
-                container.insertBefore(wrapper, child);
-            }
-            wrapper = null;
         }
         if (isContainer(child)) {
             fixContainer(child, root);

@@ -114,6 +114,16 @@ const keyHandlers: Record<string, KeyHandler> = {
             );
         }
     },
+    'ArrowDown'(self: Squire, event: KeyboardEvent, range: Range): void {
+        if (self.moveDirectionForToken) {
+            self.moveDirectionForToken(self, event, range, false);
+        }
+    },
+    'ArrowUp'(self: Squire, event: KeyboardEvent, range: Range): void {
+        if (self.moveDirectionForToken) {
+            self.moveDirectionForToken(self, event, range, true);
+        }
+    },
 };
 
 if (!supportsInputEvents) {

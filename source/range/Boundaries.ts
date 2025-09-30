@@ -42,6 +42,7 @@ const isNodeContainedInRange = (
  */
 const moveRangeBoundariesDownTree = (range: Range): void => {
     let { startContainer, startOffset, endContainer, endOffset } = range;
+    let wasCollapsed = range.collapsed;
 
     while (!(startContainer instanceof Text)) {
         let child: ChildNode | null = startContainer.childNodes[startOffset];
@@ -72,35 +73,40 @@ const moveRangeBoundariesDownTree = (range: Range): void => {
         startContainer = child;
         startOffset = 0;
     }
-    if (endOffset) {
-        while (!(endContainer instanceof Text)) {
-            const child = endContainer.childNodes[endOffset - 1];
-            if (!child || isLeaf(child)) {
-                if (
-                    child &&
-                    child.nodeName === 'BR' &&
-                    !isLineBreak(child as Element, false)
-                ) {
-                    endOffset -= 1;
-                    continue;
-                }
-                break;
-            }
-            endContainer = child;
-            endOffset = getLength(endContainer);
-        }
-    } else {
-        while (!(endContainer instanceof Text)) {
-            const child = endContainer.firstChild!;
-            if (!child || isLeaf(child)) {
-                break;
-            }
-            endContainer = child;
-        }
-    }
-
     range.setStart(startContainer, startOffset);
-    range.setEnd(endContainer, endOffset);
+
+    if (wasCollapsed) {
+        range.collapse();
+    }
+    else {
+        if (endOffset) {
+            while (!(endContainer instanceof Text)) {
+                const child = endContainer.childNodes[endOffset - 1];
+                if (!child || isLeaf(child)) {
+                    if (
+                        child &&
+                        child.nodeName === 'BR' &&
+                        !isLineBreak(child as Element, false)
+                    ) {
+                        endOffset -= 1;
+                        continue;
+                    }
+                    break;
+                }
+                endContainer = child;
+                endOffset = getLength(endContainer);
+            }
+        } else {
+            while (!(endContainer instanceof Text)) {
+                const child = endContainer.firstChild!;
+                if (!child || isLeaf(child)) {
+                    break;
+                }
+                endContainer = child;
+            }
+        }
+        range.setEnd(endContainer, endOffset);
+    }
 };
 
 const moveRangeBoundariesUpTree = (
