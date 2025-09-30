@@ -409,6 +409,7 @@ class Squire {
         'select',
         'input',
         'pasteImage',
+        'pasteFile',
         'undoStateChange',
     ]);
 

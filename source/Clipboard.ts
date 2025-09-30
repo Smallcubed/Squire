@@ -175,6 +175,7 @@ const _onPaste = function (this: Squire, event: ClipboardEvent): void {
     const items = clipboardData?.items;
     const choosePlain: boolean | undefined = this._isShiftDown;
     let hasRTF = false;
+    let hasFile = false;
     let hasImage = false;
     let plainItem: null | DataTransferItem = null;
     let htmlItem: null | DataTransferItem = null;
@@ -187,7 +188,10 @@ const _onPaste = function (this: Squire, event: ClipboardEvent): void {
         while (l--) {
             const item = items[l];
             const type = item.type;
-            if (type === 'text/html') {
+            const kind = item.kind;
+            if (kind === 'file') {
+                hasFile = true;
+            } else if (type === 'text/html') {
                 htmlItem = item;
                 // iOS copy URL gives you type text/uri-list which is just a list
                 // of 1 or more URLs separated by new lines. Can just treat as
@@ -199,6 +203,16 @@ const _onPaste = function (this: Squire, event: ClipboardEvent): void {
             } else if (/^image\/.*/.test(type)) {
                 hasImage = true;
             }
+        }
+
+        // Treat a file paste as a special type of item to handle, calling
+        // and event that will insert a file if found
+        if (hasFile && (!htmlItem)) {
+            event.preventDefault();
+            this.fireEvent('pasteFile', {
+                clipboardData,
+            });
+            return;
         }
 
         // Treat image paste as a drop of an image file. When you copy
