@@ -38,6 +38,7 @@ Promise.all([
     esbuild.build({
         entryPoints: ['source/MavenEditor.ts'],
         bundle: true,
+        sourcemap: 'linked',
         target: 'es6',
         format: 'iife',
         outfile: 'dist/maven-editor.js',

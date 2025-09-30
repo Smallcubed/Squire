@@ -263,6 +263,15 @@ var replaceWith = (node, node2) => {
     parent.replaceChild(node2, node);
   }
 };
+var hasAncestorWithID = (node, id) => {
+  while (node) {
+    if (node.nodeType == Node.ELEMENT_NODE && node.id === id) {
+      return true;
+    }
+    node = node.parentNode;
+  }
+  return false;
+};
 
 // source/node/Whitespace.ts
 var notWSTextNode = (node) => {
@@ -331,6 +340,7 @@ var isNodeContainedInRange = (range, node, partial) => {
 };
 var moveRangeBoundariesDownTree = (range) => {
   let { startContainer, startOffset, endContainer, endOffset } = range;
+  let wasCollapsed = range.collapsed;
   while (!(startContainer instanceof Text)) {
     let child = startContainer.childNodes[startOffset];
     if (!child || isLeaf(child)) {
@@ -352,30 +362,34 @@ var moveRangeBoundariesDownTree = (range) => {
     startContainer = child;
     startOffset = 0;
   }
-  if (endOffset) {
-    while (!(endContainer instanceof Text)) {
-      const child = endContainer.childNodes[endOffset - 1];
-      if (!child || isLeaf(child)) {
-        if (child && child.nodeName === "BR" && !isLineBreak(child, false)) {
-          endOffset -= 1;
-          continue;
-        }
-        break;
-      }
-      endContainer = child;
-      endOffset = getLength(endContainer);
-    }
-  } else {
-    while (!(endContainer instanceof Text)) {
-      const child = endContainer.firstChild;
-      if (!child || isLeaf(child)) {
-        break;
-      }
-      endContainer = child;
-    }
-  }
   range.setStart(startContainer, startOffset);
-  range.setEnd(endContainer, endOffset);
+  if (wasCollapsed) {
+    range.collapse();
+  } else {
+    if (endOffset) {
+      while (!(endContainer instanceof Text)) {
+        const child = endContainer.childNodes[endOffset - 1];
+        if (!child || isLeaf(child)) {
+          if (child && child.nodeName === "BR" && !isLineBreak(child, false)) {
+            endOffset -= 1;
+            continue;
+          }
+          break;
+        }
+        endContainer = child;
+        endOffset = getLength(endContainer);
+      }
+    } else {
+      while (!(endContainer instanceof Text)) {
+        const child = endContainer.firstChild;
+        if (!child || isLeaf(child)) {
+          break;
+        }
+        endContainer = child;
+      }
+    }
+    range.setEnd(endContainer, endOffset);
+  }
 };
 var moveRangeBoundariesUpTree = (range, startMax, endMax, root) => {
   let startContainer = range.startContainer;
@@ -432,6 +446,9 @@ var fixCursor = (node) => {
   if (node instanceof Text) {
     return node;
   }
+  if (hasAncestorWithID(node, SC_SIG_CONTAINER_ID)) {
+    return node;
+  }
   if (isInline(node)) {
     let child = node.firstChild;
     if (cantFocusEmptyTextNodes) {
@@ -449,6 +466,7 @@ var fixCursor = (node) => {
     }
   } else if ((node instanceof Element || node instanceof DocumentFragment) && !node.querySelector("BR") && !notWS.test(node.textContent || "")) {
     fixer = createElement("BR");
+    fixer.className = SC_BR_CLASS;
     let parent = node;
     let child;
     while ((child = parent.lastElementChild) && !isInline(child)) {
@@ -469,24 +487,33 @@ var fixContainer = (container, root) => {
   if (/^(?:TABLE|TBODY|TR|TH|TD|P)/.test(container.nodeName)) {
     return container;
   }
+  if (container.nodeName === "BLOCKQUOTE" && container.attributes["type"]) {
+    let attr = container.attributes["type"];
+    if (attr.value === "cite") {
+      return container;
+    }
+  }
+  const isContainerDIV = container.nodeName === "DIV";
   Array.from(container.childNodes).forEach((child) => {
-    const isBR = child.nodeName === "BR";
-    if (!isBR && isInline(child)) {
-      if (!wrapper) {
-        wrapper = createElement("DIV");
+    if (!isContainerDIV) {
+      const isBR = child.nodeName === "BR";
+      if (!isBR && isInline(child)) {
+        if (!wrapper) {
+          wrapper = createElement("DIV");
+        }
+        wrapper.appendChild(child);
+      } else if (isBR || wrapper) {
+        if (!wrapper) {
+          wrapper = createElement("DIV");
+        }
+        fixCursor(wrapper);
+        if (isBR) {
+          container.replaceChild(wrapper, child);
+        } else {
+          container.insertBefore(wrapper, child);
+        }
+        wrapper = null;
       }
-      wrapper.appendChild(child);
-    } else if (isBR || wrapper) {
-      if (!wrapper) {
-        wrapper = createElement("DIV");
-      }
-      fixCursor(wrapper);
-      if (isBR) {
-        container.replaceChild(wrapper, child);
-      } else {
-        container.insertBefore(wrapper, child);
-      }
-      wrapper = null;
     }
     if (isContainer(child)) {
       fixContainer(child, root);
@@ -803,7 +830,7 @@ var stylesRewriters = {
     return el;
   }
 };
-var allowedBlock = /^(?:A(?:DDRESS|RTICLE|SIDE|UDIO)|BLOCKQUOTE|CAPTION|D(?:[DLT]|IV)|F(?:IGURE|IGCAPTION|OOTER)|H[1-6]|HEADER|L(?:ABEL|EGEND|I)|O(?:L|UTPUT)|P(?:RE)?|SECTION|T(?:ABLE|BODY|D|FOOT|H|HEAD|R)|COL(?:GROUP)?|UL)$/;
+var allowedBlock = /^(?:A(?:DDRESS|RTICLE|SIDE|UDIO)|BLOCKQUOTE|CAPTION|D(?:[DLT]|IV)|F(?:IGURE|IGCAPTION|OOTER)|H[1-6]|HEADER|L(?:ABEL|EGEND|I)|O(?:L|UTPUT)|P(?:RE)?|S(?:ECTION|OURCE)|T(?:ABLE|BODY|D|FOOT|H|HEAD|R)|COL(?:GROUP)?|UL|VIDEO)$/;
 var blacklist = /^(?:HEAD|META|STYLE)/;
 var cleanTree = (node, config, preserveWS) => {
   const children = node.childNodes;
@@ -1471,6 +1498,7 @@ var _onPaste = function(event) {
   const items = clipboardData?.items;
   const choosePlain = this._isShiftDown;
   let hasRTF = false;
+  let hasFile = false;
   let hasImage = false;
   let plainItem = null;
   let htmlItem = null;
@@ -1479,7 +1507,10 @@ var _onPaste = function(event) {
     while (l--) {
       const item = items[l];
       const type = item.type;
-      if (type === "text/html") {
+      const kind = item.kind;
+      if (kind === "file") {
+        hasFile = true;
+      } else if (type === "text/html") {
         htmlItem = item;
       } else if (type === "text/plain" || type === "text/uri-list") {
         plainItem = item;
@@ -1488,6 +1519,13 @@ var _onPaste = function(event) {
       } else if (/^image\/.*/.test(type)) {
         hasImage = true;
       }
+    }
+    if (hasFile && !htmlItem) {
+      event.preventDefault();
+      this.fireEvent("pasteFile", {
+        clipboardData
+      });
+      return;
     }
     if (hasImage && !(hasRTF && htmlItem)) {
       event.preventDefault();
@@ -1974,6 +2012,16 @@ var keyHandlers = {
         }
       } while (!node.nextSibling && (node = node.parentNode) && node !== root);
     }
+  },
+  "ArrowDown"(self, event, range) {
+    if (self.moveDirectionForToken) {
+      self.moveDirectionForToken(self, event, range, false);
+    }
+  },
+  "ArrowUp"(self, event, range) {
+    if (self.moveDirectionForToken) {
+      self.moveDirectionForToken(self, event, range, true);
+    }
   }
 };
 if (!supportsInputEvents) {
@@ -2071,6 +2119,7 @@ var Squire = class {
       "select",
       "input",
       "pasteImage",
+      "pasteFile",
       "undoStateChange"
     ]);
     // ---
@@ -2748,6 +2797,7 @@ var Squire = class {
         canRedo: true
       });
       this.fireEvent("input");
+      this.fireEvent("undoPerformed");
     }
     return this.focus();
   }
@@ -3101,7 +3151,7 @@ var Squire = class {
     }
     return seenNode;
   }
-  changeFormat(add, remove, range, partial) {
+  changeFormat(add, remove, range, partial, ignoreSel) {
     if (!range) {
       range = this.getSelection();
     }
@@ -3121,8 +3171,10 @@ var Squire = class {
         range
       );
     }
-    this.setSelection(range);
-    this._updatePath(range, true);
+    if (!ignoreSel) {
+      this.setSelection(range);
+      this._updatePath(range, true);
+    }
     return this.focus();
   }
   _addFormat(tag, attributes, range) {
@@ -3278,11 +3330,27 @@ var Squire = class {
   removeBold() {
     return this.changeFormat(null, { tag: "B" });
   }
+  toggleBold() {
+    if (this.hasFormat("B")) {
+      this.removeBold();
+    } else {
+      this.bold();
+    }
+    return this;
+  }
   italic() {
     return this.changeFormat({ tag: "I" });
   }
   removeItalic() {
     return this.changeFormat(null, { tag: "I" });
+  }
+  toggleItalic() {
+    if (this.hasFormat("I")) {
+      this.removeItalic();
+    } else {
+      this.italic();
+    }
+    return this;
   }
   underline() {
     return this.changeFormat({ tag: "U" });
@@ -3407,7 +3475,7 @@ var Squire = class {
     );
   }
   setFontSize(size) {
-    const className = this._config.classNames.fontSize;
+    const className = this._config.classNames.fontFamily;
     return this.changeFormat(
       size ? {
         tag: "SPAN",
