@@ -13,6 +13,31 @@ import { ZWS } from '../Constants';
 
 // ---
 
+const CreateList = (self: Squire, event: KeyboardEvent, range: Range, root: HTMLElement): boolean => {
+    const block = getStartBlockOfRange(range, root);
+    if (block && block.nodeName !== 'PRE') {
+        const text = block.textContent?.trimEnd().replace(ZWS, '');
+        if (text === '*' || text === '1.') {
+            event.preventDefault();
+            self.insertPlainText(' ', false);
+            self._docWasChanged();
+            self.saveUndoState(range);
+            const walker = new TreeIterator<Text>(block, SHOW_TEXT);
+            let textNode: Text | null;
+            while ((textNode = walker.nextNode())) {
+                detach(textNode);
+            }
+            if (text === '*') {
+                self.makeUnorderedList();
+            } else {
+                self.makeOrderedList();
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 const Space = (self: Squire, event: KeyboardEvent, range: Range): void => {
     let node: Node | null;
     const root = self._root;
@@ -26,26 +51,8 @@ const Space = (self: Squire, event: KeyboardEvent, range: Range): void => {
         self.setSelection(range);
         self._updatePath(range, true);
     } else if (rangeDoesEndAtBlockBoundary(range, root)) {
-        const block = getStartBlockOfRange(range, root);
-        if (block && block.nodeName !== 'PRE') {
-            const text = block.textContent?.trimEnd().replace(ZWS, '');
-            if (text === '*' || text === '1.') {
-                event.preventDefault();
-                self.insertPlainText(' ', false);
-                self._docWasChanged();
-                self.saveUndoState(range);
-                const walker = new TreeIterator<Text>(block, SHOW_TEXT);
-                let textNode: Text | null;
-                while ((textNode = walker.nextNode())) {
-                    detach(textNode);
-                }
-                if (text === '*') {
-                    self.makeUnorderedList();
-                } else {
-                    self.makeOrderedList();
-                }
-                return;
-            }
+        if (CreateList(self, event, range, root)) {
+            return;
         }
     }
 
@@ -82,4 +89,4 @@ const Space = (self: Squire, event: KeyboardEvent, range: Range): void => {
 
 // ---
 
-export { Space };
+export { Space, CreateList };

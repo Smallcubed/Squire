@@ -1860,38 +1860,33 @@
     }
   };
 
-  // source/keyboard/Tab.ts
-  var Tab = (self, event, range) => {
-    const root = self._root;
-    self._removeZWS();
-    if (range.collapsed && rangeDoesStartAtBlockBoundary(range, root)) {
-      let node = getStartBlockOfRange(range, root);
-      let parent;
-      while (parent = node.parentNode) {
-        if (parent.nodeName === "UL" || parent.nodeName === "OL") {
-          event.preventDefault();
-          self.increaseListLevel(range);
-          break;
-        }
-        node = parent;
-      }
-    }
-  };
-  var ShiftTab = (self, event, range) => {
-    const root = self._root;
-    self._removeZWS();
-    if (range.collapsed && rangeDoesStartAtBlockBoundary(range, root)) {
-      const node = range.startContainer;
-      if (getNearest(node, root, "UL") || getNearest(node, root, "OL")) {
-        event.preventDefault();
-        self.decreaseListLevel(range);
-      }
-    }
-  };
-
   // source/keyboard/Space.ts
-  var Space = (self, event, range) => {
+  var CreateList = (self, event, range, root) => {
     var _a;
+    const block = getStartBlockOfRange(range, root);
+    if (block && block.nodeName !== "PRE") {
+      const text = (_a = block.textContent) == null ? void 0 : _a.trimEnd().replace(ZWS, "");
+      if (text === "*" || text === "1.") {
+        event.preventDefault();
+        self.insertPlainText(" ", false);
+        self._docWasChanged();
+        self.saveUndoState(range);
+        const walker = new TreeIterator(block, SHOW_TEXT);
+        let textNode;
+        while (textNode = walker.nextNode()) {
+          detach(textNode);
+        }
+        if (text === "*") {
+          self.makeUnorderedList();
+        } else {
+          self.makeOrderedList();
+        }
+        return true;
+      }
+    }
+    return false;
+  };
+  var Space = (self, event, range) => {
     let node;
     const root = self._root;
     self._recordUndoState(range);
@@ -1902,26 +1897,8 @@
       self.setSelection(range);
       self._updatePath(range, true);
     } else if (rangeDoesEndAtBlockBoundary(range, root)) {
-      const block = getStartBlockOfRange(range, root);
-      if (block && block.nodeName !== "PRE") {
-        const text = (_a = block.textContent) == null ? void 0 : _a.trimEnd().replace(ZWS, "");
-        if (text === "*" || text === "1.") {
-          event.preventDefault();
-          self.insertPlainText(" ", false);
-          self._docWasChanged();
-          self.saveUndoState(range);
-          const walker = new TreeIterator(block, SHOW_TEXT);
-          let textNode;
-          while (textNode = walker.nextNode()) {
-            detach(textNode);
-          }
-          if (text === "*") {
-            self.makeUnorderedList();
-          } else {
-            self.makeOrderedList();
-          }
-          return;
-        }
+      if (CreateList(self, event, range, root)) {
+        return;
       }
     }
     node = range.endContainer;
@@ -1943,6 +1920,44 @@
       }, 0);
     }
     self.setSelection(range);
+  };
+
+  // source/keyboard/Tab.ts
+  var Tab = (self, event, range) => {
+    const root = self._root;
+    var shouldInsertTab = true;
+    self._removeZWS();
+    if (range.collapsed && rangeDoesStartAtBlockBoundary(range, root)) {
+      let node = getStartBlockOfRange(range, root);
+      let parent;
+      while (parent = node.parentNode) {
+        if (parent.nodeName === "UL" || parent.nodeName === "OL") {
+          event.preventDefault();
+          self.increaseListLevel(range);
+          shouldInsertTab = false;
+          break;
+        }
+        node = parent;
+      }
+    }
+    if (CreateList(self, event, range, root)) {
+      return;
+    }
+    if (shouldInsertTab) {
+      event.preventDefault();
+      self.insertPlainText("   ", false);
+    }
+  };
+  var ShiftTab = (self, event, range) => {
+    const root = self._root;
+    self._removeZWS();
+    if (range.collapsed && rangeDoesStartAtBlockBoundary(range, root)) {
+      const node = range.startContainer;
+      if (getNearest(node, root, "UL") || getNearest(node, root, "OL")) {
+        event.preventDefault();
+        self.decreaseListLevel(range);
+      }
+    }
   };
 
   // source/keyboard/KeyHandlers.ts
