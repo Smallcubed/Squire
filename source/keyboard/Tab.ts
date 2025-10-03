@@ -39,8 +39,8 @@ const Tab = (self: Squire, event: KeyboardEvent, range: Range): void => {
     //  Should we actually insert a tab?
     if (shouldInsertTab) {
         event.preventDefault();
-        //  Insert a literal tab character
-        self.insertPlainText("   ", false);
+        //  Insert four literal space characters, which should be transformed into non-breaking spaces.
+        self.insertPlainText("    ", false);
     }
 };
 

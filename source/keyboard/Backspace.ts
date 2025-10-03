@@ -79,12 +79,31 @@ const Backspace = (self: Squire, event: KeyboardEvent, range: Range): void => {
             self._updatePath(range, true);
         }
     } else {
+        //  First test to see if we should just delete a manually entered tab character (4 spaces)
+        let actualRange = self.getSelection();
+        if (
+            actualRange.startContainer instanceof Text &&
+            actualRange.startOffset > 3
+        ) {
+            var prevRange = new Range();
+            prevRange.setStart(actualRange.startContainer, actualRange.startOffset - 4);
+            prevRange.setEnd(actualRange.startContainer, actualRange.startOffset);
+            if (prevRange.toString() === "    ") {  //  Four non-breaking spaces
+                event.preventDefault();
+                deleteContentsOfRange(prevRange, root);
+                afterDelete(self, prevRange);
+                return;
+           }
+        }
+        
         // If deleting text inside a link that looks like a URL, delink.
         // This is to allow you to easily correct auto-linked text.
         moveRangeBoundariesDownTree(range);
         const text = range.startContainer;
         const offset = range.startOffset;
         const a = text.parentNode;
+        
+        //  Then test for link issues.
         if (
             text instanceof Text &&
             a instanceof HTMLAnchorElement &&

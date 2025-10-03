@@ -1781,6 +1781,18 @@
         self._updatePath(range, true);
       }
     } else {
+      let actualRange = self.getSelection();
+      if (actualRange.startContainer instanceof Text && actualRange.startOffset > 3) {
+        var prevRange = new Range();
+        prevRange.setStart(actualRange.startContainer, actualRange.startOffset - 4);
+        prevRange.setEnd(actualRange.startContainer, actualRange.startOffset);
+        if (prevRange.toString() === "\xA0\xA0\xA0\xA0") {
+          event.preventDefault();
+          deleteContentsOfRange(prevRange, root);
+          afterDelete(self, prevRange);
+          return;
+        }
+      }
       moveRangeBoundariesDownTree(range);
       const text = range.startContainer;
       const offset = range.startOffset;
@@ -1945,7 +1957,8 @@
     }
     if (shouldInsertTab) {
       event.preventDefault();
-      self.insertPlainText("   ", false);
+      self.insertPlainText("    ", false);
+      console.log("wtf");
     }
   };
   var ShiftTab = (self, event, range) => {
