@@ -82,10 +82,25 @@ const detachUneditableNode = (node: Node, root: Element): void => {
 
 // ---
 
-const linkifyText = (self: Squire, textNode: Text, offset: number): void => {
-    if (getNearest(textNode, self._root, 'A')) {
+const linkifyText = (self: Squire, textNode: Text, offset: number, update?: bool): void => {
+    const anchor = getNearest(textNode, self._root, 'A');
+    if (anchor) {
+        if (update) {
+            const data = textNode.data || '';
+            const searchFrom =
+                Math.max(
+                    data.lastIndexOf(' ', offset - 1),
+                    data.lastIndexOf(' ', offset - 1),
+                ) + 1;
+            const searchText = data.slice(searchFrom, offset);
+            const match = self.linkRegExp.exec(searchText);
+            if (match) {
+                anchor.setAttribute('href', textNode.data);
+            }
+        }
         return;
     }
+    
     const data = textNode.data || '';
     const searchFrom =
         Math.max(

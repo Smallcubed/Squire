@@ -5,6 +5,9 @@ import {
     moveRangeBoundariesUpTree,
 } from './range/Boundaries';
 import {
+    linkifyText
+} from './keyboard/KeyHelpers';
+import {
     getStartBlockOfRange,
     getEndBlockOfRange,
     rangeDoesStartAtBlockBoundary,
@@ -71,10 +74,36 @@ class MavenEditor extends Squire {
 
     _beforeInput(event: InputEvent): void {
         switch (event.inputType) {
+            case 'insertText':
+                //  Test to see if we are at the end of an anchor, to allow the user to 
+                //      input more content unto the end of the link
+                const range = this.getSelection();
+                const node = range.commonAncestorContainer;
+                //  If is text, is collapsed, at end of text, and parent is an anchor...
+                if (range.collapsed && (node instanceof Text) && 
+                    (range.endOffset === node.textContent.length) &&
+                    (parent = node.parentElement) &&
+                    (parent.tagName === 'A')) {
+
+                    event.preventDefault();
+                    const newText = event.data;
+                    const newRange = range.cloneRange();
+                    this.saveUndoState(range);
+                    node.appendData(newText);
+                    const newOffset = newRange.startOffset + newText.length;
+                    newRange.setStart(node, newOffset);
+                    newRange.setEnd(node, newOffset);
+                    linkifyText(this, node, newOffset, true);
+                    this.setSelection(newRange);
+                    this._updatePath(newRange, true);
+                    return;
+                }
+                break;
+                
             case 'insertParagraph':
                 if (this._config.avoidSlashyReplacements) {
                     let range = this.getSelection();
-                    if (range.collapsed && (range.endContainer.nodeType == Node.TEXT_NODE)) {
+                    if (range.collapsed && (range.endContainer instanceof Text)) {
                         let text = range.endContainer.textContent;
                         let lastWord = text.split(' ').pop();
                         if (lastWord && lastWord.includes('/')) {

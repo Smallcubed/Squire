@@ -1081,15 +1081,9 @@ class Squire {
                 insertTreeFragmentIntoRange(range, frag, root);
                 range.collapse(false);
 
-                // After inserting the fragment, check whether the cursor is
-                // inside an <a> element and if so if there is an equivalent
-                // cursor position after the <a> element. If there is, move it
-                // there.
-                moveRangeBoundaryOutOf(range, 'A', root);
-
                 this._ensureBottomLine();
             }
-
+            
             this.setSelection(range);
             this._updatePath(range, true);
             // Safari sometimes loses focus after paste. Weird.

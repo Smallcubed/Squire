@@ -112,7 +112,8 @@ const Backspace = (self: Squire, event: KeyboardEvent, range: Range): void => {
         ) {
             text.deleteData(offset - 1, 1);
             self.setSelection(range);
-            self.removeLink();
+            // Instead of removing the links, we update if necessary
+            linkifyText(self, text, range.startOffset, true);
             event.preventDefault();
         } else {
             // Otherwise, leave to browser but check afterwards whether it has

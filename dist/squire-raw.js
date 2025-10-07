@@ -1693,8 +1693,21 @@
     }
     detach(node);
   };
-  var linkifyText = (self, textNode, offset) => {
-    if (getNearest(textNode, self._root, "A")) {
+  var linkifyText2 = (self, textNode, offset, update) => {
+    const anchor = getNearest(textNode, self._root, "A");
+    if (anchor) {
+      if (update) {
+        const data2 = textNode.data || "";
+        const searchFrom2 = Math.max(
+          data2.lastIndexOf(" ", offset - 1),
+          data2.lastIndexOf("\xA0", offset - 1)
+        ) + 1;
+        const searchText2 = data2.slice(searchFrom2, offset);
+        const match2 = self.linkRegExp.exec(searchText2);
+        if (match2) {
+          anchor.setAttribute("href", textNode.data);
+        }
+      }
       return;
     }
     const data = textNode.data || "";
@@ -1800,7 +1813,7 @@
       if (text instanceof Text && a instanceof HTMLAnchorElement && offset && a.href.includes(text.data)) {
         text.deleteData(offset - 1, 1);
         self.setSelection(range);
-        self.removeLink();
+        linkifyText(self, text, range.startOffset, true);
         event.preventDefault();
       } else {
         self.setSelection(range);
@@ -1928,7 +1941,7 @@
       const textNode = linkRange.startContainer;
       const offset = linkRange.startOffset;
       setTimeout(() => {
-        linkifyText(self, textNode, offset);
+        linkifyText2(self, textNode, offset);
       }, 0);
     }
     self.setSelection(range);
@@ -1958,7 +1971,6 @@
     if (shouldInsertTab) {
       event.preventDefault();
       self.insertPlainText("    ", false);
-      console.log("wtf");
     }
   };
   var ShiftTab = (self, event, range) => {
@@ -2968,7 +2980,6 @@
         if (doInsert) {
           insertTreeFragmentIntoRange(range, frag, root);
           range.collapse(false);
-          moveRangeBoundaryOutOf(range, "A", root);
           this._ensureBottomLine();
         }
         this.setSelection(range);
@@ -3592,7 +3603,7 @@
         const textNode = range.startContainer;
         const offset2 = range.startOffset;
         setTimeout(() => {
-          linkifyText(this, textNode, offset2);
+          linkifyText2(this, textNode, offset2);
         }, 0);
       }
       block = getStartBlockOfRange(range, root);
