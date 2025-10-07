@@ -77,11 +77,19 @@ const Space = (self: Squire, event: KeyboardEvent, range: Range): void => {
     if (self._config.addLinks) {
         const linkRange = range.cloneRange();
         moveRangeBoundariesDownTree(linkRange);
-        const textNode = linkRange.startContainer as Text;
-        const offset = linkRange.startOffset;
-        setTimeout(() => {
-            linkifyText(self, textNode, offset);
-        }, 0);
+        var textNode = linkRange.startContainer as Text;
+        if (!(textNode instanceof Text) && 
+            (linkRange.startOffset == textNode.childNodes.length)) {
+            textNode = textNode.lastChild;
+            linkRange.setStart(textNode, textNode.length);
+            linkRange.setEnd(textNode, textNode.length);
+        }
+        if (textNode instanceof Text) {
+            const offset = linkRange.startOffset;
+            setTimeout(() => {
+                linkifyText(self, textNode, offset);
+            }, 0);
+        }
     }
 
     self.setSelection(range);

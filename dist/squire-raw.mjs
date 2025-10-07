@@ -1935,11 +1935,18 @@ var Space = (self, event, range) => {
   if (self._config.addLinks) {
     const linkRange = range.cloneRange();
     moveRangeBoundariesDownTree(linkRange);
-    const textNode = linkRange.startContainer;
-    const offset = linkRange.startOffset;
-    setTimeout(() => {
-      linkifyText2(self, textNode, offset);
-    }, 0);
+    var textNode = linkRange.startContainer;
+    if (!(textNode instanceof Text) && linkRange.startOffset == textNode.childNodes.length) {
+      textNode = textNode.lastChild;
+      linkRange.setStart(textNode, textNode.length);
+      linkRange.setEnd(textNode, textNode.length);
+    }
+    if (textNode instanceof Text) {
+      const offset = linkRange.startOffset;
+      setTimeout(() => {
+        linkifyText2(self, textNode, offset);
+      }, 0);
+    }
   }
   self.setSelection(range);
 };
