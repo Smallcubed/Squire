@@ -84,6 +84,7 @@ const keyHandlers: Record<string, KeyHandler> = {
     'Tab': Tab,
     'Shift-Tab': ShiftTab,
     ' ': Space,
+    'Enter': Enter,
     'ArrowLeft'(self: Squire): void {
         self._removeZWS();
     },
@@ -126,10 +127,10 @@ const keyHandlers: Record<string, KeyHandler> = {
     },
 };
 
-if (!supportsInputEvents) {
-    keyHandlers.Enter = Enter;
-    keyHandlers['Shift-Enter'] = Enter;
-}
+// if (!supportsInputEvents) {
+    // keyHandlers.Enter = Enter;
+    // keyHandlers['Shift-Enter'] = Enter;
+// }
 
 // System standard for page up/down on Mac/iOS is to just scroll, not move the
 // cursor. On Linux/Windows, it should move the cursor, but some browsers don't

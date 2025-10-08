@@ -1637,12 +1637,6 @@ var _onDrop = function(event) {
   }
 };
 
-// source/keyboard/Enter.ts
-var Enter = (self, event, range) => {
-  event.preventDefault();
-  self.splitBlock(event.shiftKey, range);
-};
-
 // source/keyboard/KeyHelpers.ts
 var afterDelete = (self, range) => {
   try {
@@ -1746,6 +1740,29 @@ var linkifyText2 = (self, textNode, offset, update) => {
     }
     self.setSelection(selection);
   }
+};
+var tryLinkifyAfterWS = (self, range) => {
+  if (self._config.addLinks) {
+    const linkRange = range.cloneRange();
+    moveRangeBoundariesDownTree(linkRange);
+    var textNode = linkRange.startContainer;
+    if (!(textNode instanceof Text) && linkRange.startOffset == textNode.childNodes.length) {
+      textNode = textNode.lastChild;
+      linkRange.setStart(textNode, textNode.length);
+      linkRange.setEnd(textNode, textNode.length);
+    }
+    if (textNode instanceof Text) {
+      const offset = linkRange.startOffset;
+      setTimeout(() => {
+        linkifyText2(self, textNode, offset);
+      }, 0);
+    }
+  }
+};
+
+// source/keyboard/Enter.ts
+var Enter = (self, event, range) => {
+  tryLinkifyAfterWS(self, range);
 };
 
 // source/keyboard/Backspace.ts
@@ -1932,22 +1949,7 @@ var Space = (self, event, range) => {
       }
     } while (!node.nextSibling && (node = node.parentNode) && node !== root);
   }
-  if (self._config.addLinks) {
-    const linkRange = range.cloneRange();
-    moveRangeBoundariesDownTree(linkRange);
-    var textNode = linkRange.startContainer;
-    if (!(textNode instanceof Text) && linkRange.startOffset == textNode.childNodes.length) {
-      textNode = textNode.lastChild;
-      linkRange.setStart(textNode, textNode.length);
-      linkRange.setEnd(textNode, textNode.length);
-    }
-    if (textNode instanceof Text) {
-      const offset = linkRange.startOffset;
-      setTimeout(() => {
-        linkifyText2(self, textNode, offset);
-      }, 0);
-    }
-  }
+  tryLinkifyAfterWS(self, range);
   self.setSelection(range);
 };
 
@@ -2035,6 +2037,7 @@ var keyHandlers = {
   "Tab": Tab,
   "Shift-Tab": ShiftTab,
   " ": Space,
+  "Enter": Enter,
   "ArrowLeft"(self) {
     self._removeZWS();
   },
@@ -2071,10 +2074,6 @@ var keyHandlers = {
     }
   }
 };
-if (!supportsInputEvents) {
-  keyHandlers.Enter = Enter;
-  keyHandlers["Shift-Enter"] = Enter;
-}
 if (!isMac && !isIOS) {
   keyHandlers.PageUp = (self) => {
     self.moveCursorToStart();

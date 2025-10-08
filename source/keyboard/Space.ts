@@ -3,7 +3,7 @@ import { moveRangeBoundariesDownTree } from '../range/Boundaries';
 import { deleteContentsOfRange } from '../range/InsertDelete';
 
 import type { Squire } from '../Editor';
-import { linkifyText } from './KeyHelpers';
+import { tryLinkifyAfterWS } from './KeyHelpers';
 import {
     getStartBlockOfRange,
     rangeDoesEndAtBlockBoundary,
@@ -73,28 +73,12 @@ const Space = (self: Squire, event: KeyboardEvent, range: Range): void => {
         );
     }
 
-    // Linkify text
-    if (self._config.addLinks) {
-        const linkRange = range.cloneRange();
-        moveRangeBoundariesDownTree(linkRange);
-        var textNode = linkRange.startContainer as Text;
-        if (!(textNode instanceof Text) && 
-            (linkRange.startOffset == textNode.childNodes.length)) {
-            textNode = textNode.lastChild;
-            linkRange.setStart(textNode, textNode.length);
-            linkRange.setEnd(textNode, textNode.length);
-        }
-        if (textNode instanceof Text) {
-            const offset = linkRange.startOffset;
-            setTimeout(() => {
-                linkifyText(self, textNode, offset);
-            }, 0);
-        }
-    }
+    // Try to Linkify text
+    tryLinkifyAfterWS(self, range);
 
     self.setSelection(range);
 };
 
 // ---
 
-export { Space, CreateList };
+export { Space, CreateList, LinkifyTryAfterWS };

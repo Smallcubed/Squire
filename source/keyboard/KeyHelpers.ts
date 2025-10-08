@@ -150,6 +150,27 @@ const linkifyText = (self: Squire, textNode: Text, offset: number, update?: bool
     }
 };
 
+const tryLinkifyAfterWS = (self: Squire, range: Range): void => {
+    // Should we attempt to linkify the text just behind what was entered
+    if (self._config.addLinks) {
+        const linkRange = range.cloneRange();
+        moveRangeBoundariesDownTree(linkRange);
+        var textNode = linkRange.startContainer as Text;
+        if (!(textNode instanceof Text) && 
+            (linkRange.startOffset == textNode.childNodes.length)) {
+            textNode = textNode.lastChild;
+            linkRange.setStart(textNode, textNode.length);
+            linkRange.setEnd(textNode, textNode.length);
+        }
+        if (textNode instanceof Text) {
+            const offset = linkRange.startOffset;
+            setTimeout(() => {
+                linkifyText(self, textNode, offset);
+            }, 0);
+        }
+    }
+}
+
 // ---
 
-export { afterDelete, detachUneditableNode, linkifyText };
+export { afterDelete, detachUneditableNode, linkifyText, tryLinkifyAfterWS };

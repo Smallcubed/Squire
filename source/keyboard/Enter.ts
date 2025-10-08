@@ -1,10 +1,10 @@
 import type { Squire } from '../Editor';
+import { tryLinkifyAfterWS } from './KeyHelpers';
 
 // ---
 
 const Enter = (self: Squire, event: KeyboardEvent, range: Range): void => {
-    event.preventDefault();
-    self.splitBlock(event.shiftKey, range);
+    tryLinkifyAfterWS(self, range);
 };
 
 // ---
