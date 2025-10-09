@@ -59,6 +59,7 @@ import {
 import { keyHandlers, _onKey } from './keyboard/KeyHandlers';
 import { linkifyText } from './keyboard/KeyHelpers';
 import { getTextContentsOfRange } from './range/Contents';
+import { ImageResizer } from './ImageResize';
 
 declare const DOMPurify: any;
 
@@ -118,9 +119,10 @@ class Squire {
     _ignoreAllChanges: boolean;
 
     _isShiftDown: boolean;
-    _keyHandlers: Record<string, KeyHandlerFunction>;
+    _keyHandlers: Record<string, KeyHandlerFunction | null>;
 
     _mutation: MutationObserver;
+    _imageResizer: ImageResizer;
 
     constructor(root: HTMLElement, config?: Partial<SquireConfig>) {
         this._root = root;
@@ -194,6 +196,9 @@ class Squire {
             this._beforeInput as (e: Event) => void,
         );
 
+        // Initialize image resizer
+        this._imageResizer = new ImageResizer(root, this);
+
         this.setHTML('');
     }
 
@@ -203,6 +208,9 @@ class Squire {
         });
 
         this._mutation.disconnect();
+
+        // Cleanup image resizer
+        this._imageResizer.destroy();
 
         this._undoIndex = -1;
         this._undoStack = [];
@@ -252,7 +260,7 @@ class Squire {
         return config;
     }
 
-    setKeyHandler(key: string, fn: KeyHandlerFunction) {
+    setKeyHandler(key: string, fn: KeyHandlerFunction | null) {
         this._keyHandlers[key] = fn;
         return this;
     }
@@ -877,17 +885,16 @@ class Squire {
     }
 
     saveUndoState(range?: Range): Squire {
-       var isFromSelection = false;
+        let rangeIsFromSelection = false;
         if (!range) {
             range = this.getSelection();
-            isFromSelection = true;
+            rangeIsFromSelection = true;
         }
         this._recordUndoState(range, this._isInUndoState);
-        let adjustedRange = this._getRangeAndRemoveBookmark(range);
-        if (isFromSelection) {
-            this.setSelection(adjustedRange);
+        this._getRangeAndRemoveBookmark(range);
+        if (rangeIsFromSelection) {
+            this.setSelection(range);
         }
-
         return this;
     }
 
@@ -970,14 +977,28 @@ class Squire {
 
     getHTML(withBookmark?: boolean): string {
         let range: Range | undefined;
-        if (withBookmark) {
-            range = this.getSelection();
-            this._saveRangeToBookmark(range);
-        }
-        const html = this._getRawHTML().replace(/\u200B/g, '');
-        if (withBookmark) {
-            this._getRangeAndRemoveBookmark(range);
-        }
+        let html = '';
+        // Avoid triggering an "input" event from the DOM modifications when
+        // we get the HTML
+        this.modifyDocument(() => {
+            if (withBookmark) {
+                range = this.getSelection();
+                this._saveRangeToBookmark(range);
+            }
+            const resizeContainer = this._root.querySelector(
+                '.squire-image-resize-container',
+            );
+            if (resizeContainer) {
+                resizeContainer.remove();
+            }
+            html = this._getRawHTML().replace(/\u200B/g, '');
+            if (resizeContainer) {
+                this._root.appendChild(resizeContainer);
+            }
+            if (withBookmark) {
+                this._getRangeAndRemoveBookmark(range);
+            }
+        });
         return html;
     }
 
