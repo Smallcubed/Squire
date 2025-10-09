@@ -851,12 +851,13 @@ class Squire {
             // Get data
             const html = this._getRawHTML();
 
-            // If this document is above the configured size threshold,
-            // limit the number of saved undo states.
-            // Threshold is in bytes, JS uses 2 bytes per character
+            //  If we are replacing, bring the index back down to replace the current value
             if (replace) {
                 undoIndex -= 1;
             }
+            // If this document is above the configured size threshold,
+            // limit the number of saved undo states.
+            // Threshold is in bytes, JS uses 2 bytes per character
             if (undoThreshold > -1 && html.length * 2 > undoThreshold) {
                 if (undoLimit > -1 && undoIndex > undoLimit) {
                     undoStack.splice(0, undoIndex - undoLimit);
@@ -865,7 +866,8 @@ class Squire {
                 }
             }
 
-            // Save data
+            // Save data – the undoStackLength is still increased when 
+            //  replacing, in order to allow redo
             undoStack[undoIndex] = html;
             this._undoIndex = undoIndex;
             this._undoStackLength += 1;
