@@ -2541,12 +2541,12 @@ class Squire {
 
     // ---
 
-    increaseQuoteLevel(range?: Range): Squire {
+    increaseQuoteLevel(range?: Range, atts?: Object): Squire {
         this.modifyBlocks(
             (frag) =>
                 createElement(
                     'BLOCKQUOTE',
-                    this._config.tagAttributes.blockquote,
+                    atts ? atts : this._config.tagAttributes.blockquote,
                     [frag],
                 ),
             range,
