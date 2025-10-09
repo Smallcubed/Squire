@@ -47,6 +47,15 @@ import { Squire } from './Editor';
 class MavenEditor extends Squire {
     constructor(root: HTMLElement, config?: Partial<SquireConfig>) {
         super(root, config);
+        if (this._config.preventImageResizing) {
+            console.log("ImageResizer being nullified");
+            let resizer = this._imageResizer;
+            this._imageResizer = null;
+            if (resizer) {
+                resizer.destroy();
+            }
+        }
+        console.log("Current ImageResizer is: ", this._imageResizer);
     }
     
     //  Simple pass through functions
@@ -70,6 +79,7 @@ class MavenEditor extends Squire {
         var config = super._makeConfig(userConfig);
         const extendedConfig = {
             avoidSlashyReplacements: true,
+            preventImageResizing: true,
         }
         Object.assign(extendedConfig, config);
         return extendedConfig;
