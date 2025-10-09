@@ -14,6 +14,9 @@ import {
     rangeDoesEndAtBlockBoundary,
 } from './range/Block';
 import {
+    createRange,
+} from './range/InsertDelete';
+import {
     getNextBlock,
     getPreviousBlock,
     isEmptyBlock,
@@ -142,6 +145,26 @@ class MavenEditor extends Squire {
             }
 		    this._isInUndoState = false;
         }
+    }
+    
+    saveInitialUndoStack(): null {
+        const root = this._root;
+
+        // Reset the undo stack
+        this._undoIndex = -1;
+        this._undoStack.length = 0;
+        this._undoStackLength = 0;
+        this._isInUndoState = false;
+
+        // Record undo state
+        const range =
+            this._getRangeAndRemoveBookmark() ||
+            createRange(root.firstElementChild || root, 0);
+        this.saveUndoState(range);
+        
+        const data = this._undoStack[this._undoIndex];
+        console.log(`After Saving Initial undoStack info – length: ${this._undoStackLength}, index: ${this._undoIndex}\ndata (${data.length}): ${data}`);
+
     }
     
     //  Override of change format to adjust around tokens
