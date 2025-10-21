@@ -48,14 +48,12 @@ class MavenEditor extends Squire {
     constructor(root: HTMLElement, config?: Partial<SquireConfig>) {
         super(root, config);
         if (this._config.preventImageResizing) {
-            console.log("ImageResizer being nullified");
             let resizer = this._imageResizer;
             this._imageResizer = null;
             if (resizer) {
                 resizer.destroy();
             }
         }
-        console.log("Current ImageResizer is: ", this._imageResizer);
     }
     
     //  Simple pass through functions
@@ -172,9 +170,6 @@ class MavenEditor extends Squire {
             createRange(root.firstElementChild || root, 0);
         this.saveUndoState(range);
         
-        const data = this._undoStack[this._undoIndex];
-        console.log(`After Saving Initial undoStack info – length: ${this._undoStackLength}, index: ${this._undoIndex}\ndata (${data.length}): ${data}`);
-
     }
     
     //  Override of change format to adjust around tokens
