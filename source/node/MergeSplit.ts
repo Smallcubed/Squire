@@ -44,7 +44,7 @@ const fixCursor = (node: Node): Node => {
         }
     } else if (
         (node instanceof Element || node instanceof DocumentFragment) &&
-        !node.querySelector('BR') &&
+        !node.querySelector('BR') && !node.querySelector('IMG') &&
         !notWS.test(node.textContent || '')
     ) {
         fixer = createElement('BR');
