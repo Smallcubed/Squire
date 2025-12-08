@@ -904,7 +904,7 @@ class Squire {
             // Make sure any changes since last checkpoint are saved.
             this._recordUndoState(this.getSelection(), false);
             this._undoIndex -= 1;
-            this._setRawHTML(this._undoStack[this._undoIndex]);
+            this._setRawHTML(this._undoStack[this._undoIndex], false);
             const range = this._getRangeAndRemoveBookmark();
             if (range) {
                 this.setSelection(range);
@@ -951,7 +951,7 @@ class Squire {
         return this._root.innerHTML;
     }
 
-    _setRawHTML(html: string): Squire {
+    _setRawHTML(html: string, shouldFix: boolean = true): Squire {
         const root = this._root;
         root.innerHTML = html;
 
@@ -964,7 +964,7 @@ class Squire {
             } else {
                 node.appendChild(block);
             }
-        } else {
+        } else if (shouldFix) {
             while ((node = getNextBlock(node, root))) {
                 fixCursor(node);
             }
