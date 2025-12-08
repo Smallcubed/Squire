@@ -54,6 +54,15 @@ const _onKey = function (this: Squire, event: KeyboardEvent): void {
         modifiers += 'Shift-';
     }
     key = modifiers + key;
+    
+    //  Some text insertion tools end up giving chunks of content for the key, which loses newlines.
+    //  Test for these cases and just insert directly
+    if ((event.key.length > 1) && event.key.includes("\n")) {
+        event.preventDefault();
+        let newTextAsHTML = event.key.replace("\n", "<br>");
+        this.insertHTML(newTextAsHTML);
+        return;
+    }
 
     const range: Range = this.getSelection();
     const handler = this._keyHandlers[key];
