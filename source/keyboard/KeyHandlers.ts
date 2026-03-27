@@ -57,9 +57,10 @@ const _onKey = function (this: Squire, event: KeyboardEvent): void {
     
     //  Some text insertion tools end up giving chunks of content for the key, which loses newlines.
     //  Test for these cases and just insert directly
-    if ((event.key.length > 1) && event.key.includes("\n")) {
+    if ((event.key.length > 1) && (event.key.includes("\n") || event.key.includes("\u2028"))) {
         event.preventDefault();
-        let newTextAsHTML = event.key.replace("\n", "<br>");
+        let newTextAsHTML = event.key.replaceAll("\n", "<br>");
+        newTextAsHTML = newTextAsHTML.replaceAll("\u2028", "<br>");
         this.insertHTML(newTextAsHTML);
         return;
     }
